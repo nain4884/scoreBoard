@@ -23,7 +23,7 @@ AppDataSource.initialize()
   })
   .catch((error) => console.log(`Error in connection:${error}`));
 
-const getDataSource = (delay = 1000) => {
+const getDataSource = (delay = 3000) => {
   if (AppDataSource.isInitialized) return Promise.resolve(AppDataSource);
 
   return new Promise((resolve, reject) => {
