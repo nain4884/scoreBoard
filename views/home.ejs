@@ -1,12 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home</title>
 </head>
+
 <body>
-  <h1>Welcome to the Home Page!</h1>
-  <a href="/logout">Logout</a>
+  <style>
+    body {
+      margin: 0px;
+    }
+
+    .nav {
+      border-bottom: 1px solid black;
+      padding: 10px;
+    }
+
+    .matches-container {
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+    }
+
+    .match-box {
+      display: flex;
+      justify-content: space-between;
+      border: 1px solid black;
+      align-items: center;
+      padding: 10px 20px;
+    }
+  </style>
+  <div class="nav">
+    <a href="/logout">Logout</a>
+  </div>
+  <div class="matches-container">
+    <%match?.map((item)=>{%>
+    <div class="match-box">
+      <div class="match-name">
+        <h4><%= item?.name%></h4>
+      </div>
+      <div class="match-score-btn">
+        <button> Score</button>
+      </div>
+    </div>
+    <% }); %>
+  </div>
 </body>
+
 </html>

@@ -1,136 +1,197 @@
-const express = require('express');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const { createClient } = require('redis');
-const RedisStore = require('connect-redis').default;
-const { body, validationResult } = require('express-validator');
-const pg = require('pg');
+const express = require("express");
+const session = require("express-session");
+const bodyParser = require("body-parser");
+const { createClient } = require("redis");
+const RedisStore = require("connect-redis").default;
+const { body, validationResult } = require("express-validator");
+const path = require("path");
+const User = require("./models/User.entity");
+const getDataSource = require("./config/PostGresConnection");
+const catchAsyncErrors = require("./middleware/catchAsyncErrors");
+const MatchSchema = require("./models/Match.entity");
 
 const app = express();
 app.use(express.json());
 
-const path = require('path');
-
 const redisClient = createClient({
-    host: 'localhost',
-    port: 6379,
+  host: "localhost",
+  port: 6379,
 });
 redisClient.connect().catch(console.error);
 let redisStore = new RedisStore({
-    client: redisClient,
-});
-
-const pool = new pg.Pool({
-    user: 'fairgame',
-    host: 'localhost',
-    database: 'scoreboard',
-    password: 'root',
-    port: 5432,
+  client: redisClient,
 });
 
 app.use(
-    session({
-        store: redisStore,
-        secret: 'fairGameScore',
-        resave: false,
-        saveUninitialized: true,
-        cookie: {
-            secure: false,
-            maxAge: 1000*60*60     // 1000*60*60 = 1 hour
-        },
-    })
+  session({
+    store: redisStore,
+    secret: "fairGameScore",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      maxAge: 1000 * 60 * 60, // 1000*60*60 = 1 hour
+    },
+  })
 );
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
-    session({
-        store: redisClient,
-        secret: 'fairGame', // Change this to a secure secret key
-        resave: false,
-        saveUninitialized: true,
-        cookie: { secure: false } // Set secure to true in a production environment with HTTPS
-    })
+  session({
+    store: redisClient,
+    secret: "fairGame", // Change this to a secure secret key
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set secure to true in a production environment with HTTPS
+  })
 );
 
 // Routes and authentication logic go here
 
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
 
-app.get('/', (req, res) => {
-    res.redirect('home');
+app.get("/", (req, res) => {
+  res.redirect("home");
 });
 
-app.get('/login', (req, res) => {
-    res.render('login');
+app.get("/login", (req, res) => {
+  res.render("login");
 });
 
-app.post('/login', [
-    body('username').notEmpty().trim().escape(),
-    body('password').notEmpty().trim().escape(),
-], async (req, res) => {
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-        const { username, password } = req.body;
-
-        pool.query(
-            'SELECT * FROM users WHERE username = $1 AND password = $2',
-            [username, password],
-            (err, result) => {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).send('Internal Server Error');
-                }
-
-                if (result.rows.length > 0) {
-                    req.session.loggedIn = true;
-                    req.session.username = username;
-                    redisClient.hSet('123', { '12': '34' }).then(d => {
-                        console.log("value set in redis", d);
-                    }).catch(e => {
-                        console.log("error at redis ", e);
-                    })
-                    res.redirect('home');
-                } else {
-                    // return res.status(401).send('Invalid credentials');
-                    res.redirect('login');
-                }
-            }
-        );
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+app.post(
+  "/login",
+  [
+    body("username").notEmpty().trim().escape(),
+    body("password").notEmpty().trim().escape(),
+  ],
+  catchAsyncErrors(async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-});
+    const { username, password } = req.body;
 
-app.get('/home', (req, res) => {
-    if (req.session.loggedIn) {
-        res.render('home');
+    const AppDataSource = await getDataSource();
+    const userRepo = AppDataSource.getRepository(User);
+
+    const user = await userRepo
+      .createQueryBuilder("user")
+      .where("user.username = :username", { username })
+      .andWhere("user.password = :password", { password })
+      .getOne();
+
+    if (user) {
+      req.session.loggedIn = true;
+      req.session.username = username;
+      redisClient
+        .hSet("123", { "12": "34" })
+        .then((d) => {
+          console.log("value set in redis", d);
+        })
+        .catch((e) => {
+          console.log("error at redis ", e);
+        });
+      res.redirect("home");
     } else {
-        res.redirect('login');
+      return res.status(401).send("Invalid credentials");
+      // res.redirect("login");
     }
+  })
+);
+
+app.get("/register", (req, res) => {
+  res.render("register");
 });
 
-app.get('/logout', (req, res) => {
-    redisClient.hGetAll('123').then(d => {
-        console.log("value set in redis", d);
-    }).catch(e => {
-        console.log("error at redis ", e);
-    })
-    req.session.destroy(err => {
-        if (err) {
-            return res.send('Error logging out');
-        }
-        res.clearCookie('connect.sid'); // Clear the session cookie
-        res.redirect('login'); // Redirect to the login page
+app.post(
+  "/register",
+  [
+    body("username").notEmpty().trim().escape(),
+    body("password").notEmpty().trim().escape(),
+  ],
+  catchAsyncErrors(async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { username, password } = req.body;
+
+    const AppDataSource = await getDataSource();
+    const userRepo = AppDataSource.getRepository(User);
+
+    const newUser = userRepo.create({
+      username,
+      password,
     });
-});
+
+    // Save the new user to the database
+    const savedUser = await userRepo.save(newUser);
+
+    if (savedUser) {
+      res.redirect("login");
+    }
+  })
+);
+
+app.get(
+  "/home",
+  catchAsyncErrors(async (req, res, next) => {
+    if (req.session.loggedIn) {
+      const AppDataSource = new getDataSource();
+      const matchRepo = AppDataSource.getRepository(MatchSchema);
+
+      const match = matchRepo
+        .createQueryBuilder("match")
+        .getMany();
+
+        console.log(match);
+
+      res.render("home", {
+        match: [
+          {
+            name: "India vs Australia",
+          },
+          {
+            name: "England vs New Zealand",
+          },
+          {
+            name: "Bangladesh vs Sri Lanka",
+          },
+          {
+            name: "South Africa vs West Indies",
+          },
+        ],
+      });
+    } else {
+      res.redirect("login");
+    }
+  })
+);
+
+app.get(
+  "/logout",
+  catchAsyncErrors(async (req, res, next) => {
+    redisClient
+      .hGetAll("123")
+      .then((d) => {
+        console.log("value set in redis", d);
+      })
+      .catch((e) => {
+        console.log("error at redis ", e);
+      });
+    req.session.destroy((err) => {
+      if (err) {
+        return res.send("Error logging out");
+      }
+      res.clearCookie("connect.sid"); // Clear the session cookie
+      res.redirect("login"); // Redirect to the login page
+    });
+  })
+);
