@@ -150,27 +150,10 @@ app.get(
       const AppDataSource = await getDataSource();
       const matchRepo = AppDataSource.getRepository(MatchSchema);
 
-      const match = matchRepo
-        .createQueryBuilder("match")
-        .getMany();
-
-        console.log(match);
+      const match = await matchRepo.createQueryBuilder("match").getMany();
 
       res.render("home", {
-        match: [
-          {
-            name: "India vs Australia",
-          },
-          {
-            name: "England vs New Zealand",
-          },
-          {
-            name: "Bangladesh vs Sri Lanka",
-          },
-          {
-            name: "South Africa vs West Indies",
-          },
-        ],
+        match,
       });
     } else {
       res.redirect("login");
