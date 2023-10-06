@@ -6,17 +6,19 @@ const { createClient } = require("redis");
 const RedisStore = require("connect-redis").default;
 const { body, validationResult } = require("express-validator");
 const path = require("path");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 const User = require("./models/User.entity");
 const { getDataSource } = require("./config/PostGresConnection.js");
 const catchAsyncErrors = require("./middleware/catchAsyncErrors");
 const MatchSchema = require("./models/Match.entity");
 
-const ejs = require('ejs');
+const ejs = require("ejs");
+const { isAuthenticates } = require("./middleware/auth");
+const { default: axios } = require("axios");
 
 const app = express();
-app.use(cors({origin: "*"}));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 const redisClient = createClient({
@@ -44,23 +46,71 @@ app.use(
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(express.static(__dirname + "/public"));
 // Routes and authentication logic go here
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-app.get("/", (req, res) => {
-  res.redirect("layout/mainLayout", {
-    title: "Home",
-    body: ejs.renderFile("/pages/home.ejs"),
-  });
-});
+app.get(
+  "/",
+  isAuthenticates,
+  catchAsyncErrors(async (req, res, next) => {
+    if (req.session.loggedIn) {
+      const AppDataSource = await getDataSource();
+      const matchRepo = AppDataSource.getRepository(MatchSchema);
 
-app.get("/login", (req, res) => {
-  res.render("pages/login");
-});
+      const match = await matchRepo.createQueryBuilder("match").getMany();
+
+      const homeContent = await ejs.renderFile(__dirname + "/views/home.ejs", {
+        match,
+      });
+
+      res.render("layout/mainLayout", {
+        title: "Home",
+        body: homeContent,
+      });
+    } else {
+      res.redirect("login");
+    }
+  })
+);
+
+app.get(
+  "/addmatch",
+  isAuthenticates,
+  catchAsyncErrors(async (req, res, next) => {
+    const gameType = [
+      {
+        id: "1",
+        name: "Cricket",
+      },
+    ];
+
+    const addMatchContent = await ejs.renderFile(
+      __dirname + "/views/addMatch.ejs",
+      { gameType: gameType }
+    );
+
+    res.render("layout/mainLayout", {
+      title: "Add Match",
+      body: addMatchContent,
+    });
+  })
+);
+
+app.get(
+  "/login",
+  catchAsyncErrors(async (req, res, next) => {
+    const loginContent = await ejs.renderFile(__dirname + "/views/login.ejs");
+
+    res.render("layout/authLayout", {
+      title: "Login",
+      body: loginContent,
+    });
+  })
+);
 
 app.post(
   "/login",
@@ -83,11 +133,11 @@ app.post(
       .where("user.username = :username", { username })
       // .andWhere("user.password = :password", { password })
       .getOne();
-    
-    if(user){
+
+    if (user) {
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
-        res.status(401).send('Invalid credentials');
+        res.status(401).send("Invalid credentials");
         return;
       }
     }
@@ -103,7 +153,7 @@ app.post(
         .catch((e) => {
           console.log("error at redis ", e);
         });
-      res.redirect("home");
+      res.redirect("/");
     } else {
       return res.status(401).send("Invalid credentials");
       // res.redirect("login");
@@ -111,9 +161,19 @@ app.post(
   })
 );
 
-app.get("/register", (req, res) => {
-  res.render("pages/register");
-});
+app.get(
+  "/register",
+  catchAsyncErrors(async (req, res, next) => {
+    const registerContent = await ejs.renderFile(
+      __dirname + "/views/register.ejs"
+    );
+
+    res.render("layout/authLayout", {
+      title: "Register",
+      body: registerContent,
+    });
+  })
+);
 
 app.post(
   "/register",
@@ -149,24 +209,6 @@ app.post(
 );
 
 app.get(
-  "/home",
-  catchAsyncErrors(async (req, res, next) => {
-    if (req.session.loggedIn) {
-      const AppDataSource = await getDataSource();
-      const matchRepo = AppDataSource.getRepository(MatchSchema);
-
-      const match = await matchRepo.createQueryBuilder("match").getMany();
-
-      res.render("home", {
-        match,
-      });
-    } else {
-      res.redirect("login");
-    }
-  })
-);
-
-app.get(
   "/logout",
   catchAsyncErrors(async (req, res, next) => {
     redisClient
@@ -186,3 +228,6 @@ app.get(
     });
   })
 );
+
+
+

@@ -14,10 +14,12 @@ const UserSchema = new EntitySchema({
       type: 'varchar',
       nullable: false,
       unique: true,
+      name:"username"
     },
     password: {
       type: 'varchar',
       nullable: false,
+      name:"password"
     },
   },
 });
