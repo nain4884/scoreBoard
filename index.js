@@ -10,6 +10,8 @@ const getDataSource = require("./config/PostGresConnection");
 const catchAsyncErrors = require("./middleware/catchAsyncErrors");
 const MatchSchema = require("./models/Match.entity");
 
+const ejs = require('ejs');
+
 const app = express();
 app.use(express.json());
 
@@ -58,11 +60,14 @@ app.listen(PORT, () => {
 });
 
 app.get("/", (req, res) => {
-  res.redirect("home");
+  res.redirect("layout/mainLayout", {
+    title: "Home",
+    body: ejs.renderFile("/pages/home.ejs"),
+  });
 });
 
 app.get("/login", (req, res) => {
-  res.render("login");
+  res.render("pages/login");
 });
 
 app.post(
@@ -107,7 +112,7 @@ app.post(
 );
 
 app.get("/register", (req, res) => {
-  res.render("register");
+  res.render("pages/register");
 });
 
 app.post(
