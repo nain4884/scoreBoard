@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 CREATE TABLE IF NOT EXISTS public.match (
   "id" SERIAL PRIMARY KEY,
   "marketId" VARCHAR(255) UNIQUE NOT NULL,
-  "eventId" VARCHAR(255) UNIQUE NOT NULL,
+  "eventId" VARCHAR(255) NOT NULL,
   "competitionId" VARCHAR(255) NOT NULL,
   "competitionName" VARCHAR(255) NOT NULL,
   "gameType" VARCHAR(50) NOT NULL,

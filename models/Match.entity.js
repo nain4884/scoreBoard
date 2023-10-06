@@ -6,7 +6,7 @@ const MatchSchema = new EntitySchema({
   tableName: "match",
   columns: {
     id: {
-      type: "number",
+      type: Number,
       primary: true,
       generated: true,
     },
@@ -18,19 +18,16 @@ const MatchSchema = new EntitySchema({
     },
     eventId: {
       type: "varchar",
-      unique: true,
       nullable: false,
       name: "eventId",
     },
     competitionId: {
       type: "varchar",
-      unique: true,
       nullable: false,
       name: "competitionId",
     },
     competitionName: {
       type: "varchar",
-      unique: true,
       nullable: false,
       name: "competitionName",
     },
@@ -81,7 +78,7 @@ const MatchSchema = new EntitySchema({
       name: "overType"
     },
     noBallRun: {
-      type: "number",
+      type: Number,
       nullable: true,
       name: "noBallRun"
     },

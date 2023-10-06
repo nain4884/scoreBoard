@@ -6,12 +6,13 @@ const { createClient } = require("redis");
 const RedisStore = require("connect-redis").default;
 const { body, validationResult } = require("express-validator");
 const path = require("path");
-const bcrypt = require('bcrypt');
 
-const User = require("./models/User.entity");
-const { getDataSource } = require("./config/PostGresConnection.js");
+// const User = require("./models/User.entity");
+// const { getDataSource } = require("./config/PostGresConnection.js");
 const catchAsyncErrors = require("./middleware/catchAsyncErrors");
-const MatchSchema = require("./models/Match.entity");
+// const MatchSchema = require("./models/Match.entity");
+const controller = require('./controller');
+const isLoggedIn = require("./middleware/checkLogin");
 
 const app = express();
 app.use(cors({origin: "*"}));
@@ -60,7 +61,7 @@ app.get("/login", (req, res) => {
 app.post(
   "/login",
   [
-    body("username").notEmpty().trim().escape(),
+    body("userName").notEmpty().trim().escape(),
     body("password").notEmpty().trim().escape(),
   ],
   catchAsyncErrors(async (req, res, next) => {
@@ -68,41 +69,7 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { username, password } = req.body;
-
-    const AppDataSource = await getDataSource();
-    const userRepo = AppDataSource.getRepository(User);
-
-    const user = await userRepo
-      .createQueryBuilder("user")
-      .where("user.username = :username", { username })
-      // .andWhere("user.password = :password", { password })
-      .getOne();
-    
-    if(user){
-      const isValidPassword = await bcrypt.compare(password, user.password);
-      if (!isValidPassword) {
-        res.status(401).send('Invalid credentials');
-        return;
-      }
-    }
-
-    if (user) {
-      req.session.loggedIn = true;
-      req.session.username = username;
-      redisClient
-        .hSet("123", { "12": "34" })
-        .then((d) => {
-          console.log("value set in redis", d);
-        })
-        .catch((e) => {
-          console.log("error at redis ", e);
-        });
-      res.redirect("home");
-    } else {
-      return res.status(401).send("Invalid credentials");
-      // res.redirect("login");
-    }
+    controller.postLogin(req, res);
   })
 );
 
@@ -113,7 +80,7 @@ app.get("/register", (req, res) => {
 app.post(
   "/register",
   [
-    body("username").notEmpty().trim().escape(),
+    body("userName").notEmpty().trim().escape(),
     body("password").notEmpty().trim().escape(),
   ],
   catchAsyncErrors(async (req, res, next) => {
@@ -121,57 +88,20 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    let { username, password } = req.body;
-
-    const saltRounds = 10;
-    password = await bcrypt.hash(password, saltRounds);
-
-    const AppDataSource = await getDataSource();
-    const userRepo = AppDataSource.getRepository(User);
-
-    const newUser = userRepo.create({
-      username,
-      password,
-    });
-
-    // Save the new user to the database
-    const savedUser = await userRepo.save(newUser);
-
-    if (savedUser) {
-      res.redirect("login");
-    }
+    controller.postRegister(req, res);
   })
 );
 
 app.get(
-  "/home",
+  "/home", isLoggedIn,
   catchAsyncErrors(async (req, res, next) => {
-    if (req.session.loggedIn) {
-      const AppDataSource = await getDataSource();
-      const matchRepo = AppDataSource.getRepository(MatchSchema);
-
-      const match = await matchRepo.createQueryBuilder("match").getMany();
-
-      res.render("home", {
-        match,
-      });
-    } else {
-      res.redirect("login");
-    }
+    controller.getMatchList(req, res);
   })
 );
 
 app.get(
   "/logout",
   catchAsyncErrors(async (req, res, next) => {
-    redisClient
-      .hGetAll("123")
-      .then((d) => {
-        console.log("value set in redis", d);
-      })
-      .catch((e) => {
-        console.log("error at redis ", e);
-      });
     req.session.destroy((err) => {
       if (err) {
         return res.send("Error logging out");
@@ -181,3 +111,7 @@ app.get(
     });
   })
 );
+
+app.post("/addMatch", isLoggedIn, (req, res, next) => {
+  controller.addMatch(req, res);
+});
