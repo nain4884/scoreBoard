@@ -11,7 +11,8 @@
   .matches-container {
     display: flex;
     flex-direction: column;
-    gap: 50px;
+    gap: 20px;
+    margin-top: 20px;
   }
 
   .match-box {
@@ -20,20 +21,24 @@
     border: 1px solid black;
     align-items: center;
     padding: 10px 20px;
+    background-color: beige;
   }
 </style>
-<div class="nav">
-  <a href="/logout">Logout</a>
-</div>
-<div class="matches-container">
-  <%match?.map((item)=>{%>
-  <div class="match-box">
-    <div class="match-name">
-      <h4><%= item?.teamA%> vs <%=item?.teamB%></h4>
-    </div>
-    <div class="match-score-btn">
-      <button> Score</button>
-    </div>
+<div>
+  <div class="nav">
+    <a href="/logout">Logout</a>
   </div>
-  <% }); %>
+  <a href="/addmatch"><button class="m-2""> Add Match</button></a>
+  <div class=" matches-container">
+      <%match?.map((item)=>{%>
+      <div class="match-box">
+        <div class="match-name">
+          <h4><%= item?.teamA%> vs <%=item?.teamB%></h4>
+        </div>
+        <div class="match-score-btn">
+          <button> Score</button>
+        </div>
+      </div>
+      <% }); %>
+</div>
 </div>

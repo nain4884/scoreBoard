@@ -16,35 +16,35 @@
     <div class="row">
         <div class="col-md-12 card p-3">
             <h5>Add Match</h5>
-            <form action="/action_page.php" method="post" class="card p-3 mt-3">
+            <form class="card p-3 mt-3 was-validated">
                 <div class="row">
                     <div class="form-group col-md-2">
                         <label for="gameType">Game</label>
-                        <select class="form-control" id="gameType">
+                        <select class="form-control" id="gameType" required>
                             <% if (gameType.length === 0) { %>
-                                <option value="0">No Game Type</option>
+                            <option value="">No Game Type</option>
                             <% } else { %>
-                                <option value="0">Select game type</option>
-
-                                <% gameType.forEach((item) => { %>
-                                    <option value="<%= item.id %>"><%= item.name %></option>
-                                <% }); %>
+                            <option value="">Select game type</option>
+                            <% gameType.forEach((item) => { %>
+                            <option value="<%= item.id %>"><%= item.name %></option>
+                            <% }); %>
                             <% } %>
                         </select>
+                        <div class="invalid-feedback">Please select a game type.</div>
                     </div>
                     <div class="form-group col-md-2">
                         <label for="tournament">Tournament Name</label>
-                        <select class="form-control" id="tournament">
-                            <option value="0">No Tournament Found</option>
+                        <select class="form-control" id="tournament" required>
+                            <option value="">No Tournament Found</option>
                         </select>
+                        <div class="invalid-feedback">Please select a tournament.</div>
                     </div>
                     <div class="form-group col-md-2">
                         <label for="matchName">Match Name</label>
-                        <select class="form-control" id="matchName">
-                            <option value="1">FIFA World Cup</option>
-                            <option value="2">Indian Premier League</option>
-                            <option value="3">Australian Open</option>
+                        <select class="form-control" id="matchName" required>
+                            <option value="">No Match Found</option>
                         </select>
+                        <div class="invalid-feedback">Please select a match.</div>
                     </div>
                     <div class="form-group col-md-2">
                         <label for="teamA">Team A:</label>
@@ -56,26 +56,27 @@
                     </div>
                     <div class="form-group col-md-2">
                         <label for="teamC">Team C:</label>
-                        <input disabled type="text" class="form-control" id="teamC" placeholder="Enter team B name">
+                        <input disabled type="text" class="form-control" id="teamC" placeholder="Enter team C name">
                     </div>
                     <div class="form-group col-md-2">
                         <label for="startTime">Start Time:</label>
-                        <input disabled type="datetime-local" class="form-control" id="startTime"
-                            placeholder="Enter start time">
+                        <input disabled type="date" class="form-control" id="startTime" placeholder="Enter start time">
                     </div>
                     <div class="form-group col-md-2">
                         <label for="overBall">Over Ball</label>
-                        <select class="form-control" id="overBall">
+                        <select class="form-control" id="overBall" required>
                             <option value="1">5 over ball</option>
                             <option value="2">6 over ball</option>
                         </select>
+                        <div class="invalid-feedback">Please select the over ball.</div>
                     </div>
                     <div class="form-group col-md-2">
                         <label for="noBall">No Ball Run</label>
-                        <select class="form-control" id="noBall">
+                        <select class="form-control" id="noBall" required>
                             <option value="1">1</option>
                             <option value="2">2</option>
                         </select>
+                        <div class="invalid-feedback">Please select the no ball run.</div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Match</button>
@@ -83,5 +84,4 @@
         </div>
     </div>
 </div>
-
 <script src="/js/addMatch.js"></script>

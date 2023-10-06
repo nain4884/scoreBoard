@@ -18,19 +18,16 @@ const MatchSchema = new EntitySchema({
     },
     eventId: {
       type: "varchar",
-      unique: true,
       nullable: false,
       name: "eventId",
     },
     competitionId: {
       type: "varchar",
-      unique: true,
       nullable: false,
       name: "competitionId",
     },
     competitionName: {
       type: "varchar",
-      unique: true,
       nullable: false,
       name: "competitionName",
     },
