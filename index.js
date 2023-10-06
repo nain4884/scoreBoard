@@ -1,16 +1,20 @@
 const express = require("express");
+const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const { createClient } = require("redis");
 const RedisStore = require("connect-redis").default;
 const { body, validationResult } = require("express-validator");
 const path = require("path");
+const bcrypt = require('bcrypt');
+
 const User = require("./models/User.entity");
-const getDataSource = require("./config/PostGresConnection");
+const { getDataSource } = require("./config/PostGresConnection.js");
 const catchAsyncErrors = require("./middleware/catchAsyncErrors");
 const MatchSchema = require("./models/Match.entity");
 
 const app = express();
+app.use(cors({origin: "*"}));
 app.use(express.json());
 
 const redisClient = createClient({
@@ -37,21 +41,9 @@ app.use(
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(
-  session({
-    store: redisClient,
-    secret: "fairGame", // Change this to a secure secret key
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }, // Set secure to true in a production environment with HTTPS
-  })
-);
-
 // Routes and authentication logic go here
-
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
@@ -84,8 +76,16 @@ app.post(
     const user = await userRepo
       .createQueryBuilder("user")
       .where("user.username = :username", { username })
-      .andWhere("user.password = :password", { password })
+      // .andWhere("user.password = :password", { password })
       .getOne();
+    
+    if(user){
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        res.status(401).send('Invalid credentials');
+        return;
+      }
+    }
 
     if (user) {
       req.session.loggedIn = true;
@@ -121,7 +121,10 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { username, password } = req.body;
+    let { username, password } = req.body;
+
+    const saltRounds = 10;
+    password = await bcrypt.hash(password, saltRounds);
 
     const AppDataSource = await getDataSource();
     const userRepo = AppDataSource.getRepository(User);
@@ -144,7 +147,7 @@ app.get(
   "/home",
   catchAsyncErrors(async (req, res, next) => {
     if (req.session.loggedIn) {
-      const AppDataSource = new getDataSource();
+      const AppDataSource = await getDataSource();
       const matchRepo = AppDataSource.getRepository(MatchSchema);
 
       const match = matchRepo

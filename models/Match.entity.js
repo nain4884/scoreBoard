@@ -6,46 +6,57 @@ const MatchSchema = new EntitySchema({
   tableName: "match",
   columns: {
     id: {
-      type: Number,
+      type: "number",
       primary: true,
       generated: true,
     },
-    market_id: {
-      type: Number,
+    marketId: {
+      type: "varchar",
       unique: true,
-
       nullable: false,
-      name: "market_id",
+      name: "marketId",
     },
-    event_id: {
-      type: Number,
+    eventId: {
+      type: "varchar",
       unique: true,
       nullable: false,
-      name: "event_id",
+      name: "eventId",
+    },
+    competitionId: {
+      type: "varchar",
+      unique: true,
+      nullable: false,
+      name: "competitionId",
+    },
+    competitionName: {
+      type: "varchar",
+      unique: true,
+      nullable: false,
+      name: "competitionName",
     },
     gameType: {
       type: "varchar",
       length: 50,
       nullable: false,
-      name: "game_type",
+      name: "gameType",
     },
     teamA: {
       type: "varchar",
       length: 40,
       nullable: false,
-      name: "team_a",
+      name: "teamA",
     },
     teamB: {
       type: "varchar",
       length: 40,
       nullable: false,
-      name: "team_b",
+      name: "teamB",
     },
     teamC: {
       type: "varchar",
       length: 40,
       nullable: true,
-      name: "team_c",
+      name: "teamC",
     },
     title: {
       type: "varchar",
@@ -53,11 +64,26 @@ const MatchSchema = new EntitySchema({
       nullable: false,
       name: "title",
     },
-    start_date: {
+    startDate: {
       type: "timestamp",
       nullable: false,
-      name: "start_date",
+      name: "startDate",
       default: new Date(),
+    },
+    stopAt: {
+      type: "timestamp",
+      nullable: true,
+      name: "stopAt"
+    },
+    overType: {
+      type: "varchar",
+      nullable: true,
+      name: "overType"
+    },
+    noBallRun: {
+      type: "number",
+      nullable: true,
+      name: "noBallRun"
     },
   },
 });
