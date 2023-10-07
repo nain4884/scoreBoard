@@ -10,11 +10,11 @@ const UserSchema = new EntitySchema({
       primary: true,
       generated: true,
     },
-    username: {
+    userName: {
       type: 'varchar',
       nullable: false,
       unique: true,
-      name:"username"
+      name:"userName"
     },
     password: {
       type: 'varchar',

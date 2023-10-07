@@ -9,12 +9,12 @@ const MatchSchema = require("./models/Match.entity");
 const controller = {};
 
 controller.postLogin = async (req, res) => {
-  const { username, password } = req.body;
+  const { userName, password } = req.body;
   const AppDataSource = await getDataSource();
   const userRepo = AppDataSource.getRepository(User);
   const user = await userRepo
     .createQueryBuilder("user")
-    .where("user.username = :username", { username })
+    .where("user.userName = :userName", { userName })
     // .andWhere("user.password = :password", { password })
     .getOne();
   if (user) {
@@ -26,7 +26,7 @@ controller.postLogin = async (req, res) => {
   }
   if (user) {
     req.session.loggedIn = true;
-    req.session.username = username;
+    req.session.userName = userName;
     res.redirect("/");
   } else {
     return res.status(401).send("Invalid credentials");
@@ -34,13 +34,13 @@ controller.postLogin = async (req, res) => {
 };
 
 controller.postRegister = async (req, res) => {
-  let { username, password } = req.body;
+  let { userName, password } = req.body;
   const saltRounds = 10;
   password = await bcrypt.hash(password, saltRounds);
   const AppDataSource = await getDataSource();
   const userRepo = AppDataSource.getRepository(User);
   const newUser = userRepo.create({
-    username,
+    userName,
     password,
   });
   // Save the new user to the database

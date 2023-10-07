@@ -2,7 +2,7 @@
 
 CREATE TABLE IF NOT EXISTS public.users (
   "id" SERIAL PRIMARY KEY,
-  "username" VARCHAR(255) NOT NULL,
+  "userName" VARCHAR(255) NOT NULL,
   "password" VARCHAR(255) NOT NULL
 );
 

@@ -111,7 +111,7 @@ app.get(
 app.post(
   "/login",
   [
-    body("username").notEmpty().trim().escape(),
+    body("userName").notEmpty().trim().escape(),
     body("password").notEmpty().trim().escape(),
   ],
   catchAsyncErrors(async (req, res, next) => {
@@ -140,7 +140,7 @@ app.get(
 app.post(
   "/register",
   [
-    body("username").notEmpty().trim().escape(),
+    body("userName").notEmpty().trim().escape(),
     body("password").notEmpty().trim().escape(),
   ],
   catchAsyncErrors(async (req, res, next) => {
