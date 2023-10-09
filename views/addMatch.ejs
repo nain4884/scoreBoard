@@ -10,6 +10,16 @@
         left: 50%;
         transform: translate(-50%, -50%);
     }
+
+    @media screen  and (max-width: 768px) {
+        .add-match-container {
+        max-width: 100%;
+        position: relative;
+        top: 0%;
+        left:0%;
+        transform: translate(0%, 0%);
+    }
+    }
 </style>
 
 <div class="container add-match-container">
@@ -18,7 +28,7 @@
             <h5>Add Match</h5>
             <form class="card p-3 mt-3 was-validated">
                 <div class="row">
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="gameType">Game</label>
                         <select class="form-control" id="gameType" required>
                             <% if (gameType.length === 0) { %>
@@ -32,37 +42,37 @@
                         </select>
                         <div class="invalid-feedback">Please select a game type.</div>
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="tournament">Tournament Name</label>
                         <select class="form-control" id="tournament" required>
                             <option value="">No Tournament Found</option>
                         </select>
                         <div class="invalid-feedback">Please select a tournament.</div>
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="matchName">Match Name</label>
                         <select class="form-control" id="matchName" required>
                             <option value="">No Match Found</option>
                         </select>
                         <div class="invalid-feedback">Please select a match.</div>
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="teamA">Team A:</label>
                         <input disabled type="text" class="form-control" id="teamA" placeholder="Enter team A name">
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="teamB">Team B:</label>
                         <input disabled type="text" class="form-control" id="teamB" placeholder="Enter team B name">
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="teamC">Team C:</label>
                         <input disabled type="text" class="form-control" id="teamC" placeholder="Enter team C name">
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="startTime">Start Time:</label>
                         <input disabled type="date" class="form-control" id="startTime" placeholder="Enter start time">
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="overBall">Over Ball</label>
                         <select class="form-control" id="overBall" required>
                             <option value="5">5 over ball</option>
@@ -70,7 +80,7 @@
                         </select>
                         <div class="invalid-feedback">Please select the over ball.</div>
                     </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-4">
                         <label for="noBall">No Ball Run</label>
                         <select class="form-control" id="noBall" required>
                             <option value="1">1</option>

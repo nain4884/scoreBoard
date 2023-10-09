@@ -58,7 +58,7 @@ app.get(
     const AppDataSource = await getDataSource();
     const matchRepo = AppDataSource.getRepository(MatchSchema);
 
-    const match = await matchRepo.createQueryBuilder("match").getMany();
+    const match = await matchRepo.createQueryBuilder("match").orderBy('match.startDate', 'DESC').getMany();
 
     const homeContent = await ejs.renderFile(__dirname + "/views/home.ejs", {
       match,
