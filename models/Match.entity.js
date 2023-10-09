@@ -83,6 +83,13 @@ const MatchSchema = new EntitySchema({
       name: "noBallRun"
     },
   },
+  indices: [
+    {
+      name: 'match_marketId',
+      unique: true, // Optional: Set to true if you want a unique index
+      columns: ['marketId', 'gameType'],
+    }
+  ],
 });
 
 module.exports = MatchSchema;

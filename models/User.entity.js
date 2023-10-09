@@ -22,6 +22,13 @@ const UserSchema = new EntitySchema({
       name:"password"
     },
   },
+  indices: [
+    {
+      name: 'idx_userName',
+      unique: true, // Optional: Set to true if you want a unique index
+      columns: ['id', 'userName'],
+    }
+  ],
 });
 
 module.exports = UserSchema;
