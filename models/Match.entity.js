@@ -65,7 +65,7 @@ const MatchSchema = new EntitySchema({
       type: "timestamp",
       nullable: false,
       name: "startDate",
-      default: new Date(),
+      default: () => "CURRENT_TIMESTAMP",
     },
     stopAt: {
       type: "timestamp",
