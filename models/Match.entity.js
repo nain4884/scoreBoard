@@ -82,6 +82,11 @@ const MatchSchema = new EntitySchema({
       nullable: true,
       name: "noBallRun"
     },
+    currentInning: {
+      type: Number,
+      nullable: true,
+      name: "currentInning"
+    },
   },
   indices: [
     {

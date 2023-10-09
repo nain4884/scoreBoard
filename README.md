@@ -2,7 +2,7 @@
 
 ```bash
 # to generate the migrtioan
-$ typeorm migration:generate -d ./orm.config.js -o ./migrations/migration
+$ typeorm migration:generate -d ./orm.config.js -o ./migrations/<migration name>
 
 # to run the migration
 $ typeorm migration:run -d ./orm.config.js

@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
-const { createClient } = require("redis");
 const RedisStore = require("connect-redis").default;
 const { body, validationResult } = require("express-validator");
 const path = require("path");
@@ -16,18 +15,16 @@ const isLoggedIn = require("./middleware/checkLogin");
 const ejs = require("ejs");
 const { isAuthenticates } = require("./middleware/auth");
 const { getDataSource } = require("./config/PostGresConnection");
+const scoreController = require('./controller/scoreController');
 
 const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-const redisClient = createClient({
-  host: "localhost",
-  port: 6379,
-});
-redisClient.connect().catch(console.error);
+const redis = require('./config/redisConnection');
+
 let redisStore = new RedisStore({
-  client: redisClient,
+  client: redis,
 });
 
 app.use(
@@ -53,6 +50,7 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
+app.use('/score', scoreController);
 app.get(
   "/",
   isAuthenticates,

@@ -30,6 +30,9 @@ const ScoreInning = new EntitySchema({
         teamB: {
             type: "varchar", length: 40, nullable: false, name: "teamB",
         },
+        teamName: {
+            type: "varchar", length: 40, nullable: false, name: "teamName",
+        },
         title: {
             type: "varchar", length: 50, nullable: false, name: "title",
         },
