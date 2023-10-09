@@ -20,25 +20,33 @@
     justify-content: space-between;
     border: 1px solid black;
     align-items: center;
-    padding: 10px 20px;
     background-color: beige;
+  }
+
+  .match-name {
+    background-image: linear-gradient(-45deg, #262626 50%, #262626, #f1c550, #f1c550 50%);
+    width: 100%;
+    padding: 5px;
+    color: #262626;
+    cursor: pointer;
   }
 </style>
 <div>
   <div class="nav">
     <a href="/logout">Logout</a>
   </div>
-  <a href="/addmatch"><button class="m-2""> Add Match</button></a>
+  <a href="/addmatch"><button class="m-2"> Add Match</button></a>
   <div class=" matches-container">
-      <%match?.map((item)=>{%>
-      <div class="match-box">
-        <div class="match-name">
-          <h4><%= item?.teamA%> vs <%=item?.teamB%></h4>
-        </div>
-        <div class="match-score-btn">
-          <button> Score</button>
-        </div>
+    <%match?.map((item)=>{%>
+    <div class="match-box">
+      <div class="match-name">
+        <b><%= item?.title%></b>
+        <span>
+          (<%=new Date(item?.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })%>)
+        </span>
       </div>
-      <% }); %>
-</div>
+     
+    </div>
+    <% }); %>
+  </div>
 </div>

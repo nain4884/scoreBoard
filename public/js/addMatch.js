@@ -23,8 +23,14 @@ async function fetchCompititionList() {
     if (data) {
       tournament.innerHTML = "";
 
+      let optionElement = new Option(
+        "Select tournament",
+        ""
+      );
+      tournament.appendChild(optionElement);
+
       data?.forEach((option) => {
-        const optionElement = new Option(
+         optionElement = new Option(
           option.competition.name,
           option.competition.id
         );
@@ -49,8 +55,14 @@ async function fetchEventList(id) {
     if (data) {
       matchType.innerHTML = "";
 
+      let optionElement = new Option(
+        "Select match type",
+        ""
+      );
+      matchType.appendChild(optionElement);
+
       data?.forEach((option) => {
-        const optionElement = new Option(
+         optionElement = new Option(
           option.event.name,
           JSON.stringify(option)
         );
@@ -121,7 +133,7 @@ form.onsubmit = async (e) => {
       teamB: teamB.value,
       teamC: teamC.value,
       title: selectedMatch?.event?.name,
-      startAt: new Date(startTime.value),
+      startAt: new Date(selectedMatch?.marketStartTime),
       overType: overBall.value,
       noBallRun: noBall.value,
     }),
