@@ -4,8 +4,11 @@ const redis = require('./../config/redisConnection');
 const MatchSchema = require("./../models/Match.entity");
 const ScoreInning = require("./../models/ScoreInning.entity");
 const { getDataSource } = require("./../config/PostGresConnection.js");
+const catchAsyncErrors = require('../middleware/catchAsyncErrors');
+const ejs = require("ejs");
 
-app.get('/getMatchScore/:marketId', async (req, res, next) => {
+
+app.get('/getMatchScore/:marketId',catchAsyncErrors( async (req, res, next) => {
     const marketId = req.params.marketId;
     if (!marketId) {
         return res.status(500).send('Please send the market id for match.');
@@ -131,6 +134,7 @@ app.get('/getMatchScore/:marketId', async (req, res, next) => {
                 { inn2TeamName, inn2Score, inn2over, inn2overRuns, inn2crr, inn2rrr, inn2Striker, inn2NonStriker, inn2Bowler, inn2BowlerType, inn2Message, inn2LastOver }
             ]
         }
+
         res.json(jsonObj);
         return;
     } else {
@@ -235,6 +239,16 @@ app.get('/getMatchScore/:marketId', async (req, res, next) => {
         res.send(file);
         return;
     }
-});
+}));
+
+
+app.get("/add/:marketId",catchAsyncErrors( async (req, res, next) => {
+    const scoreContent = await ejs.renderFile(__dirname + "/../views/addScore.ejs");
+  
+      res.render("layout/mainLayout", {
+        title: "Score",
+        body: scoreContent,
+      });
+}));
 
 module.exports = app;

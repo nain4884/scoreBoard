@@ -16,8 +16,6 @@
   }
 
   .match-box {
-    display: flex;
-    justify-content: space-between;
     border: 1px solid black;
     align-items: center;
     background-color: beige;
@@ -45,7 +43,10 @@
           (<%=new Date(item?.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })%>)
         </span>
       </div>
-     
+      <button onclick="window.location.replace('/score/add/<%= item?.marketId %>')">
+        score
+      </button>
+      
     </div>
     <% }); %>
   </div>
