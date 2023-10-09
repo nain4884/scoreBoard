@@ -31,7 +31,7 @@ const ScoreInning = new EntitySchema({
             type: "varchar", length: 50, nullable: false, name: "title",
         },
         startDate: {
-            type: "timestamp", nullable: false, name: "startDate", default: new Date(),
+            type: "timestamp", nullable: false, name: "startDate", default: () => "CURRENT_TIMESTAMP",
         },
         stopAt: {
             type: "timestamp", nullable: true, name: "stopAt"
