@@ -24,12 +24,6 @@ const ScoreInning = new EntitySchema({
         gameType: {
             type: "varchar", length: 50, nullable: false, name: "gameType",
         },
-        teamA: {
-            type: "varchar", length: 40, nullable: false, name: "teamA",
-        },
-        teamB: {
-            type: "varchar", length: 40, nullable: false, name: "teamB",
-        },
         teamName: {
             type: "varchar", length: 40, nullable: false, name: "teamName",
         },
@@ -53,6 +47,9 @@ const ScoreInning = new EntitySchema({
         },
         overRuns: {
             type: "varchar", nullable: true, length: 50, name: "overRuns"
+        },
+        wicket: {
+            type: Number, nullable: false, default: 0, name: "wicket"
         },
         crr: {
             type: "decimal", nullable: false, name: "crr", default: 0.0, precision: 5, scale: 2, transformer: new ColumnNumericTransformer()
