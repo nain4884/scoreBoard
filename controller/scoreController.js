@@ -325,7 +325,7 @@ app.post('/updatePlayer', async (req, res, next)=>{
         redisObj = { score:0, over:0, wicket:0, overRuns:'', crr:0, rrr:0, striker:'', nonStriker:'', bowler:'', bowlerType:'', teamName:matchDetails.teamA, message:'', lastOver:'' }
         const newMatch = scoreInningRepo.create(redisObj);
         newMatch.inningNumber = 1; newMatch.marketId = marketId;
-        newMatch.title = matchDetails.title; newMatch.startDate = new Date(matchDetails.startDate);
+        newMatch.title = matchDetails.title; newMatch.startDate = new Date();
         newMatch.gameType = 'Cricket';
         await scoreInningRepo.save(newMatch);
       }
@@ -344,7 +344,7 @@ app.post('/updatePlayer', async (req, res, next)=>{
         redisObj = { score:0, over:0, wicket:0, overRuns:'', crr:0, rrr:0, striker:'', nonStriker:'', bowler:'', bowlerType:'', teamName:matchDetails.teamB, message:'', lastOver:'' }
         const newMatch = scoreInningRepo.create(redisObj);
         newMatch.inningNumber = 2; newMatch.marketId = marketId;
-        newMatch.title = matchDetails.title; newMatch.startDate = new Date(matchDetails.startDate);
+        newMatch.title = matchDetails.title; newMatch.startDate = new Date();
         newMatch.gameType = 'Cricket';
         await scoreInningRepo.save(newMatch);
       }
@@ -362,13 +362,39 @@ app.post('/updatePlayer', async (req, res, next)=>{
   if(playerType == 'bowlerType'){
     redisObj.bowlerType = playerName;
   }
+  if(playerType == 'message'){
+    redisObj.message = playerName;
+  }
   if(inningNumber == 1){
     await redisClient.hSet(marketId + 'Inning1', redisObj);
   } else {
     await redisClient.hSet(marketId + 'Inning2', redisObj);
   }
   scoreInningRepo.update({marketId: marketId, inningNumber: inningNumber}, redisObj);
-  res.json(redisObj);
+  return res.json(redisObj);
+});
+
+app.post('/changeInning', async (req, res, nest) => {
+  let { marketId, inningNumber } = req.body;
+  if(!marketId){
+    return res.status(500).send('marketId not found.');
+  }
+  const AppDataSource = await getDataSource();
+  const matchRepo = AppDataSource.getRepository(MatchSchema);
+
+  let match = await matchRepo.findOne({
+    where: { marketId: marketId },
+  });
+  if (!match) {
+    return res.status(500).send("Match not Found.");
+  }
+  match.currentInning = inningNumber;
+  matchRepo.save(match);
+  let isRedis = await redisClient.hGet(marketId, 'currentInning');
+  if(isRedis){
+    await redisClient.hSet(marketId, "currentInning", inningNumber);
+  }
+  return res.send("Inning change success.");
 });
 
 module.exports = app;

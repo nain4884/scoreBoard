@@ -19,7 +19,7 @@ const ScoreInning = new EntitySchema({
             type: Number, primary: true, generated: true,
         },
         marketId: {
-            type: "varchar", unique: true, nullable: false, name: "marketId", length: 40
+            type: "varchar", nullable: false, name: "marketId", length: 40
         },
         gameType: {
             type: "varchar", length: 50, nullable: false, name: "gameType",
@@ -80,7 +80,7 @@ const ScoreInning = new EntitySchema({
         {
           name: 'scoreInning_marketId',
           unique: true, // Optional: Set to true if you want a unique index
-          columns: ['marketId', 'gameType'],
+          columns: ['marketId', 'inningNumber'],
         }
       ],
 });
