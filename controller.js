@@ -94,6 +94,7 @@ controller.addMatch = async (req, res) => {
   matchObj.title = body.title;
   matchObj.startAt = new Date(body.startAt);
   matchObj.overType = body.overType;
+  matchObj.totalOver = body.totalOver;
   matchObj.noBallRun = body.noBallRun;
 
   const newMatch = matchRepo.create(matchObj);
@@ -127,7 +128,7 @@ function checkCricketRequiredFileds(body) {
 
 controller.getMatchById = async (req, res) => {
   const marketId = req.params.marketId;
-  let gameType, teamA, teamB, title, stopAt, startDate, currentInning;
+  let gameType, teamA, teamB, title, stopAt, startDate, currentInning, overType, totalOver, noBallRun;
   let matchDetails = await redisClient.hGetAll(marketId);
   if (matchDetails && Object.keys(matchDetails).length) {
       gameType = matchDetails.gameType;
@@ -136,6 +137,9 @@ controller.getMatchById = async (req, res) => {
       title = matchDetails.title;
       stopAt = matchDetails.stopAt;
       startDate = matchDetails.startDate;
+      overType = matchDetails.overType;
+      noBallRun = matchDetails.noBallRun;
+      totalOver = matchDetails.totalOver;
       currentInning = matchDetails.currentInning || 1;
   } else {
     const AppDataSource = await getDataSource();
@@ -153,9 +157,13 @@ controller.getMatchById = async (req, res) => {
       title = matchDetails.title;
       stopAt = matchDetails.stopAt;
       startDate = matchDetails.startDate;
+      overType = matchDetails.overType;
+      noBallRun = matchDetails.noBallRun;
+      totalOver = matchDetails.totalOver;
       currentInning = matchDetails.currentInning || 1;
       let redisObj = {
-          gameType: gameType, teamA: teamA, teamB: teamB, title: title, currentInning: currentInning, startDate: startDate.toString()
+          gameType: gameType, teamA: teamA, teamB: teamB, title: title, currentInning: currentInning, startDate: startDate.toString(),
+          overType: overType, noBallRun: noBallRun, totalOver: totalOver
       }
       if (stopAt) {
           redisObj.stopAt = stopAt.toString();
@@ -163,7 +171,7 @@ controller.getMatchById = async (req, res) => {
       await redisClient.hSet(marketId, redisObj);
   }
   
-  return res.json({gameType, teamA, teamB, title, stopAt, startDate, currentInning});
+  return res.json({gameType, teamA, teamB, title, stopAt, startDate, overType, noBallRun, currentInning, totalOver});
 }
 
 module.exports = controller;
