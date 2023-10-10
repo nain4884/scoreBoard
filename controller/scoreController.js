@@ -118,6 +118,7 @@ app.get('/getMatchScore/:marketId',catchAsyncErrors( async (req, res, next) => {
                 .createQueryBuilder("scoreInning")
                 .where("scoreInning.marketId = :marketId and scoreInning.inningNumber = 2", { marketId })
                 .getOne();
+            if(!scoreInning) scoreInning = {}
             inn2Score = scoreInning.score || inn2Score;
             inn2over = scoreInning.over || inn2over;
             inn2Wicket = scoreInning.wicket || inn2Wicket;
@@ -286,7 +287,6 @@ app.get('/getMatchScore/:marketId',catchAsyncErrors( async (req, res, next) => {
 
 app.get("/add/:marketId",catchAsyncErrors( async (req, res, next) => {
     const scoreContent = await ejs.renderFile(__dirname + "/../views/addScore.ejs");
-  
       res.render("layout/mainLayout", {
         title: "Score",
         body: scoreContent,
@@ -296,4 +296,79 @@ app.get("/add/:marketId",catchAsyncErrors( async (req, res, next) => {
 app.get("/",catchAsyncErrors( async (req, res, next) => {
       res.render("score.ejs");
 }));
+
+app.post('/updatePlayer', async (req, res, next)=>{
+  let { marketId, playerType, playerName, inningNumber } = req.body;
+  if(!marketId){
+    return res.status(500).send('marketId not found.');
+  }
+  if(!inningNumber){
+    return res.status(500).send('Inning number not found.');
+  }
+  if(!playerType){
+    return res.status(500).send('playerType not found.');
+  }
+  let redisObj;
+  const AppDataSource = await getDataSource();
+  const scoreInningRepo = AppDataSource.getRepository(ScoreInning);
+  if(inningNumber == 1){
+    redisObj = await redisClient.hGetAll(marketId + 'Inning1');
+    if(!redisObj || !Object.keys(redisObj).length){
+      let scoreInning = await scoreInningRepo
+      .createQueryBuilder("scoreInning")
+      .where("scoreInning.marketId = :marketId and scoreInning.inningNumber = 1", { marketId })
+      .getOne();
+      if(scoreInning){
+        redisObj = { score:scoreInning.score, over:scoreInning.over, wicket:scoreInning.wicket, overRuns:scoreInning.overRuns, crr:scoreInning.crr, rrr:scoreInning.rrr, striker:scoreInning.striker, nonStriker:scoreInning.nonStriker, bowler:scoreInning.bowler, bowlerType:scoreInning.bowlerType, teamName:scoreInning.teamName, message:scoreInning.message, lastOver: scoreInning.lastOver }
+      } else {
+        let matchDetails = await redisClient.hGetAll(marketId);
+        redisObj = { score:0, over:0, wicket:0, overRuns:'', crr:0, rrr:0, striker:'', nonStriker:'', bowler:'', bowlerType:'', teamName:matchDetails.teamA, message:'', lastOver:'' }
+        const newMatch = scoreInningRepo.create(redisObj);
+        newMatch.inningNumber = 1; newMatch.marketId = marketId;
+        newMatch.title = matchDetails.title; newMatch.startDate = new Date(matchDetails.startDate);
+        newMatch.gameType = 'Cricket';
+        await scoreInningRepo.save(newMatch);
+      }
+    }
+  } else {
+    redisObj = await redisClient.hGetAll(marketId + 'Inning2');
+    if(!redisObj || !Object.keys(redisObj).length){
+      let scoreInning = await scoreInningRepo
+      .createQueryBuilder("scoreInning")
+      .where("scoreInning.marketId = :marketId and scoreInning.inningNumber = 2", { marketId })
+      .getOne();
+      if(scoreInning){
+        redisObj = { score:scoreInning.score, over:scoreInning.over, wicket:scoreInning.wicket, overRuns:scoreInning.overRuns, crr:scoreInning.crr, rrr:scoreInning.rrr, striker:scoreInning.striker, nonStriker:scoreInning.nonStriker, bowler:scoreInning.bowler, bowlerType:scoreInning.bowlerType, teamName:scoreInning.teamName, message:scoreInning.message, lastOver: scoreInning.lastOver }
+      } else {
+        let matchDetails = await redisClient.hGetAll(marketId);
+        redisObj = { score:0, over:0, wicket:0, overRuns:'', crr:0, rrr:0, striker:'', nonStriker:'', bowler:'', bowlerType:'', teamName:matchDetails.teamB, message:'', lastOver:'' }
+        const newMatch = scoreInningRepo.create(redisObj);
+        newMatch.inningNumber = 2; newMatch.marketId = marketId;
+        newMatch.title = matchDetails.title; newMatch.startDate = new Date(matchDetails.startDate);
+        newMatch.gameType = 'Cricket';
+        await scoreInningRepo.save(newMatch);
+      }
+    }
+  }
+  if(playerType == 'striker'){
+    redisObj.striker = playerName;
+  }
+  if(playerType == 'nonStriker'){
+    redisObj.nonStriker = playerName;
+  }
+  if(playerType == 'bowler'){
+    redisObj.bowler = playerName;
+  }
+  if(playerType == 'bowlerType'){
+    redisObj.bowlerType = playerName;
+  }
+  if(inningNumber == 1){
+    await redisClient.hSet(marketId + 'Inning1', redisObj);
+  } else {
+    await redisClient.hSet(marketId + 'Inning2', redisObj);
+  }
+  scoreInningRepo.update({marketId: marketId, inningNumber: inningNumber}, redisObj);
+  res.json(redisObj);
+});
+
 module.exports = app;
