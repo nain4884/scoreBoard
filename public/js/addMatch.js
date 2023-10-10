@@ -8,6 +8,7 @@ const teamC = document.getElementById("teamC");
 const startTime = document.getElementById("startTime");
 const overBall = document.getElementById("overBall");
 const noBall = document.getElementById("noBall");
+const overs = document.getElementById("overs");
 const form = document.querySelector("form");
 
 async function fetchCompititionList() {
@@ -136,6 +137,7 @@ form.onsubmit = async (e) => {
       startAt: new Date(selectedMatch?.marketStartTime),
       overType: overBall.value,
       noBallRun: noBall.value,
+      totalOver:overs.value
     }),
   });
 
