@@ -1,10 +1,10 @@
 // Controller.js
-
 const bcrypt = require("bcrypt");
 const User = require("./models/User.entity");
 const { getDataSource } = require("./config/PostGresConnection.js");
 const catchAsyncErrors = require("./middleware/catchAsyncErrors");
 const MatchSchema = require("./models/Match.entity");
+const redisClient = require('./config/redisConnection');
 
 const controller = {};
 
@@ -123,6 +123,47 @@ function checkCricketRequiredFileds(body) {
       return true;
     }
   });
+}
+
+controller.getMatchById = async (req, res) => {
+  const marketId = req.params.marketId;
+  let gameType, teamA, teamB, title, stopAt, startDate, currentInning;
+  let matchDetails = await redisClient.hGetAll(marketId);
+  if (matchDetails && Object.keys(matchDetails).length) {
+      gameType = matchDetails.gameType;
+      teamA = matchDetails.teamA;
+      teamB = matchDetails.teamB;
+      title = matchDetails.title;
+      stopAt = matchDetails.stopAt;
+      startDate = matchDetails.startDate;
+      currentInning = matchDetails.currentInning || 1;
+  } else {
+    const AppDataSource = await getDataSource();
+      const matchRepo = AppDataSource.getRepository(MatchSchema);
+      let matchDetails = await matchRepo
+          .createQueryBuilder("match")
+          .where({ marketId })
+          .getOne();
+      if(!matchDetails){
+          return res.status(500).send('Match not found.');
+      }
+      gameType = matchDetails.gameType;
+      teamA = matchDetails.teamA;
+      teamB = matchDetails.teamB;
+      title = matchDetails.title;
+      stopAt = matchDetails.stopAt;
+      startDate = matchDetails.startDate;
+      currentInning = matchDetails.currentInning || 1;
+      let redisObj = {
+          gameType: gameType, teamA: teamA, teamB: teamB, title: title, currentInning: currentInning, startDate: startDate.toString()
+      }
+      if (stopAt) {
+          redisObj.stopAt = stopAt.toString();
+      }
+      await redisClient.hSet(marketId, redisObj);
+  }
+  
+  return res.json({gameType, teamA, teamB, title, stopAt, startDate, currentInning});
 }
 
 module.exports = controller;

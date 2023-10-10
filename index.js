@@ -166,3 +166,6 @@ app.get(
 app.post("/addMatch", isLoggedIn, (req, res, next) => {
   controller.addMatch(req, res);
 });
+app.get("/getMatchById/:marketId", isLoggedIn, (req, res, next) => {
+  controller.getMatchById(req, res);
+});
