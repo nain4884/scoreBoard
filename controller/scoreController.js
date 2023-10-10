@@ -4,8 +4,11 @@ const redisClient = require('./../config/redisConnection');
 const MatchSchema = require("./../models/Match.entity");
 const ScoreInning = require("./../models/ScoreInning.entity");
 const { getDataSource } = require("./../config/PostGresConnection.js");
+const catchAsyncErrors = require('../middleware/catchAsyncErrors');
+const ejs = require("ejs");
 
-app.get('/getMatchScore/:marketId', async (req, res, next) => {
+
+app.get('/getMatchScore/:marketId',catchAsyncErrors( async (req, res, next) => {
     const marketId = req.params.marketId;
     if (!marketId) {
         return res.status(500).send('Please send the market id for match.');
@@ -145,112 +148,152 @@ app.get('/getMatchScore/:marketId', async (req, res, next) => {
                 { inn2TeamName, inn2Score, inn2over, inn2overRuns, inn2crr, inn2rrr, inn2Striker, inn2NonStriker, inn2Bowler, inn2BowlerType, inn2Message, inn2LastOver }
             ]
         }
+
         res.json(jsonObj);
         return;
     } else {
         let file = `<style>
         .container {
-            background: linear-gradient(0deg, rgb(0 0 0 / 39%), rgb(0 0 0 / 30%)), url("./background.webp");
-            background-repeat: no-repeat;
-            background-size: cover;
-            margin-right: auto;
-            margin-left: auto;
-            color: white;
-            height: 80px;
-            align-items: center;
-            display: flex;
-            justify-content: space-between;
-            background-position: bottom;
-            position: relative;
-            padding: 1% 5%;
-            overflow: hidden;
+          background: linear-gradient(0deg, rgb(0 0 0 / 60%), rgb(0 0 0 / 60%)), url("https://www.stageandscreen.travel/sites/default/files/styles/large/public/LP%20-%20Cricket%20Australia.jpg?itok=dStxvjPW");
+          background-repeat: no-repeat;
+          background-size: cover;
+          margin-right: auto;
+          margin-left: auto;
+          color: white;
+          height: 80px;
+          align-items: center;
+          display: flex;
+          justify-content: space-between;
+          background-position: bottom;
+          position: relative;
+          padding: 1% 5%;
+          overflow: hidden;
         }
+      
         .score-container {
-            font-weight: bold;
+          font-weight: bold;
+          text-align: center;
+          font-size: 0.9em;
         }
-    
+      
         .ball-info {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            top: 5%;
-            left: 1%;
-            font-size: 1.2em;
-            animation: text-animate 3s ease-out infinite;
-            transform: translate(-50%, -50%)
+          position: absolute;
+          width: 100%;
+          text-align: center;
+          top: 5%;
+          left: 1%;
+          font-size: 1.2em;
+          animation: text-animate 3s ease-out infinite;
+          transform: translate(-50%, -50%)
         }
-    
+      
+        .over-run {
+          position: absolute;
+          width: 100%;
+          text-align: center;
+          bottom: 5%;
+          left: 1%;
+        }
+      
         @keyframes text-animate {
-            0% {
-                transform: scale(1);
-            }
-    
-            50% {
-                transform: scale(1.25);
-            }
-    
-            100% {
-                transform: scale(1);
-            }
+          0% {
+            transform: scale(1);
+          }
+      
+          50% {
+            transform: scale(1.25);
+          }
+      
+          100% {
+            transform: scale(1);
+          }
         }
-    
+      
+        .striker {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          font-size: 0.8em;
+        }
+      
+        .bowler {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          font-size: 0.8em;
+        }
+      
         @media only screen and (max-width: 767px) {
-            .container {
-                height: 105px !important;
-                padding: 0px;
-            }
-    
-            .score-container {
-                width: 30%;
-                text-align: center;
-                font-size: 0.8em;
-            }
+          .container {
+            height: 105px !important;
+            padding: 0px;
+          }
+      
+          .score-container {
+            width: 30%;
+            text-align: center;
+            font-size: 0.8em;
+          }
         }
-    </style>
-    
-    <div class="container">
-        <div>
-            Striker: ${striker}, Non-Striker: ${nonStriker}
+      </style>
+      
+      <div class="container">
+        <div class="striker">
+          Striker: ${striker}, Non-Striker: ${nonStriker}
         </div>
         <div class="ball-info">
-            ${currentInning == '2' ? inn2Message : inn1Message}
+          ${parseInt(currentInning) == 2 ? inn2Message : inn1Message}
         </div>
-        <div>
-            Bowler: ${bowler}(${bowlerType})
-        </div>
-        <div class="score-container">
-            <div>
-                ${inn1TeamName}
-            </div>
-            <div>
-                <span>${inn1Score}/${inn1Wicket}</span> <span>${inn1over}</span>
-            </div>
-            <div>
-                CRR : ${inn1crr} | ${inn1rrr}
-    
-            </div>
+        <div class="bowler">
+          Bowler: ${bowler}(${bowlerType})
         </div>
         <div class="score-container">
-            ${currentInning == 2 ? inn1overRuns : inn2overRuns}
-            <div>${customMsg}</div>
+          <div>
+            ${inn1TeamName}
+          </div>
+          <div>
+            <span>${inn1Score}/${inn1Wicket}</span> <span>${inn1over}</span>
+          </div>
+          <div>
+            CRR : ${inn1crr} | ${inn1rrr}
+      
+          </div>
         </div>
         <div class="score-container">
-            <div>
-                ${inn2TeamName}
-            </div>
-            <div>
-                <span>${inn2Score}/${inn2Wicket}</span> <span>${inn2over}</span>
-            </div>
-            <div>
-                CRR : ${inn2crr} | ${inn2rrr}
-            </div>
+          <div>${customMsg}</div>
         </div>
-    </div>`;
+        <div class="over-run">
+          ${currentInning == 2 ? inn1overRuns : inn2overRuns}
+      
+        </div>
+        <div class="score-container">
+          <div>
+            ${inn2TeamName}
+          </div>
+          <div>
+            <span>${inn2Score}/${inn2Wicket}</span> <span>${inn2over}</span>
+          </div>
+          <div>
+            CRR : ${inn2crr} | ${inn2rrr}
+          </div>
+        </div>
+      </div>`;
         res.send(file);
         return;
     }
-});
+}));
 
 
+app.get("/add/:marketId",catchAsyncErrors( async (req, res, next) => {
+    const scoreContent = await ejs.renderFile(__dirname + "/../views/addScore.ejs");
+  
+      res.render("layout/mainLayout", {
+        title: "Score",
+        body: scoreContent,
+      });
+}));
 
+app.get("/",catchAsyncErrors( async (req, res, next) => {
+      res.render("score.ejs");
+}));
 module.exports = app;
