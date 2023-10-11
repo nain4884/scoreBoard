@@ -17,6 +17,7 @@ async function fetchCompititionList() {
       `https://3200dev.fairgame.club/competitionList`
     );
     if (!response.ok) {
+      showToast(await response.text(), "error");
       throw new Error("API request failed");
     }
     const data = await response.json();
@@ -24,14 +25,11 @@ async function fetchCompititionList() {
     if (data) {
       tournament.innerHTML = "";
 
-      let optionElement = new Option(
-        "Select tournament",
-        ""
-      );
+      let optionElement = new Option("Select tournament", "");
       tournament.appendChild(optionElement);
 
       data?.forEach((option) => {
-         optionElement = new Option(
+        optionElement = new Option(
           option.competition.name,
           option.competition.id
         );
@@ -49,6 +47,7 @@ async function fetchEventList(id) {
       `https://3200dev.fairgame.club/eventList/${id}`
     );
     if (!response.ok) {
+      showToast(await response.text(), "error");
       throw new Error("API request failed");
     }
     const data = await response.json();
@@ -56,17 +55,11 @@ async function fetchEventList(id) {
     if (data) {
       matchType.innerHTML = "";
 
-      let optionElement = new Option(
-        "Select match type",
-        ""
-      );
+      let optionElement = new Option("Select match type", "");
       matchType.appendChild(optionElement);
 
       data?.forEach((option) => {
-         optionElement = new Option(
-          option.event.name,
-          JSON.stringify(option)
-        );
+        optionElement = new Option(option.event.name, JSON.stringify(option));
         matchType.appendChild(optionElement);
       });
     }
@@ -137,15 +130,16 @@ form.onsubmit = async (e) => {
       startAt: new Date(selectedMatch?.marketStartTime),
       overType: overBall.value,
       noBallRun: noBall.value,
-      totalOver:overs.value
+      totalOver: overs.value,
     }),
   });
 
   if (!response.ok) {
+    showToast(await response.text(), "error");
     throw new Error("API request failed");
   }
 
-  window.alert("Match added successfully!");
+  showToast("Match added successfullt");
 
   window.location.replace("/");
 };

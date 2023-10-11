@@ -10,6 +10,7 @@ const elements = {
   scoreBox: document.getElementById("scoreEvent"),
   form: document.getElementById("score-form"),
   inning: document.getElementById("inning"),
+  currScoreShow: document.getElementById("curr-score"),
 };
 
 const currentInningVal = currentInning;
@@ -37,6 +38,8 @@ const changePlayer = async (type, value) => {
     });
 
     if (!response.ok) {
+      // console.log(await response.text());
+      showToast(await response.text(), "error");
       throw new Error("API request failed");
     }
 
@@ -83,6 +86,7 @@ const handleChangeInning = async () => {
     });
 
     if (!response.ok) {
+      showToast(await response.text(), "error");
       throw new Error("API request failed");
     }
 
@@ -90,7 +94,7 @@ const handleChangeInning = async () => {
     currentInningVal = parseInt(currentInningVal) + 1;
     elements.inning.innerHTML = currentInningVal;
   } catch (error) {
-    console.error("Error:", error);
+    showToast(await response.text(), "error");
     // Display an error message to the user
   }
 };
@@ -98,6 +102,7 @@ const handleChangeInning = async () => {
 const handleChangeScore = async (key) => {
   if (parseInt(key) != NaN && parseInt(key) <= 6) {
     currScore = parseInt(key);
+    elements.currScoreShow.innerHTML = `Selected score: ${key}`;
   } else if (key == "Enter" && currScore > -1) {
     try {
       const response = await fetch(`${API_BASE_URL}/score/changeScore`, {
@@ -114,12 +119,15 @@ const handleChangeScore = async (key) => {
       });
 
       if (!response.ok) {
+        showToast(await response.text(), "error");
+
         throw Error("API request failed");
       }
 
       const data = await response.json();
       console.log(data);
       currScore = -1;
+      elements.currScoreShow.innerHTML = "";
     } catch (error) {
       console.error("Error:", error);
       // Display an error message to the user
@@ -185,3 +193,4 @@ elements.changeInning.addEventListener("click", (e) => {
 elements.scoreBox.addEventListener("keydown", (e) => {
   handleChangeScore(e.key);
 });
+
