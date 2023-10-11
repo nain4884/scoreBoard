@@ -33,7 +33,7 @@ app.get('/getMatchScore/:marketId', catchAsyncErrors(async (req, res, next) => {
     currentInning = matchDetails.currentInning || 1;
   } else {
     const matchRepo = AppDataSource.getRepository(MatchSchema);
-    let matchDetails = await matchRepo
+    matchDetails = await matchRepo
       .createQueryBuilder("match")
       .where({ marketId })
       .getOne();
@@ -413,7 +413,7 @@ app.get('/getMatchScore/:marketId', catchAsyncErrors(async (req, res, next) => {
               <div class="match_status">
                   <span class="commantry">${parseInt(currentInning) == 2 ? inn2Message : inn1Message
       }</span>
-                  <p class="target">${customMsg}</p>
+                  <p class="target">${customMsg || ''}</p>
                   <span class="day"><div class="score-over">
                           <ul><li class="six-balls ">
                             ${parseInt(currentInning) == 2
@@ -663,11 +663,12 @@ app.post("/changeScore", async (req, res, next) => {
       (matchDetails.overType / 10).toFixed(1) == (redisObj.over % 1).toFixed(1);
     if (isLastBall) {
       redisObj.over = Math.ceil(redisObj.over);
-      redisObj.lastOver = redisObj.overRuns;
     }
-    redisObj.overRuns = redisObj.overRuns + " " + score;
     if ((redisObj.over % 1).toFixed(1) == 0.1) {
+      redisObj.lastOver = redisObj.overRuns;
       redisObj.overRuns = score.toString();
+    } else {
+      redisObj.overRuns = redisObj.overRuns + " " + score;
     }
     redisObj.crr = calculateCurrRate(redisObj.score, redisObj.over, matchDetails.overType);
     let message = await numberToWords(score);

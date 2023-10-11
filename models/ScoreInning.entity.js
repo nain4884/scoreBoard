@@ -28,7 +28,7 @@ const ScoreInning = new EntitySchema({
             type: "varchar", length: 40, nullable: false, name: "teamName",
         },
         title: {
-            type: "varchar", length: 50, nullable: false, name: "title",
+            type: "varchar", nullable: false, name: "title",
         },
         startDate: {
             type: "timestamp", nullable: false, name: "startDate", default: () => "CURRENT_TIMESTAMP",
