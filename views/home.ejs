@@ -3,10 +3,6 @@
     margin: 0px;
   }
 
-  .nav {
-    border-bottom: 1px solid black;
-    padding: 10px;
-  }
 
   .matches-container {
     display: flex;
@@ -30,11 +26,8 @@
   }
 </style>
 <div>
-  <div class="nav">
-    <a href="/logout">Logout</a>
-  </div>
-  <a href="/addmatch"><button class="m-2"> Add Match</button></a>
-  <div class=" matches-container">
+
+  <div class="matches-container">
     <%match?.map((item)=>{%>
     <div class="match-box">
       <div class="match-name">
@@ -43,10 +36,10 @@
           (<%=new Date(item?.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })%>)
         </span>
       </div>
-      <button onclick="window.location.replace('/score/add/<%= item?.marketId %>')">
-        score
-      </button>
-      
+      <a href='/score/add/<%= item?.marketId %>'> <button>
+          score
+        </button></a>
+
     </div>
     <% }); %>
   </div>
