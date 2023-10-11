@@ -1,15 +1,20 @@
-/**
- * Constants
- */
-const exchangeButton = document.getElementById("exchange");
-const striker = document.getElementById("batsmanStrike");
-const nonStriker = document.getElementById("batsmanNonStrike");
-const bowlerType = document.getElementById("bowlerType");
-const bowler = document.getElementById("bowler");
-const changeInning = document.getElementById("changeInning");
+const API_BASE_URL = "http://localhost:3000";
 
-let currentInningVal = currentInning;
+const elements = {
+  exchangeButton: document.getElementById("exchange"),
+  striker: document.getElementById("batsmanStrike"),
+  nonStriker: document.getElementById("batsmanNonStrike"),
+  bowlerType: document.getElementById("bowlerType"),
+  bowler: document.getElementById("bowler"),
+  changeInning: document.getElementById("changeInning"),
+  scoreBox: document.getElementById("scoreEvent"),
+  form: document.getElementById("score-form"),
+  inning: document.getElementById("inning"),
+};
+
+const currentInningVal = currentInning;
 const marketId = window.location.href.split("/").pop();
+let currScore = -1;
 
 /**
  * Change player information via an API call.
@@ -18,7 +23,7 @@ const marketId = window.location.href.split("/").pop();
  */
 const changePlayer = async (type, value) => {
   try {
-    const response = await fetch(`http://localhost:3000/score/updatePlayer`, {
+    const response = await fetch(`${API_BASE_URL}/score/updatePlayer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,6 +44,7 @@ const changePlayer = async (type, value) => {
     console.log(data);
   } catch (error) {
     console.error("Error:", error);
+    // Display an error message to the user
   }
 };
 
@@ -55,9 +61,9 @@ const swapInputValues = (input1, input2) => {
  * Handle the change of strike between the batsmen.
  */
 const changeStrike = async () => {
-  await changePlayer("nonStriker", striker.value);
-  await changePlayer("striker", nonStriker.value);
-  swapInputValues(striker, nonStriker);
+  await changePlayer("nonStriker", elements.striker.value);
+  await changePlayer("striker", elements.nonStriker.value);
+  swapInputValues(elements.striker, elements.nonStriker);
 };
 
 /**
@@ -65,7 +71,7 @@ const changeStrike = async () => {
  */
 const handleChangeInning = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/score/changeInning`, {
+    const response = await fetch(`${API_BASE_URL}/score/changeInning`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,9 +88,42 @@ const handleChangeInning = async () => {
 
     const data = await response.json();
     currentInningVal = parseInt(currentInningVal) + 1;
-    document.getElementById("inning").innerHTML = currentInningVal;
+    elements.inning.innerHTML = currentInningVal;
   } catch (error) {
     console.error("Error:", error);
+    // Display an error message to the user
+  }
+};
+
+const handleChangeScore = async (key) => {
+  if (parseInt(key) != NaN && parseInt(key) <= 6) {
+    currScore = parseInt(key);
+  } else if (key == "Enter" && currScore > -1) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/score/changeScore`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          marketId,
+          inningNumber: currentInningVal,
+          eventType: "ball",
+          score: currScore,
+        }),
+      });
+
+      if (!response.ok) {
+        throw Error("API request failed");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      currScore = -1;
+    } catch (error) {
+      console.error("Error:", error);
+      // Display an error message to the user
+    }
   }
 };
 
@@ -107,27 +146,42 @@ const debounce = (func, delay = 1000) => {
 /**
  * Event Listeners
  */
-exchangeButton.addEventListener("click", (e) => {
+elements.exchangeButton.addEventListener("click", (e) => {
   e.preventDefault();
   changeStrike();
 });
-striker.addEventListener(
+
+elements.striker.addEventListener(
   "input",
-  debounce(() => changePlayer("striker", striker.value))
+  debounce(() => changePlayer("striker", elements.striker.value))
 );
-nonStriker.addEventListener(
+elements.nonStriker.addEventListener(
   "input",
-  debounce(() => changePlayer("nonStriker", nonStriker.value))
+  debounce(() => changePlayer("nonStriker", elements.nonStriker.value))
 );
-bowler.addEventListener(
+elements.bowler.addEventListener(
   "input",
-  debounce(() => changePlayer("bowler", bowler.value))
+  debounce(() => changePlayer("bowler", elements.bowler.value))
 );
-bowlerType.addEventListener(
+elements.bowlerType.addEventListener(
   "input",
-  debounce(() => changePlayer("bowlerType", bowlerType.value))
+  debounce(() => changePlayer("bowlerType", elements.bowlerType.value))
 );
-changeInning.addEventListener("click", (e) => {
+elements.form.addEventListener("submit", (event) => {
+  event.preventDefault();
+});
+
+elements.form.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+  }
+});
+
+elements.changeInning.addEventListener("click", (e) => {
   e.preventDefault();
   handleChangeInning();
+});
+
+elements.scoreBox.addEventListener("keydown", (e) => {
+  handleChangeScore(e.key);
 });
