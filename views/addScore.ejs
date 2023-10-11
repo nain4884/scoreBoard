@@ -24,6 +24,29 @@
     justify-content: space-between;
   }
 
+  .score-container {
+    width: 100%;
+    height: 10vh;
+    border: 1px solid gray;
+    position: relative;
+  }
+
+  .score-container-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    transition: box-shadow 0.3s;
+    box-shadow: none;
+  }
+
+  .score-container input:focus+p {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    height: 100%;
+  }
+
   @media screen and (max-width: 768px) {
     .add-match-container {
       max-width: 100%;
@@ -41,14 +64,14 @@
       <div class="heading-cont">
         <h5>Add Score (<%=data.title%>)</h5>
         <p>
-          currentInning: <span id="inning"><%=data.currentInning%></span>
+          Current Inning: <span id="inning"><%=data.currentInning%></span>
         </p>
       </div>
-      <form class="card p-3 mt-3 was-validated">
+      <form class="card p-3 mt-3 was-validated" id="score-form">
         <div class="row">
           <div class="form-group col-md-3">
             <label for="batsmanStrike">Batsman strike:</label>
-            <input type="text" class="form-control" id="batsmanStrike" placeholder="Enter Batsman name on strike">
+            <input maxlength="40" type="text" class="form-control" id="batsmanStrike" placeholder="Enter Batsman name on strike">
           </div>
           <div class="form-group col-md-1 exchange-icon">
             <button class="btn btn-primary" id="exchange" title="Change strike">
@@ -57,11 +80,11 @@
           </div>
           <div class="form-group col-md-3">
             <label for="batsmanNonStrike">Batsman non-strike:</label>
-            <input type="text" class="form-control" id="batsmanNonStrike" placeholder="Enter Batsman name on non-strike">
+            <input maxlength="40" type="text" class="form-control" id="batsmanNonStrike" placeholder="Enter Batsman name on non-strike">
           </div>
           <div class="form-group col-md-5">
             <label for="bowler">Bowler:</label>
-            <input type="text" class="form-control" id="bowler" placeholder="Enter Bowler name">
+            <input maxlength="40" type="text" class="form-control" id="bowler" placeholder="Enter Bowler name">
           </div>
           <div class="form-group col-md-3">
             <label for="bowlerType">Bowlwr Type:</label>
@@ -73,17 +96,26 @@
 
             </select>
           </div>
-          <div class="form-group col-md-3">
-            <button id="changeInning">
+          <div class="form-group col-md-3" style="display: flex; align-items:end;">
+            <button id="changeInning" class="btn btn-primary">
               Change Inning
             </button>
           </div>
         </div>
+        <div id="scoreEvent" class="score-container">
+          <input id="scoreInput" type="text" placeholder="Enter your score here" class="score-container-input" />
+          <p id="curr-score">
+            Please enter your score
+          </p>
+        </div>
       </form>
     </div>
   </div>
+  <div id="toastContainer"></div>
 </div>
 <script>
   const currentInning = "<%= data?.currentInning %>";
 </script>
+<script src="/js/showToast.js"></script>
+
 <script src="/js/addScore.js"></script>
