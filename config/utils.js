@@ -19,12 +19,13 @@ functions.convertOverToBall = (totalOvers, ballsPerOver) => {
 
 functions.calculateCurrRate = (totalRuns, totalOvers, ballsPerOver) => {
     let totalBalls = functions.convertOverToBall(totalOvers, ballsPerOver);
+    if(totalBalls == 0) return 0;
     const runRate = (totalRuns / totalBalls) * ballsPerOver;
     return runRate.toFixed(2); // Round to 2 decimal places for a cleaner output
 }
 
 functions.calculateRequiredRunRate = (reqRuns, remainingBall, ballsPerOver) => {
-    const runRate = (remainingBall / remainingBall) * ballsPerOver;
+    const runRate = (reqRuns / remainingBall) * ballsPerOver;
     return runRate.toFixed(2); // Round to 2 decimal places for a cleaner output
 }
 

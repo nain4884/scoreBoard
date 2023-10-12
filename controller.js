@@ -69,7 +69,6 @@ controller.getMatchList = async (req, res) => {
 
 controller.addMatch = async (req, res) => {
   let body = req.body;
-  console.log(body);
   if (checkCricketRequiredFileds(body)) {
     return res.status(500).send("Add all required fields for add matches");
   }
@@ -79,20 +78,22 @@ controller.addMatch = async (req, res) => {
   let alreadyMatchAdded = await matchRepo.findOne({
     where: { marketId: body.marketId },
   });
-  if (alreadyMatchAdded) {
+  if (!body.id && alreadyMatchAdded) {
     return res.status(500).send("Match already exist.");
   }
 
   let matchObj = {};
-  matchObj.marketId = body.marketId;
-  matchObj.eventId = body.eventId;
-  matchObj.competitionId = body.competitionId;
-  matchObj.competitionName = body.competitionName;
-  matchObj.gameType = body.gameType;
-  matchObj.teamA = body.teamA;
-  matchObj.teamB = body.teamB;
-  matchObj.teamC = body.teamC;
-  matchObj.title = body.title;
+  if(!body.id){
+    matchObj.marketId = body.marketId;
+    matchObj.eventId = body.eventId;
+    matchObj.competitionId = body.competitionId;
+    matchObj.competitionName = body.competitionName;
+    matchObj.gameType = body.gameType;
+    matchObj.teamA = body.teamA;
+    matchObj.teamB = body.teamB;
+    matchObj.teamC = body.teamC;
+    matchObj.title = body.title;
+  }
   matchObj.startAt = new Date(body.startAt);
   matchObj.overType = body.overType;
   matchObj.totalOver = body.totalOver;
@@ -101,6 +102,21 @@ controller.addMatch = async (req, res) => {
   const newMatch = matchRepo.create(matchObj);
   const saveMatch = await matchRepo.save(newMatch);
   if (saveMatch) {
+    let redisObj = {
+      gameType: matchObj.gameType,
+      teamA: matchObj.teamA,
+      teamB: matchObj.teamB,
+      title: matchObj.title,
+      currentInning: matchObj.currentInning || 1,
+      startDate: matchObj.startDate.toString(),
+      overType: matchObj.overType,
+      noBallRun: matchObj.noBallRun,
+      totalOver: matchObj.totalOver,
+    };
+    if (stopAt) {
+      redisObj.stopAt = matchObj.stopAt.toString();
+    }
+    await redisClient.hSet(matchObj.marketId, redisObj);
     return res.json(saveMatch);
   } else {
     return req.status(500).send("Error while saving data");
