@@ -93,6 +93,8 @@ controller.addMatch = async (req, res) => {
     matchObj.teamB = body.teamB;
     matchObj.teamC = body.teamC;
     matchObj.title = body.title;
+  } else {
+    matchObj.id = body.id;
   }
   matchObj.startAt = new Date(body.startAt);
   matchObj.overType = body.overType;
