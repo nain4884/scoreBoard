@@ -69,7 +69,7 @@ controller.getMatchList = async (req, res) => {
 
 controller.addMatch = async (req, res) => {
   let body = req.body;
-  if (checkCricketRequiredFileds(body)) {
+  if (!body.id  && checkCricketRequiredFileds(body)) {
     return res.status(500).send("Add all required fields for add matches");
   }
   const AppDataSource = await getDataSource();
@@ -94,7 +94,7 @@ controller.addMatch = async (req, res) => {
     matchObj.teamC = body.teamC;
     matchObj.title = body.title;
   } else {
-    matchObj.id = body.id;
+    matchObj = alreadyMatchAdded;
   }
   matchObj.startAt = body.startAt ? new Date(body.startAt) : alreadyMatchAdded.startAt;
   matchObj.overType = body.overType || alreadyMatchAdded.overType;
