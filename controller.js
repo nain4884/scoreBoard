@@ -96,10 +96,10 @@ controller.addMatch = async (req, res) => {
   } else {
     matchObj.id = body.id;
   }
-  matchObj.startAt = new Date(body.startAt);
-  matchObj.overType = body.overType;
-  matchObj.totalOver = body.totalOver;
-  matchObj.noBallRun = body.noBallRun;
+  matchObj.startAt = body.startAt ? new Date(body.startAt) : alreadyMatchAdded.startAt;
+  matchObj.overType = body.overType || alreadyMatchAdded.overType;
+  matchObj.totalOver = body.totalOver || alreadyMatchAdded.totalOver;
+  matchObj.noBallRun = body.noBallRun || alreadyMatchAdded.noBallRun;
 
   const newMatch = matchRepo.create(matchObj);
   const saveMatch = await matchRepo.save(newMatch);
