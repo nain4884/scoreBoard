@@ -666,7 +666,7 @@ app.post("/changeInning", async (req, res, next) => {
 });
 
 app.post("/changeScore", async (req, res, next) => {
-  let { marketId, inningNumber, eventType, score, otherParam } = req.body;
+  let { marketId, inningNumber, eventType, score = 0, otherParam } = req.body;
   if (!marketId) {
     return res.status(500).send("marketId not found.");
   }
@@ -800,3 +800,5 @@ module.exports = app;
 
 // timeout r
 // drink break d
+// ball start
+// ball stop

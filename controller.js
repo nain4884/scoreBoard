@@ -115,7 +115,7 @@ controller.addMatch = async (req, res) => {
       noBallRun: matchObj.noBallRun,
       totalOver: matchObj.totalOver,
     };
-    if (stopAt) {
+    if (matchObj.stopAt) {
       redisObj.stopAt = matchObj.stopAt.toString();
     }
     await redisClient.hSet(matchObj.marketId, redisObj);
