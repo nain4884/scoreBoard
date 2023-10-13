@@ -1,19 +1,36 @@
 /**
- * Selecting DOM elements
+ * @typedef {Object} Player
+ * @property {string} marketId - The market ID.
+ * @property {string} gameType - The game type.
+ * @property {string} teamName - The team name.
+ * @property {string} playerName - The player's name.
+ * @property {string} playerType - The type of player.
+ * @property {string} bowlerType - The bowler type.
  */
-const playerType = document.getElementById("playerType");
+
+/**
+ * DOM elements
+ * @type {NodeListOf<HTMLInputElement>}
+ */
+const playerType = document.querySelectorAll('input[name="playerType"]');
 const bowlerCont = document.getElementById("bowlerCont");
 const teamName = document.getElementById("teamName");
 const playerName = document.getElementById("playerName");
 const bowlerType = document.getElementById("bowlerType");
 const form = document.querySelector("form");
+const tableContainer = document.getElementById("playerTable");
+
+/**
+ * Get the market ID from the URL.
+ * @type {string}
+ */
 const marketId = window.location.href.split("/").pop();
 
 /**
- * Handle the player type change event.
+ * Handle the change event for the player type.
  */
 function handlePlayerTypeChange() {
-  if (playerType.value === "bowler") {
+  if (getSelectedPlayerType() == "bowler") {
     showBowlerCont();
   } else {
     hideBowlerCont();
@@ -36,6 +53,7 @@ function hideBowlerCont() {
 
 /**
  * Handle the form submission.
+ * @param {Event} event - The form submission event.
  */
 async function handleSubmit(event) {
   event.preventDefault();
@@ -56,23 +74,23 @@ async function handleSubmit(event) {
     }
 
     showToast("Player added successfully");
-    form.reset();
-    hideBowlerCont();
+    resetForm();
   } catch (error) {
     console.error("Error:", error);
   }
 }
 
 /**
- * Add the player to the match using an API request.
+ * Add a player to the match using an API request.
+ * @returns {Promise<Response>} - The API response.
  */
 async function addPlayerToMatch() {
-  const requestBody = {
-    marketId: marketId,
-    gameType: gameType, // Make sure you have a reference to gameType
+  const requestBody /** @type {Player} */ = {
+    marketId,
+    gameType: getGameType(), // Make sure you have a reference to gameType
     teamName: teamName.value,
     playerName: playerName.value,
-    playerType: playerType.value,
+    playerType: getSelectedPlayerType(),
     bowlerType: bowlerType.value,
   };
 
@@ -85,6 +103,115 @@ async function addPlayerToMatch() {
   });
 }
 
-// Attach event listeners
-playerType.addEventListener("change", handlePlayerTypeChange);
+async function getPlayers() {
+  try {
+    const requestBody /** @type {Player} */ = {
+      marketId,
+      gameType: getGameType(), // Make sure you have a reference to gameType
+      teamName: teamName.value,
+    };
+
+    const response = await fetch("/player/getPlayerByMatch", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      showToast(errorMessage, "error");
+      throw new Error("API request failed");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+/**
+ * Get the selected player type.
+ * @returns {string} - The selected player type.
+ */
+function getSelectedPlayerType() {
+  return document.querySelector('input[name="playerType"]:checked').value;
+}
+
+/**
+ * Get the game type (replace with your actual gameType logic).
+ * @returns {string} - The game type.
+ */
+function getGameType() {
+  // Replace with your logic to get the game type.
+  return "SomeGameType";
+}
+
+/**
+ * Reset the form fields and selected player type.
+ */
+function resetForm() {
+  playerName.value = "";
+  bowlerType.value = "";
+  playerType.forEach((radioButton) => (radioButton.checked = false));
+  hideBowlerCont();
+  getPlayersTable();
+}
+
+/**
+ * Create an HTML table from an array of data objects.
+ * @param {Array} data - An array of data objects.
+ * @returns {HTMLTableElement} - The generated HTML table element.
+ */
+function createTableFromData(data) {
+  const table = document.createElement("table");
+  table.classList.add("table", "table-striped", "table-bordered"); // Add Bootstrap table classes
+
+  if (data.length === 0) {
+    const emptyRow = table.insertRow();
+    const cell = emptyRow.insertCell();
+    cell.colSpan = 2;
+    cell.textContent = "No data available.";
+  } else {
+    const headerRow = table.insertRow();
+    const headerCell1 = document.createElement("th");
+    headerCell1.textContent = "Player Name";
+    headerRow.appendChild(headerCell1);
+    const headerCell2 = document.createElement("th");
+    headerCell2.textContent = "Player Type";
+    headerRow.appendChild(headerCell2);
+
+    data.forEach((item, index) => {
+      const row = table.insertRow();
+      const cell1 = row.insertCell();
+      cell1.textContent = item.playerName;
+      const cell2 = row.insertCell();
+      cell2.textContent = `${item.playerType} ${
+        item?.bowlerType ? "(" + item?.bowlerType?.toUpperCase() + ")" : ""
+      }`;
+
+      // Add Bootstrap table row classes for better design
+      row.classList.add(index % 2 === 0 ? "table-primary" : "table-secondary");
+    });
+  }
+
+  return table;
+}
+
+const getPlayersTable = async () => {
+  const data = await getPlayers();
+  tableContainer.innerHTML = "";
+  const tableElement = createTableFromData(data);
+  tableContainer.appendChild(tableElement);
+};
+
+/**
+ * Attach event listeners.
+ */
+playerType.forEach((radioButton) => {
+  radioButton.addEventListener("click", handlePlayerTypeChange);
+});
 form.addEventListener("submit", handleSubmit);
+
+teamName.addEventListener("change", getPlayersTable);
