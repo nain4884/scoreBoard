@@ -89,6 +89,14 @@ const MatchSchema = new EntitySchema({
       name: "totalOver",
       default: 50
     },
+    tossWin: {
+        type: "varchar",
+        nullable: true
+    },
+    firstBatTeam: {
+        type: "varchar",
+        nullable: true
+    }
   },
   indices: [
     {
