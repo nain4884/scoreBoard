@@ -87,17 +87,18 @@
             <input maxlength="40" type="text" class="form-control" id="bowler" placeholder="Enter Bowler name">
           </div>
           <div class="form-group col-md-3">
-            <label for="bowlerType">Bowlwr Type:</label>
-            <select class="form-control" id="bowlerType" required>
-              <option value="">Select bowler type</option>
-              <option value="spinner">Spinner</option>
-              <option value="pacer">Pacer</option>
-              <option value="swing">Swing</option>
-
-            </select>
+            <label for="bowlerType">Bowler Type:</label>
+            <div class="btn-group" id="bowlerType" data-toggle="buttons">
+              <label class="btn btn-secondary">
+                <input type="radio" name="bowlerType" value="spinner"> Spinner
+              </label>
+              <label class="btn btn-secondary">
+                <input type="radio" name="bowlerType" value="faster"> Faster
+              </label>
+            </div>
           </div>
-          <div class="form-group col-md-3" style="display: flex; align-items:end;">
-            <button id="changeInning" class="btn btn-primary">
+          <div class="form-group col-md-12" style="display: flex; align-items:end;">
+            <button style="width: 100%;" id="changeInning" class="btn btn-primary">
               Change Inning
             </button>
           </div>

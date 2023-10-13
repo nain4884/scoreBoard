@@ -1,0 +1,98 @@
+<style>
+  form {
+    background-color: rgb(248, 200, 81) !important;
+  }
+
+  .add-player-container {
+    max-width: 97%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #bowlerCont {
+    display: none;
+  }
+
+
+  @media screen and (max-width: 768px) {
+    .add-player-container {
+      max-width: 100%;
+      position: relative;
+      top: 0%;
+      left: 0%;
+      transform: translate(0%, 0%);
+    }
+  }
+</style>
+
+<div class="container add-player-container">
+  <div class="row">
+    <div class="col-md-12 card p-3">
+
+      <h5>Add Player</h5>
+
+      <form class="card p-3 mt-3 was-validated">
+        <div class="row">
+          <div class="form-group col-md-12">
+            <h5><%= matchData?.title %></h5>
+
+          </div>
+          <div class="form-group col-md-12">
+            <label for="teamName">Team Name</label>
+            <select class="form-control" id="teamName" required>
+              <option value="">Select your team</option>
+              <option value="<%= matchData?.teamA %>"><%= matchData?.teamA %></option>
+              <option value="<%= matchData?.teamB %>"><%= matchData?.teamB %></option>
+              <% if (matchData && matchData.teamC) { %>
+              <option value="<%= matchData.teamC %>"><%= matchData.teamC %></option>
+              <% } %>
+
+            </select>
+            <div class="invalid-feedback">Please select the team.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="playerName">Player Name</label>
+            <input type="text" class="form-control" id="playerName" placeholder="Enter player name">
+
+            <div class="invalid-feedback">Please enter player name.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="playerType">Player Type</label>
+            <select class="form-control" id="playerType" required>
+              <option value="">Select player type</option>
+              <option value="bowler">Bowler</option>
+              <option value="batsman">Batsman</option>
+            </select>
+
+            <div class="invalid-feedback">Please select player type.</div>
+          </div>
+          <div class="form-group col-md-4" id="bowlerCont">
+            <label for="bowlerType">Bowler Type</label>
+            <select class="form-control" id="bowlerType">
+              <option value="">Select bowler type</option>
+              <option value="faster">Faster</option>
+              <option value="spinner">Spinner</option>
+            </select>
+
+            <div class="invalid-feedback">Please select bowler type.</div>
+          </div>
+          <div class="form-group col-md-12">
+            <button style="width: 100%;" class="btn btn-primary">
+              Add Player
+            </button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+<script >
+  const gameType = "<%= matchData?.gameType %>";
+
+</script>
+<script src="/js/showToast.js"></script>
+<script src="/js/addPlayer.js"></script>

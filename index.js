@@ -16,6 +16,7 @@ const ejs = require("ejs");
 const { isAuthenticates } = require("./middleware/auth");
 const { getDataSource } = require("./config/PostGresConnection");
 const scoreController = require("./controller/scoreController");
+const playerController = require("./controller/playerController");
 
 const app = express();
 app.use(cors({ origin: "*" }));
@@ -52,6 +53,7 @@ app.listen(PORT, () => {
 });
 
 app.use("/score", scoreController);
+app.use("/player", playerController);
 app.get(
   "/",
   isAuthenticates,
@@ -81,7 +83,6 @@ app.get(
   catchAsyncErrors(async (req, res, next) => {
     const { marketId } = req.query;
     let matchData = null;
-    console.log(marketId);
 
     if (marketId) {
       matchData = await getMatchByIdService(marketId);
