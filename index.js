@@ -15,13 +15,14 @@ const isLoggedIn = require("./middleware/checkLogin");
 const ejs = require("ejs");
 const { isAuthenticates } = require("./middleware/auth");
 const { getDataSource } = require("./config/PostGresConnection");
-const scoreController = require('./controller/scoreController');
+const scoreController = require("./controller/scoreController");
 
 const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-const redis = require('./config/redisConnection');
+const redis = require("./config/redisConnection");
+const { getMatchByIdService } = require("./services/scoreService");
 
 let redisStore = new RedisStore({
   client: redis,
@@ -50,7 +51,7 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-app.use('/score', scoreController);
+app.use("/score", scoreController);
 app.get(
   "/",
   isAuthenticates,
@@ -58,7 +59,10 @@ app.get(
     const AppDataSource = await getDataSource();
     const matchRepo = AppDataSource.getRepository(MatchSchema);
 
-    const match = await matchRepo.createQueryBuilder("match").orderBy('match.startDate', 'DESC').getMany();
+    const match = await matchRepo
+      .createQueryBuilder("match")
+      .orderBy("match.startDate", "DESC")
+      .getMany();
 
     const homeContent = await ejs.renderFile(__dirname + "/views/home.ejs", {
       match,
@@ -75,6 +79,14 @@ app.get(
   "/addmatch",
   isAuthenticates,
   catchAsyncErrors(async (req, res, next) => {
+    const { marketId } = req.query;
+    let matchData = null;
+    console.log(marketId);
+
+    if (marketId) {
+      matchData = await getMatchByIdService(marketId);
+    }
+
     const gameType = [
       {
         id: "1",
@@ -84,7 +96,7 @@ app.get(
 
     const addMatchContent = await ejs.renderFile(
       __dirname + "/views/addMatch.ejs",
-      { gameType: gameType }
+      { gameType: gameType, edit: Boolean(marketId), matchData: matchData }
     );
 
     res.render("layout/mainLayout", {

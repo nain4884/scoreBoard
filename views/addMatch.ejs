@@ -1,102 +1,119 @@
 <style>
-    form {
-        background-color: rgb(248, 200, 81) !important;
-    }
+  form {
+    background-color: rgb(248, 200, 81) !important;
+  }
 
+  .add-match-container {
+    max-width: 97%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+
+  @media screen and (max-width: 768px) {
     .add-match-container {
-        max-width: 97%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+      max-width: 100%;
+      position: relative;
+      top: 0%;
+      left: 0%;
+      transform: translate(0%, 0%);
     }
-
-    @media screen  and (max-width: 768px) {
-        .add-match-container {
-        max-width: 100%;
-        position: relative;
-        top: 0%;
-        left:0%;
-        transform: translate(0%, 0%);
-    }
-    }
+  }
 </style>
 
 <div class="container add-match-container">
-    <div class="row">
-        <div class="col-md-12 card p-3">
-            <h5>Add Match</h5>
-            <form class="card p-3 mt-3 was-validated">
-                <div class="row">
-                    <div class="form-group col-md-4">
-                        <label for="gameType">Game</label>
-                        <select class="form-control" id="gameType" required>
-                            <% if (gameType.length === 0) { %>
-                            <option value="">No Game Type</option>
-                            <% } else { %>
-                            <option value="">Select game type</option>
-                            <% gameType.forEach((item) => { %>
-                            <option value="<%= item.id %>"><%= item.name %></option>
-                            <% }); %>
-                            <% } %>
-                        </select>
-                        <div class="invalid-feedback">Please select a game type.</div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="tournament">Tournament Name</label>
-                        <select class="form-control" id="tournament" required>
-                            <option value="">No Tournament Found</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a tournament.</div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="matchName">Match Name</label>
-                        <select class="form-control" id="matchName" required>
-                            <option value="">No Match Found</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a match.</div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="teamA">Team A:</label>
-                        <input disabled type="text" class="form-control" id="teamA" placeholder="Enter team A name">
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="teamB">Team B:</label>
-                        <input disabled type="text" class="form-control" id="teamB" placeholder="Enter team B name">
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="teamC">Team C:</label>
-                        <input disabled type="text" class="form-control" id="teamC" placeholder="Enter team C name">
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="startTime">Start Time:</label>
-                        <input disabled type="date" class="form-control" id="startTime" placeholder="Enter start time">
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="overBall">Over Ball</label>
-                        <select class="form-control" id="overBall" required>
-                            <option value="5">5 over ball</option>
-                            <option value="6">6 over ball</option>
-                        </select>
-                        <div class="invalid-feedback">Please select the over ball.</div>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="overs">Total Overs:</label>
-                        <input type="number" class="form-control" id="overs" placeholder="Enter total overs">
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="noBall">No Ball Run</label>
-                        <select class="form-control" id="noBall" required>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                        </select>
-                        <div class="invalid-feedback">Please select the no ball run.</div>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Match</button>
-            </form>
+  <div class="row">
+    <div class="col-md-12 card p-3">
+
+      <h5><%= edit ? 'Edit Match' : 'Add Match' %></h5>
+
+      <form class="card p-3 mt-3 was-validated">
+        <div class="row">
+          <div class="form-group col-md-12 <%= !edit ? 'd-none':''%>">
+            <h5><%= matchData?.title %></h5>
+
+          </div>
+          <div class="form-group col-md-4 <%= edit ? 'd-none' : '' %>">
+            <label for="gameType">Game</label>
+            <select class="form-control" id="gameType" <%= edit ? '' : 'required' %>>
+              <% if (gameType.length === 0) { %>
+              <option value="">No Game Type</option>
+              <% } else { %>
+              <option value="">Select game type</option>
+              <% gameType.forEach((item) => { %>
+              <option value="<%= item.id %>"><%= item.name %></option>
+              <% }); %>
+              <% } %>
+            </select>
+            <div class="invalid-feedback">Please select a game type.</div>
+          </div>
+          <div class="form-group col-md-4 <%= edit ? 'd-none' : '' %>">
+            <label for="tournament">Tournament Name</label>
+            <select class="form-control" id="tournament" <%= edit ? '' : 'required' %>>
+              <option value="">No Tournament Found</option>
+            </select>
+            <div class="invalid-feedback">Please select a tournament.</div>
+          </div>
+          <div class="form-group col-md-4 <%= edit ? 'd-none' : '' %>">
+            <label for="matchName">Match Name</label>
+            <select class="form-control" id="matchName" <%= edit ? '' : 'required' %>>
+              <option value="">No Match Found</option>
+            </select>
+            <div class="invalid-feedback">Please select a match.</div>
+          </div>
+
+
+          <div class="form-group col-md-4">
+            <label for="teamA">Team A:</label>
+            <input disabled value="<%= matchData?.teamA %>" type="text" class="form-control" id="teamA" placeholder="Enter team A name">
+          </div>
+          <div class="form-group col-md-4">
+            <label for="teamB">Team B:</label>
+            <input disabled type="text" value="<%= matchData?.teamB %>" class="form-control" id="teamB" placeholder="Enter team B name">
+          </div>
+          <div class="form-group col-md-4">
+            <label for="teamC">Team C:</label>
+            <input disabled type="text" value="<%= matchData?.teamC %>" class="form-control" id="teamC" placeholder="Enter team C name">
+          </div>
+          <div class="form-group col-md-4">
+            <label for="startTime">Start Time:</label>
+            <input <%= !edit ? 'disabled' : '' %> type="date" value="<%= edit ? new Date(matchData?.startDate).toISOString().split('T')[0] : '' %>" class="form-control" id="startTime" placeholder="Enter start time">
+
+          </div>
+          <div class="form-group col-md-4">
+            <label for="overBall">Over Ball</label>
+            <select class="form-control" id="overBall" required>
+              <option value="">Select no of ball in an over </option>
+              <option value="5" <%= matchData?.overType === '5' ? 'selected' : '' %>>5 over ball</option>
+              <option value="6" <%= matchData?.overType === '6' ? 'selected' : '' %>>6 over ball</option>
+            </select>
+
+            <div class="invalid-feedback">Please select the over ball.</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="overs">Total Overs:</label>
+            <input value="<%= matchData?.totalOver %>" type="number" class="form-control" id="overs" placeholder="Enter total overs">
+          </div>
+          <div class="form-group col-md-4">
+            <label for="noBall">No Ball Run</label>
+            <select class="form-control" id="noBall" required>
+              <option value="">Select no ball</option>
+              <option value="1" <%= matchData?.noBallRun === '1' ? 'selected' : '' %>>1</option>
+              <option value="2" <%= matchData?.noBallRun === '2' ? 'selected' : '' %>>2</option>
+            </select>
+
+            <div class="invalid-feedback">Please select the no ball run.</div>
+          </div>
         </div>
+        <button type="submit" class="btn btn-primary"><%= edit ? 'Update Match' : 'Add Match' %></button>
+      </form>
     </div>
+  </div>
 </div>
+<script>
+  const isEdit = "<%= edit %>"
+</script>
 <script src="/js/showToast.js"></script>
 <script src="/js/addMatch.js"></script>

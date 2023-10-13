@@ -24,6 +24,20 @@
     color: #262626;
     cursor: pointer;
   }
+
+  .edit-icon {
+    float: right;
+    color: white;
+    transition: color 0.3s, background-color 0.3s, transform 0.2s;
+  }
+
+  .edit-icon:hover {
+    color: blue;
+  }
+
+  .edit-icon:active {
+    transform: scale(1.1);
+  }
 </style>
 <div>
 
@@ -35,10 +49,15 @@
         <span>
           (<%=new Date(item?.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })%>)
         </span>
+        <a href="/addmatch?marketId=<%= item?.marketId %>&id=<%= item?.id %>">
+
+          <span class="bi bi-pencil edit-icon"></span>
+        </a>
       </div>
       <a href='/score/add/<%= item?.marketId %>'> <button>
           score
-        </button></a>
+        </button>
+      </a>
 
     </div>
     <% }); %>

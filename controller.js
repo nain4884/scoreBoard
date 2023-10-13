@@ -4,8 +4,8 @@ const User = require("./models/User.entity");
 const { getDataSource } = require("./config/PostGresConnection.js");
 const catchAsyncErrors = require("./middleware/catchAsyncErrors");
 const MatchSchema = require("./models/Match.entity");
-const redisClient = require('./config/redisConnection');
-const {  getMatchByIdService } = require("./services/scoreService");
+const redisClient = require("./config/redisConnection");
+const { getMatchByIdService } = require("./services/scoreService");
 
 const controller = {};
 
@@ -67,9 +67,9 @@ controller.getMatchList = async (req, res) => {
   });
 };
 
-controller.addMatch = async (req, res) => {
+controller.addMatch = catchAsyncErrors(async (req, res, next) => {
   let body = req.body;
-  if (!body.id  && checkCricketRequiredFileds(body)) {
+  if (!body.id && checkCricketRequiredFileds(body)) {
     return res.status(500).send("Add all required fields for add matches");
   }
   const AppDataSource = await getDataSource();
@@ -83,7 +83,7 @@ controller.addMatch = async (req, res) => {
   }
 
   let matchObj = {};
-  if(!body.id){
+  if (!body.id) {
     matchObj.marketId = body.marketId;
     matchObj.eventId = body.eventId;
     matchObj.competitionId = body.competitionId;
@@ -96,13 +96,16 @@ controller.addMatch = async (req, res) => {
   } else {
     matchObj = alreadyMatchAdded;
   }
-  matchObj.startAt = body.startAt ? new Date(body.startAt) : alreadyMatchAdded.startAt;
+  matchObj.startAt = body.startAt
+    ? new Date(body.startAt)
+    : alreadyMatchAdded.startAt;
   matchObj.overType = body.overType || alreadyMatchAdded.overType;
   matchObj.totalOver = body.totalOver || alreadyMatchAdded.totalOver;
   matchObj.noBallRun = body.noBallRun || alreadyMatchAdded.noBallRun;
 
   const newMatch = matchRepo.create(matchObj);
   const saveMatch = await matchRepo.save(newMatch);
+  console.log(saveMatch);
   if (saveMatch) {
     let redisObj = {
       gameType: matchObj.gameType,
@@ -123,7 +126,7 @@ controller.addMatch = async (req, res) => {
   } else {
     return req.status(500).send("Error while saving data");
   }
-};
+});
 
 function checkCricketRequiredFileds(body) {
   let cricketRequiredFileds = [
@@ -147,8 +150,8 @@ function checkCricketRequiredFileds(body) {
 
 controller.getMatchById = async (req, res) => {
   const marketId = req.params.marketId;
-  const matchData=await getMatchByIdService(marketId)
+  const matchData = await getMatchByIdService(marketId);
   return res.json(matchData);
-}
+};
 
 module.exports = controller;

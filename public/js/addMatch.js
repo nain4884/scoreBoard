@@ -11,13 +11,20 @@ const noBall = document.getElementById("noBall");
 const overs = document.getElementById("overs");
 const form = document.querySelector("form");
 
-async function fetchCompititionList() {
+const getQueryParam = (paramName) =>
+  new URLSearchParams(window.location.search).get(paramName);
+
+/**
+ * Fetch a list of competitions and populate the tournament dropdown.
+ */
+async function fetchCompetitionList() {
   try {
     const response = await fetch(
-      `https://3200dev.fairgame.club/competitionList`
+      "https://3200dev.fairgame.club/competitionList"
     );
     if (!response.ok) {
-      showToast(await response.text(), "error");
+      const errorMessage = await response.text();
+      showToast(errorMessage, "error");
       throw new Error("API request failed");
     }
     const data = await response.json();
@@ -41,13 +48,19 @@ async function fetchCompititionList() {
   }
 }
 
+/**
+ * Fetch a list of events based on the selected tournament and populate the match type dropdown.
+ *
+ * @param {string} id - The ID of the selected tournament.
+ */
 async function fetchEventList(id) {
   try {
     const response = await fetch(
       `https://3200dev.fairgame.club/eventList/${id}`
     );
     if (!response.ok) {
-      showToast(await response.text(), "error");
+      const errorMessage = await response.text();
+      showToast(errorMessage, "error");
       throw new Error("API request failed");
     }
     const data = await response.json();
@@ -68,29 +81,26 @@ async function fetchEventList(id) {
   }
 }
 
+/**
+ * Set values for match based on the selected match type.
+ *
+ * @param {string} data - JSON string representing the selected match type.
+ */
 async function setMatchValues(data) {
   data = JSON.parse(data);
 
-  teamA.value = data?.runners?.[0]?.runnerName
-    ? data?.runners?.[0]?.runnerName
-    : "";
-  teamB.value = data?.runners?.[1]?.runnerName
-    ? data?.runners?.[1]?.runnerName
-    : "";
-  teamC.value = data?.runners?.[2]?.runnerName
-    ? data?.runners?.[2]?.runnerName
-    : "";
+  teamA.value = data?.runners?.[0]?.runnerName || "";
+  teamB.value = data?.runners?.[1]?.runnerName || "";
+  teamC.value = data?.runners?.[2]?.runnerName || "";
 
-  const selectedDate = new Date(data?.marketStartTime); // Replace with your desired date
-
-  // Format the date as YYYY-MM-DD (required by the date input)
+  const selectedDate = new Date(data?.marketStartTime);
   const formattedDate = selectedDate.toISOString().split("T")[0];
-
   startTime.value = formattedDate;
 }
 
+// Event listeners
 gameType.addEventListener("change", () => {
-  fetchCompititionList();
+  fetchCompetitionList();
 });
 
 tournament.addEventListener("change", () => {
@@ -110,36 +120,55 @@ form.onsubmit = async (e) => {
 
   form.classList.add("was-validated");
 
-  const selectedMatch = JSON.parse(matchType.value);
+  try {
+    let data = {};
+    console.log(getQueryParam("id"), "yes");
+    if (isEdit) {
+      data = {
+        startAt: startTime?.value,
+        overType: overBall.value,
+        noBallRun: noBall.value,
+        totalOver: overs.value,
+        id: getQueryParam("id"),
+      };
+    } else {
+      const selectedMatch = JSON.parse(matchType.value);
 
-  const response = await fetch("/addMatch", {
-    method: "POST", // HTTP method
-    headers: {
-      "Content-Type": "application/json", // Specify the content type as JSON
-    },
-    body: JSON.stringify({
-      marketId: selectedMatch?.marketId,
-      eventId: selectedMatch?.event?.id,
-      competitionId: selectedMatch?.competition?.id,
-      competitionName: selectedMatch?.competition?.name,
-      gameType: selectedMatch?.eventType?.name,
-      teamA: teamA.value,
-      teamB: teamB.value,
-      teamC: teamC.value,
-      title: selectedMatch?.event?.name,
-      startAt: new Date(selectedMatch?.marketStartTime),
-      overType: overBall.value,
-      noBallRun: noBall.value,
-      totalOver: overs.value,
-    }),
-  });
+      data = {
+        marketId: selectedMatch?.marketId,
+        eventId: selectedMatch?.event?.id,
+        competitionId: selectedMatch?.competition?.id,
+        competitionName: selectedMatch?.competition?.name,
+        gameType: selectedMatch?.eventType?.name,
+        teamA: teamA.value,
+        teamB: teamB.value,
+        teamC: teamC.value,
+        title: selectedMatch?.event?.name,
+        startAt: new Date(selectedMatch?.marketStartTime),
+        overType: overBall.value,
+        noBallRun: noBall.value,
+        totalOver: overs.value,
+      };
+    }
 
-  if (!response.ok) {
-    showToast(await response.text(), "error");
-    throw new Error("API request failed");
+    const response = await fetch("/addMatch", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      showToast(errorMessage, "error");
+      throw new Error("API request failed");
+    }
+
+    showToast("Match added successfully");
+
+    window.location.replace("/");
+  } catch (error) {
+    console.error("Error:", error);
   }
-
-  showToast("Match added successfullt");
-
-  window.location.replace("/");
 };
