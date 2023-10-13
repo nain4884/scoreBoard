@@ -149,9 +149,13 @@ function checkCricketRequiredFileds(body) {
 }
 
 controller.getMatchById = async (req, res) => {
-  const marketId = req.params.marketId;
-  const matchData = await getMatchByIdService(marketId);
-  return res.json(matchData);
+  try{
+    const marketId = req.params.marketId;
+    const matchData = await getMatchByIdService(res, marketId);
+    return res.json(matchData);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
 };
 
 module.exports = controller;

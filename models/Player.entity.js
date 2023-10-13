@@ -22,7 +22,6 @@ const PlayerSchema = new EntitySchema({
         playerName: {
             type: 'varchar',
             nullable: false,
-            unique: true,
             name: "playerName"
         },
         playerType: {
@@ -34,15 +33,20 @@ const PlayerSchema = new EntitySchema({
             type: 'varchar',
             nullable: true,
             name: "bowlerType"
+        },
+        isPlayerOut: {
+            type: Boolean,
+            nullable: false,
+            default: false
         }
     },
-    // indices: [
-    //     {
-    //         name: 'idx_player',
-    //         unique: true, // Optional: Set to true if you want a unique index
-    //         columns: ['playerType', 'playerName'],
-    //     }
-    // ],
+    indices: [
+        {
+            name: 'idx_player',
+            unique: true, // Optional: Set to true if you want a unique index
+            columns: ['marketId', 'playerName', 'teamName'],
+        }
+    ],
 });
 
 module.exports = PlayerSchema;

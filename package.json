@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "migration:generate" : "typeorm migration:generate -d ./orm.config.js -o",
+    "migration:run" : "typeorm migration:run -d ./orm.config.js",
+    "migration:revert" : "typeorm migration:revert -d ./orm.config.js"
   },
   "keywords": [],
   "author": "",

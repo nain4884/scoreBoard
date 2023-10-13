@@ -8,7 +8,7 @@ const { numberToWords, convertOverToBall, calculateCurrRate, calculateRequiredRu
 const catchAsyncErrors = require('../middleware/catchAsyncErrors');
 const ejs = require("ejs");
 const { getMatchByIdService } = require("../services/scoreService");
-// const AppDataSource = await getDataSource();
+
 const matchRepo = AppDataSource.getRepository(MatchSchema);
 const scoreInningRepo = AppDataSource.getRepository(ScoreInning);
 
@@ -22,7 +22,6 @@ app.get('/getMatchScore/:marketId', catchAsyncErrors(async (req, res, next) => {
   if (req.query && req.query.isJson) {
     isJson = req.query.isJson;
   }
-  const AppDataSource = await getDataSource();
   let gameType, teamA, teamB, title, stopAt, startDate, currentInning, striker, nonStriker, bowler, bowlerType, overType, totalOver, noBallRun;
   let matchDetails = await redisClient.hGetAll(marketId);
   if (matchDetails && Object.keys(matchDetails).length) {
@@ -35,7 +34,6 @@ app.get('/getMatchScore/:marketId', catchAsyncErrors(async (req, res, next) => {
     totalOver = matchDetails.totalOver;
     currentInning = matchDetails.currentInning || 1;
   } else {
-    const matchRepo = AppDataSource.getRepository(MatchSchema);
     matchDetails = await matchRepo
       .createQueryBuilder("match")
       .where({ marketId })
@@ -79,7 +77,6 @@ app.get('/getMatchScore/:marketId', catchAsyncErrors(async (req, res, next) => {
     inn1TeamName = inn1Redis.teamName;
     customMsg = inn1Redis.customMsg || '';
   } else {
-    const scoreInningRepo = AppDataSource.getRepository(ScoreInning);
     let scoreInning = await scoreInningRepo
       .createQueryBuilder("scoreInning")
       .where("scoreInning.marketId = :marketId and scoreInning.inningNumber = 1", { marketId })
@@ -130,7 +127,6 @@ app.get('/getMatchScore/:marketId', catchAsyncErrors(async (req, res, next) => {
       inn2TeamName = inn2Redis.teamName;
       customMsg = inn2Redis.customMsg || '';
     } else {
-      const scoreInningRepo = AppDataSource.getRepository(ScoreInning);
       let scoreInning = await scoreInningRepo
         .createQueryBuilder("scoreInning")
         .where("scoreInning.marketId = :marketId and scoreInning.inningNumber = 2", { marketId })
@@ -448,7 +444,7 @@ app.get(
   "/add/:marketId",
   catchAsyncErrors(async (req, res, next) => {
     const { marketId } = req.params;
-    const matchData = await getMatchByIdService(marketId);
+    const matchData = await getMatchByIdService(res,marketId);
 
     const scoreContent = await ejs.renderFile(
       __dirname + "/../views/addScore.ejs",
@@ -482,8 +478,7 @@ app.post("/updatePlayer", async (req, res, next) => {
     return res.status(500).send("playerType not found.");
   }
   let redisObj;
-  const AppDataSource = await getDataSource();
-  const scoreInningRepo = AppDataSource.getRepository(ScoreInning);
+  
   if (inningNumber == 1) {
     redisObj = await redisClient.hGetAll(marketId + "Inning1");
     if (!redisObj || !Object.keys(redisObj).length) {
@@ -784,8 +779,6 @@ app.post("/changeScore", async (req, res, next) => {
   redisObj.over = redisObj.over.toFixed(1);
   redisClient.hSet(marketId + "Inning" + inningNumber, redisObj);
 
-  const AppDataSource = await getDataSource();
-  const scoreInningRepo = AppDataSource.getRepository(ScoreInning);
   delete redisObj["customMsg"];
   scoreInningRepo.update(
     { marketId: marketId, inningNumber: inningNumber },

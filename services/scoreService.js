@@ -2,7 +2,7 @@ const { getDataSource } = require("../config/PostGresConnection");
 const redisClient = require("../config/redisConnection");
 const MatchSchema = require("../models/Match.entity");
 
-exports.getMatchByIdService = async (marketId) => {
+exports.getMatchByIdService = async (res,marketId) => {
   let gameType,
     teamA,
     teamB,
@@ -33,7 +33,7 @@ exports.getMatchByIdService = async (marketId) => {
       .where({ marketId })
       .getOne();
     if (!matchDetails) {
-      return res.status(500).send("Match not found.");
+      throw "Match Not Found";
     }
     gameType = matchDetails.gameType;
     teamA = matchDetails.teamA;

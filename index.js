@@ -85,7 +85,7 @@ app.get(
     let matchData = null;
 
     if (marketId) {
-      matchData = await getMatchByIdService(marketId);
+      matchData = await getMatchByIdService(res, marketId);
     }
 
     const gameType = [
