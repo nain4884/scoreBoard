@@ -36,13 +36,13 @@ const PlayerSchema = new EntitySchema({
             name: "bowlerType"
         }
     },
-    indices: [
-        {
-            name: 'idx_player',
-            unique: true, // Optional: Set to true if you want a unique index
-            columns: ['playerType', 'playerName'],
-        }
-    ],
+    // indices: [
+    //     {
+    //         name: 'idx_player',
+    //         unique: true, // Optional: Set to true if you want a unique index
+    //         columns: ['playerType', 'playerName'],
+    //     }
+    // ],
 });
 
 module.exports = PlayerSchema;
