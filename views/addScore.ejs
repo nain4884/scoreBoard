@@ -58,7 +58,12 @@
   }
 </style>
 
+
+
 <div class="container add-match-container">
+  <div id="scoreDisplay">
+
+  </div>
   <div class="row">
     <div class="col-md-12 card p-3">
       <div class="heading-cont">
@@ -88,7 +93,7 @@
           </div>
           <div class="form-group col-md-3">
             <label for="bowlerType">Bowler Type:</label>
-            <br/>
+            <br />
             <div class="btn-group" id="bowlerType" data-toggle="buttons">
               <label class="btn btn-secondary">
                 <input type="radio" name="bowlerType" value="spinner"> Spinner
@@ -118,6 +123,7 @@
 <script>
   const currentInning = "<%= data?.currentInning %>";
 </script>
+<script src="/js/constant.js"></script>
 <script src="/js/showToast.js"></script>
 
 <script src="/js/addScore.js"></script>

@@ -11,7 +11,7 @@ const dataSourceOption = {
   database: process.env.POSTGRES_DATABASE,
   synchronize: false,
   entities: [__dirname + "/../**/*.entity.{js,ts}"],
-  "migrations": [__dirname + '/../**/migrations/*{.js,.ts}'],
+  "migrations": [__dirname + '/../**/migrations/1697434981577-second.js'],
   "migrationsTableName": "migrations",
   logging: true, 
 };

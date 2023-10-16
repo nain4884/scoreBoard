@@ -17,6 +17,7 @@ const { isAuthenticates } = require("./middleware/auth");
 const { getDataSource } = require("./config/PostGresConnection");
 const scoreController = require("./controller/scoreController");
 const playerController = require("./controller/playerController");
+const tossController = require("./controller/tossController");
 
 const app = express();
 app.use(cors({ origin: "*" }));
@@ -54,6 +55,7 @@ app.listen(PORT, () => {
 
 app.use("/score", scoreController);
 app.use("/player", playerController);
+app.use("/toss", tossController);
 app.get(
   "/",
   isAuthenticates,
@@ -97,7 +99,11 @@ app.get(
 
     const addMatchContent = await ejs.renderFile(
       __dirname + "/views/addMatch.ejs",
-      { gameType: gameType, edit: Boolean(marketId), matchData: matchData }
+      {
+        gameType: gameType,
+        edit: marketId ? true : false,
+        matchData: matchData,
+      }
     );
 
     res.render("layout/mainLayout", {

@@ -113,7 +113,7 @@ controller.addMatch = catchAsyncErrors(async (req, res, next) => {
       teamB: matchObj.teamB,
       title: matchObj.title,
       currentInning: matchObj.currentInning || 1,
-      startDate: matchObj.startDate.toString(),
+      startDate: matchObj?.startDate?.toString(),
       overType: matchObj.overType,
       noBallRun: matchObj.noBallRun,
       totalOver: matchObj.totalOver,

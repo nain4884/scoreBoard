@@ -122,7 +122,7 @@ form.onsubmit = async (e) => {
 
   try {
     let data = {};
-    console.log(getQueryParam("id"), "yes");
+    console.log(isEdit);
     if (isEdit) {
       data = {
         startAt: startTime?.value,
