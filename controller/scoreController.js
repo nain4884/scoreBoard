@@ -59,7 +59,7 @@ app.get('/getMatchScore/:marketId', catchAsyncErrors(async (req, res, next) => {
     if (stopAt) {
       redisObj.stopAt = stopAt.toString();
     }
-    if(matchDetails.tossWin){
+    if (matchDetails.tossWin) {
       redisObj.tossWin = matchDetails.tossWin;
       tossWin = matchDetails.tossWin;
       redisObj.firstBatTeam = matchDetails.firstBatTeam;
@@ -452,7 +452,7 @@ app.get(
   "/add/:marketId",
   catchAsyncErrors(async (req, res, next) => {
     const { marketId } = req.params;
-    const matchData = await getMatchByIdService(res,marketId);
+    const matchData = await getMatchByIdService(res, marketId);
 
     const scoreContent = await ejs.renderFile(
       __dirname + "/../views/addScore.ejs",
@@ -476,24 +476,24 @@ app.get(
 
 app.post("/addToss", catchAsyncErrors(async (req, res, next) => {
   let { marketId, teamName, firstChoose } = req.body;
-  if( !(marketId && teamName && firstChoose) ){
+  if (!(marketId && teamName && firstChoose)) {
   }
   let matchDetails = await redisClient.hGetAll(marketId);
   matchDetails.tossWin = teamName;
   matchDetails.currentInning = 1;
-  if(firstChoose.toLowerCase() == "bowling"){
+  if (firstChoose.toLowerCase() == "bowling") {
     matchDetails.firstBatTeam = matchDetails.teamA == teamName ? matchDetails.teamB : matchDetails.teamA;
   } else {
     matchDetails.firstBatTeam = matchDetails.teamA == teamName ? matchDetails.teamA : matchDetails.teamB;
   }
-  
+
   let scoreInning = await scoreInningRepo
-        .createQueryBuilder("scoreInning")
-        .where(
-          "scoreInning.marketId = :marketId and scoreInning.inningNumber = 1",
-          { marketId }
-        )
-        .getOne();
+    .createQueryBuilder("scoreInning")
+    .where(
+      "scoreInning.marketId = :marketId and scoreInning.inningNumber = 1",
+      { marketId }
+    )
+    .getOne();
   let newInning;
   if (scoreInning) {
     newInning = {
@@ -540,12 +540,12 @@ app.post("/addToss", catchAsyncErrors(async (req, res, next) => {
     await scoreInningRepo.save(newInning);
   }
   await redisClient.hSet(marketId + "Inning1", newInning);
-  matchRepo.update({marketId: marketId}, {tossWin: matchDetails.tossWin, firstBatTeam: matchDetails.firstBatTeam});
+  matchRepo.update({ marketId: marketId }, { tossWin: matchDetails.tossWin, firstBatTeam: matchDetails.firstBatTeam });
   res.send("toss save");
 }));
 
 app.post("/updatePlayer", async (req, res, next) => {
-  let { marketId, playerType, playerName, inningNumber } = req.body;
+  let { marketId, playerType, playerName, inningNumber, bowlerType = '' } = req.body;
   if (!marketId) {
     return res.status(500).send("marketId not found.");
   }
@@ -564,9 +564,10 @@ app.post("/updatePlayer", async (req, res, next) => {
   }
   if (playerType == "bowler") {
     redisObj.bowler = playerName;
+    redisObj.bowlerType = bowlerType;
   }
   if (playerType == "bowlerType") {
-    redisObj.bowlerType = playerName;
+    redisObj.bowlerType = bowlerType;
   }
   if (playerType == "message") {
     redisObj.message = playerName;
@@ -604,7 +605,7 @@ app.post("/changeInning", async (req, res, next) => {
   if (isRedis) {
     await redisClient.hSet(marketId, "currentInning", inningNumber);
   }
-  
+
   let innin1Team = await redisClient.hGet(marketId + 'Inning1', 'teamName');
   let redisObj = {
     score: 0,
@@ -643,8 +644,8 @@ app.post("/changeScore", async (req, res, next) => {
 
   let redisObj = await setAndGetInningData(inningNumber, marketId);
   let matchDetails = await redisClient.hGetAll(marketId);
-  
-  if (eventType == "ball") {
+
+  if (eventType.includes("b")) {
     redisObj.score = parseInt(redisObj.score) + score;
     redisObj.over = parseFloat(redisObj.over) + 0.1;
     let isLastBall =
@@ -659,10 +660,11 @@ app.post("/changeScore", async (req, res, next) => {
       redisObj.overRuns = redisObj.overRuns + " " + score;
     }
     let message = await numberToWords(score);
+    redisObj.isFreeHit = false;
     redisObj.message = message;
   }
 
-  if (eventType == "wide") {
+  if (eventType.includes("w")) {
     redisObj.score = parseInt(redisObj.score) + score + 1;
     redisObj.over = parseFloat(redisObj.over);
     let isLastBall =
@@ -672,15 +674,18 @@ app.post("/changeScore", async (req, res, next) => {
     }
     redisObj.overRuns = redisObj.overRuns + " W";
     let message = 'WIDE ';
-    if(score){
+    if (score) {
       message = message + (await numberToWords(score));
       redisObj.overRuns = redisObj.overRuns + "+" + score;
     }
     redisObj.message = message;
   }
-  
-  if (eventType == "no ball") {
+
+  if (eventType.includes("n")) {
     redisObj.score = parseInt(redisObj.score) + score + parseInt(matchDetails.noBallRun);
+    if (!eventType.includes("r")) {
+      redisObj.wicket = parseInt(redisObj.wicket) + 1;
+    }
     redisObj.over = parseFloat(redisObj.over);
     let isLastBall =
       (matchDetails.overType / 10).toFixed(1) == (redisObj.over % 1).toFixed(1);
@@ -689,17 +694,23 @@ app.post("/changeScore", async (req, res, next) => {
     }
     redisObj.overRuns = redisObj.overRuns + " NB";
     let message = 'NO BALL ';
-    if(score){
+    if (score) {
       message = message + (await numberToWords(score));
       redisObj.overRuns = redisObj.overRuns + "+" + score;
     }
+    redisObj.isFreeHit = true;
     redisObj.message = message;
   }
-  
-  if (eventType == "wicket") {
+
+  if (eventType.includes("wck")) {
     redisObj.score = parseInt(redisObj.score) + score;
-    redisObj.over = parseFloat(redisObj.over) + 0.1;
-    redisObj.wicket = parseInt(redisObj.wicket) + 1;
+    if (!eventType.includes("n")) {
+      redisObj.over = parseFloat(redisObj.over) + 0.1;
+    }
+    if (!redisObj.isFreeHit) {
+      redisObj.wicket = parseInt(redisObj.wicket) + 1;
+    }
+    redisObj.isFreeHit = false;
     let isLastBall =
       (matchDetails.overType / 10).toFixed(1) == (redisObj.over % 1).toFixed(1);
     if (isLastBall) {
@@ -707,11 +718,48 @@ app.post("/changeScore", async (req, res, next) => {
     }
     redisObj.overRuns = redisObj.overRuns + " WCK";
     let message = 'WICKET ';
-    if(score){
+    if (score) {
       message = message + (await numberToWords(score));
       redisObj.overRuns = redisObj.overRuns + "+" + score;
     }
     redisObj.message = message;
+  }
+
+  if (eventType.includes("r")) {
+    redisObj.score = parseInt(redisObj.score) + score;
+    if (!eventType.includes("n")) {
+      redisObj.over = parseFloat(redisObj.over) + 0.1;
+    }
+    redisObj.wicket = parseInt(redisObj.wicket) + 1;
+    redisObj.isFreeHit = false;
+    let isLastBall =
+      (matchDetails.overType / 10).toFixed(1) == (redisObj.over % 1).toFixed(1);
+    if (isLastBall) {
+      redisObj.over = Math.ceil(redisObj.over);
+    }
+    redisObj.overRuns = redisObj.overRuns + " WCK";
+    let message = 'RUN OUT ';
+    if (score) {
+      message = message + (await numberToWords(score));
+      redisObj.overRuns = redisObj.overRuns + "+" + score;
+    }
+    redisObj.message = message;
+  }
+
+  if (eventType.includes("ball start")) {
+    redisObj.message = "Ball Started";
+  }
+
+  if (eventType.includes("ball stop")) {
+    redisObj.message = "Ball Stop";
+  }
+
+  if (eventType.includes('d')) {
+    redisObj.message = "Drink Break";
+  }
+
+  if (eventType.includes('timeout')) {
+    redisObj.message = "Time Out";
   }
 
   // update common value in all condition
@@ -736,8 +784,8 @@ app.post("/changeScore", async (req, res, next) => {
       redisObj.customMsg = `BAN NEED ${totalRunInn1 - redisObj.score} RUNS OFF ${remainingBall} BALLS`;
     }
   }
-  
-  if(score%2 == 1){
+
+  if (score % 2 == 1) {
     let tempName = redisObj.striker;
     redisObj.striker = redisObj.nonStriker;
     redisObj.nonStriker = tempName;
@@ -868,6 +916,7 @@ async function setAndGetInningData(inningNumber, marketId) {
   }
   return redisObj;
 }
+
 // timeout r
 // drink break d
 // ball start
