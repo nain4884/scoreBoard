@@ -110,7 +110,6 @@ const handleChangeInning = async () => {
 
     currentInningVal = parseInt(currentInningVal) + 1;
     elements.inning.innerHTML = currentInningVal;
-    console.log(currentInningVal);
   } catch (error) {
     showToast(error, "error");
     // Display an error message to the user
@@ -123,7 +122,6 @@ const handleChangeInning = async () => {
  * @param {string} key - The key pressed.
  */
 const handleChangeScore = async (key) => {
-console.log(currentInningVal);
 
   switch (key) {
     case "Escape":
