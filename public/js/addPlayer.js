@@ -91,7 +91,7 @@ async function addPlayerToMatch() {
     teamName: teamName.value,
     playerName: playerName.value,
     playerType: getSelectedPlayerType(),
-    bowlerType: bowlerType.value,
+    bowlerType: bowlerType.value || 'spinner',
   };
 
   return fetch("/player/add", {

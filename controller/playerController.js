@@ -4,6 +4,7 @@ const PlayerSchema = require("../models/Player.entity");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const { getMatchByIdService } = require("../services/scoreService");
 const ejs = require("ejs");
+const { Not } = require("typeorm");
 
 const app = Router();
 const playerRepo = AppDataSource.getRepository(PlayerSchema);
@@ -11,7 +12,7 @@ const playerRepo = AppDataSource.getRepository(PlayerSchema);
 app.post(
   "/add",
   catchAsyncErrors(async (req, res, next) => {
-    try{
+    try {
       let body = req.body;
       let playerObject = {};
       if (body.id) {
@@ -37,14 +38,14 @@ app.post(
           bowlerType: body.bowlerType,
         };
       }
-  
+
       const savePlayer = await playerRepo.save(playerObject);
       if (savePlayer) {
         return res.json(savePlayer);
       } else {
         return req.status(500).send("Error while saving data");
       }
-    } catch(error){
+    } catch (error) {
       res.status(500).send("error while adding player ", error);
     }
   })
@@ -69,17 +70,31 @@ app.get(
   })
 );
 
-app.post("/getPlayerByMatch",catchAsyncErrors(async (req, res, next) => {
+app.post("/getPlayerByMatch", catchAsyncErrors(async (req, res, next) => {
   let { marketId, teamName, gameType, findBowler = false } = req.body;
-  let whereObj = { marketId, teamName, gameType }
+  let whereObj = { marketId, gameType }
   let sortObj = { playerName: 'ASC' }
-  if(findBowler){
-    sortObj = { playerType : 'DESC', playerName: 'ASC' }
+  if (findBowler) {
+    sortObj = { playerType: 'DESC', playerName: 'ASC' }
   } else {
     whereObj.isPlayerOut = false;
   }
-  let player = await playerRepo.find({ where : whereObj, order: sortObj });
-  res.json(player);
+  if (teamName) {
+    whereObj.teamName = teamName;
+  }
+  let player = await playerRepo.find({ where: whereObj, order: sortObj });
+  let returnData = {};
+  if (!findBowler) {
+    returnData.batsman = player;
+    let bowler = await playerRepo.find({
+      where: { marketId, gameType, teamName: Not(teamName) }, order:
+        { playerType: 'DESC', bowlerType: 'ASC', playerName: 'ASC' }
+    });
+    returnData.bowler = bowler;
+  } else {
+    returnData.bowler = player;
+  }
+  res.json(returnData);
 }));
 
 module.exports = app;
