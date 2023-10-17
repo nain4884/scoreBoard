@@ -16,6 +16,7 @@ const {
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ejs = require("ejs");
 const { getMatchByIdService } = require("../services/scoreService");
+const { isAuthenticates } = require("../middleware/auth");
 
 const matchRepo = AppDataSource.getRepository(MatchSchema);
 const scoreInningRepo = AppDataSource.getRepository(ScoreInning);
@@ -532,15 +533,17 @@ app.get(
                   
               </div>
               <div class="match_status">
-                  <span class="commantry">${parseInt(currentInning) == 2 ? inn2Message : inn1Message
-        }</span>
+                  <span class="commantry">${
+                    parseInt(currentInning) == 2 ? inn2Message : inn1Message
+                  }</span>
                   <p class="target">${customMsg || ""}</p>
                   <span class="day"><div class="score-over">
                           <ul><li class="six-balls ">
-                            ${parseInt(currentInning) == 2
-          ? inn2overRuns
-          : inn1overRuns
-        }
+                            ${
+                              parseInt(currentInning) == 2
+                                ? inn2overRuns
+                                : inn1overRuns
+                            }
                           </li><li class="six-balls "></ul>
                     </div></span>
                   </div>
@@ -662,7 +665,7 @@ app.post(
     }
     newInning.startAt = new Date();
     newInning.startAt = newInning.startAt.toString();
-    newInning.stopAt = newInning.stopAt?.toString() || '';
+    newInning.stopAt = newInning.stopAt?.toString() || "";
     await redisClient.hSet(marketId + "Inning1", newInning);
     matchRepo.update(
       { marketId: marketId },
@@ -672,56 +675,59 @@ app.post(
   })
 );
 
-app.post("/updatePlayer", catchAsyncErrors(async (req, res, next) => {
-  let {
-    marketId,
-    playerType,
-    playerName,
-    inningNumber,
-    bowlerType = "",
-  } = req.body;
-  if (!marketId) {
-    return res.status(500).send("marketId not found.");
-  }
-  if (!inningNumber) {
-    return res.status(500).send("Inning number not found.");
-  }
-  if (!playerType) {
-    return res.status(500).send("playerType not found.");
-  }
-  let redisObj = await setAndGetInningData(inningNumber, marketId);
-  console.log(redisObj);
-  if (playerType == "striker") {
-    redisObj.striker = playerName;
-  }
-  if (playerType == "nonStriker") {
-    redisObj.nonStriker = playerName;
-  }
-  if (playerType == "bowler") {
-    redisObj.bowler = playerName;
-    redisObj.bowlerType = bowlerType;
-  }
-  if (playerType == "bowlerType") {
-    redisObj.bowlerType = bowlerType;
-  }
-  if (playerType == "message") {
-    redisObj.message = playerName;
-  }
-  if (inningNumber == 1) {
-    await redisClient.hSet(marketId + "Inning1", redisObj);
-  } else {
-    await redisClient.hSet(marketId + "Inning2", redisObj);
-  }
-  delete redisObj["customMsg"];
-  delete redisObj["startAt"];
-  delete redisObj["stopAt"];
-  delete redisObj["isFreeHit"];
-  scoreInningRepo.update(
-    { marketId: marketId, inningNumber: inningNumber },
-    redisObj
-  );
-  return res.json(redisObj);
-}));
+app.post(
+  "/updatePlayer",
+  catchAsyncErrors(async (req, res, next) => {
+    let {
+      marketId,
+      playerType,
+      playerName,
+      inningNumber,
+      bowlerType = "",
+    } = req.body;
+    if (!marketId) {
+      return res.status(500).send("marketId not found.");
+    }
+    if (!inningNumber) {
+      return res.status(500).send("Inning number not found.");
+    }
+    if (!playerType) {
+      return res.status(500).send("playerType not found.");
+    }
+    let redisObj = await setAndGetInningData(inningNumber, marketId);
+    console.log(redisObj);
+    if (playerType == "striker") {
+      redisObj.striker = playerName;
+    }
+    if (playerType == "nonStriker") {
+      redisObj.nonStriker = playerName;
+    }
+    if (playerType == "bowler") {
+      redisObj.bowler = playerName;
+      redisObj.bowlerType = bowlerType;
+    }
+    if (playerType == "bowlerType") {
+      redisObj.bowlerType = bowlerType;
+    }
+    if (playerType == "message") {
+      redisObj.message = playerName;
+    }
+    if (inningNumber == 1) {
+      await redisClient.hSet(marketId + "Inning1", redisObj);
+    } else {
+      await redisClient.hSet(marketId + "Inning2", redisObj);
+    }
+    delete redisObj["customMsg"];
+    delete redisObj["startAt"];
+    delete redisObj["stopAt"];
+    delete redisObj["isFreeHit"];
+    scoreInningRepo.update(
+      { marketId: marketId, inningNumber: inningNumber },
+      redisObj
+    );
+    return res.json(redisObj);
+  })
+);
 
 app.post("/changeInning", async (req, res, next) => {
   let { marketId, inningNumber } = req.body;
@@ -933,8 +939,9 @@ app.post(
           marketId + "Inning1",
           "score"
         );
-        redisObj.customMsg = `BAN NEED ${totalRunInn1 - redisObj.score
-          } RUNS OFF ${remainingBall} BALLS`;
+        redisObj.customMsg = `BAN NEED ${
+          totalRunInn1 - redisObj.score
+        } RUNS OFF ${remainingBall} BALLS`;
       }
     }
 
@@ -1065,7 +1072,7 @@ async function setAndGetInningData(inningNumber, marketId) {
           bowlerType: "",
           teamName:
             matchDetails.firstBatTeam &&
-              matchDetails.firstBatTeam == matchDetails.teamA
+            matchDetails.firstBatTeam == matchDetails.teamA
               ? matchDetails.teamA
               : matchDetails.teamB,
           message: "",
@@ -1083,6 +1090,20 @@ async function setAndGetInningData(inningNumber, marketId) {
   }
   return redisObj;
 }
+
+app.get(
+  "/help",
+  isAuthenticates,
+  catchAsyncErrors(async (req, res, next) => {
+    const helpContent = await ejs.renderFile(__dirname + "/../views/help.ejs", {
+    });
+
+    res.render("layout/mainLayout", {
+      title: "Help",
+      body: helpContent,
+    });
+  })
+);
 
 // timeout r
 // drink break d
