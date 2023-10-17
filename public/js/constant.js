@@ -10,12 +10,12 @@ const ballEventKeys = {
   t: "timeout", //timeout
 };
 
-const keyName={
-    b: "Ball", //ball with score
-    w: "Wicket", //wide ball
-    n: "No Ball", //no ball
-    r: "Run out", //run out
-    o: "Wicket", //wicket
-    d: "Drink Break", //drink break
-    t: "Timeout", //timeout
-}
+const keyName = {
+  b: "Ball", //ball with score
+  w: "Wide Ball", //wide ball
+  n: "No Ball", //no ball
+  r: "Run out", //run out
+  wck: "Wicket", //wicket
+  d: "Drink Break", //drink break
+  timeout: "Timeout", //timeout
+};

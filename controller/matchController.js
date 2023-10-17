@@ -1,13 +1,15 @@
 // Controller.js
 const ejs = require("ejs");
 const { Router } = require("express");
-const { getDataSource } = require("../config/PostGresConnection.js");
+const { getDataSource, AppDataSource } = require("../config/PostGresConnection.js");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const MatchSchema = require("../models/Match.entity");
 const redisClient = require("../config/redisConnection");
 const { getMatchByIdService } = require("../services/scoreService");
 const { isAuthenticates } = require("../middleware/auth.js");
 const app = Router();
+const matchRepo = AppDataSource.getRepository(MatchSchema);
+
 
 app.get(
   "/addmatch",
@@ -51,8 +53,7 @@ app.post(
     if (!body.id && checkCricketRequiredFileds(body)) {
       return res.status(500).send("Add all required fields for add matches");
     }
-    const AppDataSource = await getDataSource();
-    const matchRepo = AppDataSource.getRepository(MatchSchema);
+   
 
     let alreadyMatchAdded = await matchRepo.findOne({
       where: { marketId: body.marketId },
@@ -139,8 +140,6 @@ app.get(
   "/",
   isAuthenticates,
   catchAsyncErrors(async (req, res, next) => {
-    const AppDataSource = await getDataSource();
-    const matchRepo = AppDataSource.getRepository(MatchSchema);
 
     const match = await matchRepo
       .createQueryBuilder("match")

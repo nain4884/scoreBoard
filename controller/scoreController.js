@@ -673,7 +673,7 @@ app.post(
   })
 );
 
-app.post("/updatePlayer", async (req, res, next) => {
+app.post("/updatePlayer", catchAsyncErrors(async (req, res, next) => {
   let {
     marketId,
     playerType,
@@ -691,6 +691,7 @@ app.post("/updatePlayer", async (req, res, next) => {
     return res.status(500).send("playerType not found.");
   }
   let redisObj = await setAndGetInningData(inningNumber, marketId);
+  console.log(redisObj);
   if (playerType == "striker") {
     redisObj.striker = playerName;
   }
@@ -715,12 +716,13 @@ app.post("/updatePlayer", async (req, res, next) => {
   delete redisObj["customMsg"];
   delete redisObj["startAt"];
   delete redisObj["stopAt"];
+  delete redisObj["isFreeHit"];
   scoreInningRepo.update(
     { marketId: marketId, inningNumber: inningNumber },
     redisObj
   );
   return res.json(redisObj);
-});
+}));
 
 app.post("/changeInning", async (req, res, next) => {
   let { marketId, inningNumber } = req.body;
@@ -784,9 +786,8 @@ app.post(
 
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     let matchDetails = await redisClient.hGetAll(marketId);
-    
-    redisObj.isFreeHit = JSON.parse(redisObj.isFreeHit);
-    redisObj.over = parseFloat(redisObj.over);
+    redisObj.isFreeHit = redisObj.isFreeHit?JSON.parse(redisObj.isFreeHit):false;
+    redisObj.over = redisObj.over?parseFloat(redisObj.over):0;
 
     if (eventType.includes("b")) {
       redisObj.score = parseInt(redisObj.score) + score;

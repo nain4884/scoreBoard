@@ -2,11 +2,12 @@ const ejs = require("ejs");
 const bcrypt=require("bcrypt");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const { validationResult, body } = require("express-validator");
-const { getDataSource } = require("../orm.config");
+const { getDataSource, AppDataSource } = require("../orm.config");
 const { Router } = require("express");
 const User = require("../models/User.entity");
 
 const app = Router();
+const userRepo = AppDataSource.getRepository(User);
 
 
 app.post(
@@ -21,8 +22,6 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const AppDataSource = await getDataSource();
-    const userRepo = AppDataSource.getRepository(User);
     const user = await userRepo
       .createQueryBuilder("user")
       .where("user.userName = :userName", { userName })
@@ -86,8 +85,7 @@ app.post(
     }
     const saltRounds = 10;
     password = await bcrypt.hash(password, saltRounds);
-    const AppDataSource = await getDataSource();
-    const userRepo = AppDataSource.getRepository(User);
+    
     const newUser = userRepo.create({
       userName,
       password,

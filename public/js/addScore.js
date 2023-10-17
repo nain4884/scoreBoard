@@ -31,10 +31,9 @@ let score = 0;
 let events = [];
 
 /** @type {number} */
-const currentInningVal = currentInning;
+let currentInningVal = currentInning;
 const marketId = window.location.href.split("/").pop();
 let currScore = -1;
-
 /**
  * Change player information via an API call.
  *
@@ -62,6 +61,7 @@ const changePlayer = async (type, value) => {
     }
 
     const data = await response.json();
+    getScore();
   } catch (error) {
     console.error("Error:", error);
     // Display an error message to the user
@@ -108,11 +108,11 @@ const handleChangeInning = async () => {
       throw new Error("API request failed");
     }
 
-    const data = await response.json();
     currentInningVal = parseInt(currentInningVal) + 1;
     elements.inning.innerHTML = currentInningVal;
+    console.log(currentInningVal);
   } catch (error) {
-    showToast(await response.text(), "error");
+    showToast(error, "error");
     // Display an error message to the user
   }
 };
@@ -123,6 +123,8 @@ const handleChangeInning = async () => {
  * @param {string} key - The key pressed.
  */
 const handleChangeScore = async (key) => {
+console.log(currentInningVal);
+
   switch (key) {
     case "Escape":
     case "esc":
@@ -183,7 +185,7 @@ const handleChangeScore = async (key) => {
         Object.keys(ballEventKeys).includes(key) &&
         !events.includes(key)
       ) {
-        events.push(key);
+        events.push(ballEventKeys[key]);
       }
       break;
   }
@@ -273,3 +275,5 @@ elements.changeInning.addEventListener("click", (e) => {
   e.preventDefault();
   handleChangeInning();
 });
+
+window.onload = getScore;
