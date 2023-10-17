@@ -64,7 +64,6 @@ async function fetchEventList(id) {
       throw new Error("API request failed");
     }
     const data = await response.json();
-    console.log(data);
     if (data) {
       matchType.innerHTML = "";
 
@@ -94,8 +93,10 @@ async function setMatchValues(data) {
   teamC.value = data?.runners?.[2]?.runnerName || "";
 
   const selectedDate = new Date(data?.marketStartTime);
-  const formattedDate = selectedDate.toISOString().split("T")[0];
-  startTime.value = formattedDate;
+  // Extract date and time components
+  const datePart = selectedDate.toISOString().split("T")[0];
+  const timePart = selectedDate.toISOString().split("T")[1].substring(0, 5); // HH:mm
+  startTime.value = `${datePart}T${timePart}`;
 }
 
 // Event listeners
@@ -122,7 +123,6 @@ form.onsubmit = async (e) => {
 
   try {
     let data = {};
-    console.log(isEdit);
     if (isEdit) {
       data = {
         startAt: startTime?.value,

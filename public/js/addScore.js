@@ -62,7 +62,6 @@ const changePlayer = async (type, value) => {
     }
 
     const data = await response.json();
-    console.log(data);
   } catch (error) {
     console.error("Error:", error);
     // Display an error message to the user
@@ -124,7 +123,6 @@ const handleChangeInning = async () => {
  * @param {string} key - The key pressed.
  */
 const handleChangeScore = async (key) => {
-  console.log(key);
   switch (key) {
     case "Escape":
     case "esc":
@@ -142,41 +140,39 @@ const handleChangeScore = async (key) => {
       }
       break;
     case "Enter":
-      if (events.length > 0) {
-        try {
-          const response = await fetch(`${API_BASE_URL}/score/changeScore`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              marketId,
-              inningNumber: currentInningVal,
-              eventType: events,
-              score: score,
-            }),
-          });
+      try {
+        const response = await fetch(`${API_BASE_URL}/score/changeScore`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            marketId,
+            inningNumber: currentInningVal,
+            eventType: events,
+            score: score,
+          }),
+        });
 
-          if (!response.ok) {
-            showToast(await response.text(), "error");
-            throw Error("API request failed");
-          }
-
-          const data = await response.json();
-         await getScore();
-          if (data?.message == "Ball Started") {
-            localStorage.setItem("ballStart", true);
-          } else if (data?.message == "Ball Stop") {
-            localStorage.setItem("ballStart", false);
-          }
-          currScore = -1;
-          elements.currScoreShow.innerHTML = "";
-          score = 0;
-          events = [];
-        } catch (error) {
-          console.error("Error:", error);
-          // Display an error message to the user
+        if (!response.ok) {
+          showToast(await response.text(), "error");
+          throw Error("API request failed");
         }
+
+        const data = await response.json();
+        await getScore();
+        if (data?.message == "Ball Started") {
+          localStorage.setItem("ballStart", true);
+        } else if (data?.message == "Ball Stop") {
+          localStorage.setItem("ballStart", false);
+        }
+        currScore = -1;
+        elements.currScoreShow.innerHTML = "";
+        score = 0;
+        events = [];
+      } catch (error) {
+        console.error("Error:", error);
+        // Display an error message to the user
       }
       break;
     default:
@@ -191,7 +187,6 @@ const handleChangeScore = async (key) => {
       }
       break;
   }
-  console.log(events);
 
   elements.currScoreShow.innerHTML = `<p>Event keys: ${events
     .map((item) => (keyName[item] ? keyName[item] : item))
@@ -200,18 +195,21 @@ const handleChangeScore = async (key) => {
 
 const getScore = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/score/getMatchScore/${marketId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${API_BASE_URL}/score/getMatchScore/${marketId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
 
     if (!response.ok) {
       showToast(await response.text(), "error");
       throw Error("API request failed");
     }
-    document.getElementById("scoreDisplay").innerHTML=await response.text()
+    document.getElementById("scoreDisplay").innerHTML = await response.text();
   } catch (error) {
     console.log(error);
   }
