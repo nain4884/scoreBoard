@@ -785,8 +785,8 @@ app.post(
 
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     let matchDetails = await redisClient.hGetAll(marketId);
-    redisObj.isFreeHit = redisObj.isFreeHit?JSON.parse(redisObj.isFreeHit):false;
-    redisObj.over = redisObj.over?parseFloat(redisObj.over):0;
+    redisObj.isFreeHit = redisObj.isFreeHit ? JSON.parse(redisObj.isFreeHit) : false;
+    redisObj.over = redisObj.over ? parseFloat(redisObj.over) : 0;
     let isLastBall = false;
 
     if (eventType.includes("b")) {
@@ -950,13 +950,13 @@ app.post(
     );
     redisObj.over = redisObj?.over?.toFixed(1);
     redisObj.isFreeHit = redisObj.isFreeHit.toString();
-    
-    redisClient.hSet(marketId + "Inning" + inningNumber, redisObj).catch(err =>{
+
+    redisClient.hSet(marketId + "Inning" + inningNumber, redisObj).catch(err => {
       console.log(err);
     });
     redisObj.isLastBall = isLastBall;
     const { customMsg, startAt, stopAt, isFreeHit, ...dbUpdateObj } = redisObj;
-    
+
     scoreInningRepo.update(
       { marketId: marketId, inningNumber: inningNumber },
       dbUpdateObj
