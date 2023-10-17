@@ -663,7 +663,6 @@ app.post(
     newInning.startAt = new Date();
     newInning.startAt = newInning.startAt.toString();
     newInning.stopAt = newInning.stopAt?.toString() || '';
-    newInning.stopAt = newInning.stopAt?.toString() || '';
     await redisClient.hSet(marketId + "Inning1", newInning);
     matchRepo.update(
       { marketId: marketId },
