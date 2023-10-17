@@ -71,13 +71,15 @@ app.get(
 );
 
 app.post("/getPlayerByMatch", catchAsyncErrors(async (req, res, next) => {
-  let { marketId, teamName, gameType, findBowler = false } = req.body;
+  let { marketId, teamName, gameType, findBowler = false, outPlayer = true } = req.body;
   let whereObj = { marketId, gameType }
   let sortObj = { playerName: 'ASC' }
   if (findBowler) {
     sortObj = { playerType: 'DESC', playerName: 'ASC' }
   } else {
-    whereObj.isPlayerOut = false;
+    if(!outPlayer){
+      whereObj.isPlayerOut = false;
+    }
   }
   if (teamName) {
     whereObj.teamName = teamName;
