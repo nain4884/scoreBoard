@@ -8,6 +8,9 @@ const ballEventKeys = {
   o: "wck", //wicket
   d: "d", //drink break
   t: "timeout", //timeout
+  shift: "shift", //ball start/stop
+  esc: "clear", //clear event
+  enter: "submit", //submit event
 };
 
 const keyName = {
@@ -18,4 +21,7 @@ const keyName = {
   wck: "Wicket", //wicket
   d: "Drink Break", //drink break
   timeout: "Timeout", //timeout
+  shift: "Ball Start/Stop", //ball start/stop
+  clear: "Clear event",//clear event
+  submit: "Submit event",//submit event
 };

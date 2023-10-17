@@ -47,6 +47,12 @@
     height: 100%;
   }
 
+  .undo-btn {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+  }
+
   @media screen and (max-width: 768px) {
     .add-match-container {
       max-width: 100%;
@@ -109,11 +115,15 @@
             </button>
           </div>
         </div>
+
         <div id="scoreEvent" class="score-container">
           <input id="scoreInput" type="text" placeholder="Enter your score here" class="score-container-input" />
           <p id="curr-score">
             Please enter your score
           </p>
+          <button class="undo-btn btn btn-secondary">
+            <i class="bi bi-arrow-counterclockwise rotate-180"></i>
+          </button>
         </div>
       </form>
     </div>
