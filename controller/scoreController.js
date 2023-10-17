@@ -597,7 +597,7 @@ app.post(
     let matchDetails = await redisClient.hGetAll(marketId);
     matchDetails.tossWin = teamName;
     matchDetails.currentInning = 1;
-    if (firstChoose.toLowerCase() == "bowling") {
+    if (firstChoose.toLowerCase() == "ball") {
       matchDetails.firstBatTeam =
         matchDetails.teamA == teamName
           ? matchDetails.teamB
@@ -662,7 +662,7 @@ app.post(
     }
     newInning.startAt = new Date();
     newInning.startAt = newInning.startAt.toString();
-    newInning.startAt = newInning.startAt?.toString() || '';
+    newInning.stopAt = newInning.stopAt?.toString() || '';
     await redisClient.hSet(marketId + "Inning1", newInning);
     matchRepo.update(
       { marketId: marketId },
@@ -711,6 +711,9 @@ app.post("/updatePlayer", async (req, res, next) => {
   } else {
     await redisClient.hSet(marketId + "Inning2", redisObj);
   }
+  delete redisObj["customMsg"];
+  delete redisObj["startAt"];
+  delete redisObj["stopAt"];
   scoreInningRepo.update(
     { marketId: marketId, inningNumber: inningNumber },
     redisObj
@@ -780,10 +783,13 @@ app.post(
 
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     let matchDetails = await redisClient.hGetAll(marketId);
+    
+    redisObj.isFreeHit = JSON.parse(redisObj.isFreeHit);
+    redisObj.over = parseFloat(redisObj.over);
 
     if (eventType.includes("b")) {
       redisObj.score = parseInt(redisObj.score) + score;
-      redisObj.over = parseFloat(redisObj.over) + 0.1;
+      redisObj.over = redisObj.over + 0.1;
       let isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
@@ -803,7 +809,6 @@ app.post(
 
     if (eventType.includes("w")) {
       redisObj.score = parseInt(redisObj.score) + score + 1;
-      redisObj.over = parseFloat(redisObj.over);
       let isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
@@ -825,7 +830,6 @@ app.post(
       if (!eventType.includes("r")) {
         redisObj.wicket = parseInt(redisObj.wicket) + 1;
       }
-      redisObj.over = parseFloat(redisObj.over);
       let isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
@@ -870,9 +874,9 @@ app.post(
       redisObj.score = parseInt(redisObj.score) + score;
       if (!eventType.includes("n")) {
         redisObj.over = parseFloat(redisObj.over) + 0.1;
+        redisObj.isFreeHit = false;
       }
       redisObj.wicket = parseInt(redisObj.wicket) + 1;
-      redisObj.isFreeHit = false;
       let isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
@@ -890,22 +894,18 @@ app.post(
 
     if (eventType.includes("ball start")) {
       redisObj.message = "Ball Started";
-      redisObj.over = parseInt(redisObj?.over);
     }
 
     if (eventType.includes("ball stop")) {
       redisObj.message = "Ball Stop";
-      redisObj.over = parseInt(redisObj?.over);
     }
 
     if (eventType.includes("d")) {
       redisObj.message = "Drink Break";
-      redisObj.over = parseInt(redisObj?.over);
     }
 
     if (eventType.includes("timeout")) {
       redisObj.message = "Time Out";
-      redisObj.over = parseInt(redisObj?.over);
     }
 
     // update common value in all condition
@@ -947,14 +947,19 @@ app.post(
       matchDetails.overType
     );
     redisObj.over = redisObj?.over?.toFixed(1);
-    console.log(redisObj);
-    redisClient.hSet(marketId + "Inning" + inningNumber, redisObj);
-
-    delete redisObj["customMsg"];
+    redisObj.isFreeHit = redisObj.isFreeHit.toString();
+    
+    redisClient.hSet(marketId + "Inning" + inningNumber, redisObj).catch(err =>{
+      console.log(err);
+    });
+    const { customMsg, startAt, stopAt, isFreeHit, ...dbUpdateObj } = redisObj;
+    
     scoreInningRepo.update(
       { marketId: marketId, inningNumber: inningNumber },
-      redisObj
-    );
+      dbUpdateObj
+    ).catch(err => {
+      console.log(err);
+    });
 
     res.json(redisObj);
   })
