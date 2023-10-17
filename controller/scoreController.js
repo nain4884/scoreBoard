@@ -791,15 +791,14 @@ app.post(
 
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     let matchDetails = await redisClient.hGetAll(marketId);
-    redisObj.isFreeHit = redisObj.isFreeHit
-      ? JSON.parse(redisObj.isFreeHit)
-      : false;
-    redisObj.over = redisObj.over ? parseFloat(redisObj.over) : 0;
+    redisObj.isFreeHit = redisObj.isFreeHit?JSON.parse(redisObj.isFreeHit):false;
+    redisObj.over = redisObj.over?parseFloat(redisObj.over):0;
+    let isLastBall = false;
 
     if (eventType.includes("b")) {
       redisObj.score = parseInt(redisObj.score) + score;
       redisObj.over = redisObj.over + 0.1;
-      let isLastBall =
+      isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
       if (isLastBall) {
@@ -818,7 +817,7 @@ app.post(
 
     if (eventType.includes("w")) {
       redisObj.score = parseInt(redisObj.score) + score + 1;
-      let isLastBall =
+      isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
       if (isLastBall) {
@@ -839,7 +838,7 @@ app.post(
       if (!eventType.includes("r")) {
         redisObj.wicket = parseInt(redisObj.wicket) + 1;
       }
-      let isLastBall =
+      isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
       if (isLastBall) {
@@ -864,7 +863,7 @@ app.post(
         redisObj.wicket = parseInt(redisObj.wicket) + 1;
       }
       redisObj.isFreeHit = false;
-      let isLastBall =
+      isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
       if (isLastBall) {
@@ -886,7 +885,7 @@ app.post(
         redisObj.isFreeHit = false;
       }
       redisObj.wicket = parseInt(redisObj.wicket) + 1;
-      let isLastBall =
+      isLastBall =
         (matchDetails.overType / 10).toFixed(1) ==
         (redisObj.over % 1).toFixed(1);
       if (isLastBall) {
@@ -958,12 +957,11 @@ app.post(
     );
     redisObj.over = redisObj?.over?.toFixed(1);
     redisObj.isFreeHit = redisObj.isFreeHit.toString();
-
-    redisClient
-      .hSet(marketId + "Inning" + inningNumber, redisObj)
-      .catch((err) => {
-        console.log(err);
-      });
+    
+    redisClient.hSet(marketId + "Inning" + inningNumber, redisObj).catch(err =>{
+      console.log(err);
+    });
+    redisObj.isLastBall = isLastBall;
     const { customMsg, startAt, stopAt, isFreeHit, ...dbUpdateObj } = redisObj;
 
     scoreInningRepo
