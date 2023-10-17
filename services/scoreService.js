@@ -8,7 +8,7 @@ exports.getMatchByIdService = async (res,marketId) => {
     teamB,
     title,
     stopAt,
-    startDate,
+    startAt,
     currentInning,
     overType,
     totalOver,
@@ -20,7 +20,7 @@ exports.getMatchByIdService = async (res,marketId) => {
     teamB = matchDetails.teamB;
     title = matchDetails.title;
     stopAt = matchDetails.stopAt;
-    startDate = matchDetails.startDate;
+    startAt = matchDetails.startAt;
     overType = matchDetails.overType;
     noBallRun = matchDetails.noBallRun;
     totalOver = matchDetails.totalOver;
@@ -40,7 +40,7 @@ exports.getMatchByIdService = async (res,marketId) => {
     teamB = matchDetails.teamB;
     title = matchDetails.title;
     stopAt = matchDetails.stopAt;
-    startDate = matchDetails.startDate;
+    startAt = matchDetails.startAt;
     overType = matchDetails.overType;
     noBallRun = matchDetails.noBallRun;
     totalOver = matchDetails.totalOver;
@@ -51,7 +51,7 @@ exports.getMatchByIdService = async (res,marketId) => {
       teamB: teamB,
       title: title,
       currentInning: currentInning,
-      startDate: startDate.toString(),
+      startAt: startAt.toString(),
       overType: overType,
       noBallRun: noBallRun,
       totalOver: totalOver,
@@ -68,7 +68,7 @@ exports.getMatchByIdService = async (res,marketId) => {
     teamB,
     title,
     stopAt,
-    startDate,
+    startAt,
     overType,
     noBallRun,
     currentInning,

@@ -65,7 +65,7 @@ app.get(
 
     const match = await matchRepo
       .createQueryBuilder("match")
-      .orderBy("match.startDate", "DESC")
+      .orderBy("match.startAt", "DESC")
       .getMany();
 
     const homeContent = await ejs.renderFile(__dirname + "/views/home.ejs", {

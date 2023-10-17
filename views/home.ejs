@@ -47,7 +47,7 @@
       <div class="match-name">
         <b><%= item?.title%></b>
         <span>
-          (<%=new Date(item?.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })%>)
+          (<%=new Date(item?.startAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })%>)
         </span>
         <a href="/addmatch?marketId=<%= item?.marketId %>&id=<%= item?.id %>">
 

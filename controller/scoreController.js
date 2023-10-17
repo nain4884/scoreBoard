@@ -36,7 +36,7 @@ app.get(
       teamB,
       title,
       stopAt,
-      startDate,
+      startAt,
       currentInning,
       striker,
       nonStriker,
@@ -54,7 +54,7 @@ app.get(
       teamB = matchDetails.teamB;
       title = matchDetails.title;
       stopAt = matchDetails.stopAt;
-      startDate = matchDetails.startDate;
+      startAt = matchDetails.startAt;
       totalOver = matchDetails.totalOver;
       currentInning = matchDetails.currentInning || 1;
       tossWin = matchDetails.tossWin;
@@ -72,7 +72,7 @@ app.get(
       teamB = matchDetails.teamB;
       title = matchDetails.title;
       stopAt = matchDetails.stopAt;
-      startDate = matchDetails.startDate;
+      startAt = matchDetails.startAt;
       overType = matchDetails.overType;
       noBallRun = matchDetails.noBallRun;
       totalOver = matchDetails.totalOver;
@@ -83,7 +83,7 @@ app.get(
         teamB: teamB,
         title: title,
         currentInning: currentInning,
-        startDate: startDate.toString(),
+        startAt: startAt.toString(),
         overType: overType,
         noBallRun: noBallRun,
         totalOver: totalOver,
@@ -157,7 +157,7 @@ app.get(
         newInning.inningNumber = 1;
         newInning.marketId = marketId;
         newInning.title = matchDetails.title;
-        newInning.startDate = new Date();
+        newInning.startAt = new Date();
         newInning.gameType = "Cricket";
         scoreInning = newInning;
         await scoreInningRepo.save(newInning);
@@ -255,7 +255,7 @@ app.get(
           newInning.inningNumber = 2;
           newInning.marketId = marketId;
           newInning.title = matchDetails.title;
-          newInning.startDate = new Date();
+          newInning.startAt = new Date();
           newInning.gameType = "Cricket";
           scoreInning = newInning;
           await scoreInningRepo.save(newInning);
@@ -307,7 +307,7 @@ app.get(
         marketId,
         teamA,
         teamB,
-        startDate,
+        startAt,
         currentInning,
         innings: [
           {
@@ -532,17 +532,15 @@ app.get(
                   
               </div>
               <div class="match_status">
-                  <span class="commantry">${
-                    parseInt(currentInning) == 2 ? inn2Message : inn1Message
-                  }</span>
+                  <span class="commantry">${parseInt(currentInning) == 2 ? inn2Message : inn1Message
+        }</span>
                   <p class="target">${customMsg || ""}</p>
                   <span class="day"><div class="score-over">
                           <ul><li class="six-balls ">
-                            ${
-                              parseInt(currentInning) == 2
-                                ? inn2overRuns
-                                : inn1overRuns
-                            }
+                            ${parseInt(currentInning) == 2
+          ? inn2overRuns
+          : inn1overRuns
+        }
                           </li><li class="six-balls "></ul>
                     </div></span>
                   </div>
@@ -637,7 +635,7 @@ app.post(
       };
       scoreInning.teamName = matchDetails.firstBatTeam;
       scoreInning.currentInning = 1;
-      scoreInning.startDate = new Date();
+      scoreInning.startAt = new Date();
       scoreInning.gameType = "Cricket";
       await scoreInningRepo.save(scoreInning);
     } else {
@@ -659,10 +657,12 @@ app.post(
       newInning.inningNumber = 1;
       newInning.marketId = marketId;
       newInning.title = matchDetails.title;
-      newInning.startDate = new Date();
       newInning.gameType = "Cricket";
       await scoreInningRepo.save(newInning);
     }
+    newInning.startAt = new Date();
+    newInning.startAt = newInning.startAt.toString();
+    newInning.startAt = newInning.startAt?.toString() || '';
     await redisClient.hSet(marketId + "Inning1", newInning);
     matchRepo.update(
       { marketId: marketId },
@@ -760,7 +760,7 @@ app.post("/changeInning", async (req, res, next) => {
   newInning.inningNumber = 2;
   newInning.marketId = marketId;
   newInning.title = match.title;
-  newInning.startDate = new Date();
+  newInning.startAt = new Date();
   newInning.gameType = "Cricket";
   await scoreInningRepo.save(newInning);
   await redisClient.hSet(marketId + "Inning2", redisObj);
@@ -931,9 +931,8 @@ app.post(
           marketId + "Inning1",
           "score"
         );
-        redisObj.customMsg = `BAN NEED ${
-          totalRunInn1 - redisObj.score
-        } RUNS OFF ${remainingBall} BALLS`;
+        redisObj.customMsg = `BAN NEED ${totalRunInn1 - redisObj.score
+          } RUNS OFF ${remainingBall} BALLS`;
       }
     }
 
@@ -1012,7 +1011,7 @@ async function setAndGetInningData(inningNumber, marketId) {
         newInning.inningNumber = 1;
         newInning.marketId = marketId;
         newInning.title = matchDetails.title;
-        newInning.startDate = new Date();
+        newInning.startAt = new Date();
         newInning.gameType = "Cricket";
         await scoreInningRepo.save(newInning);
       }
@@ -1058,7 +1057,7 @@ async function setAndGetInningData(inningNumber, marketId) {
           bowlerType: "",
           teamName:
             matchDetails.firstBatTeam &&
-            matchDetails.firstBatTeam == matchDetails.teamA
+              matchDetails.firstBatTeam == matchDetails.teamA
               ? matchDetails.teamA
               : matchDetails.teamB,
           message: "",
@@ -1068,7 +1067,7 @@ async function setAndGetInningData(inningNumber, marketId) {
         newInning.inningNumber = 2;
         newInning.marketId = marketId;
         newInning.title = matchDetails.title;
-        newInning.startDate = new Date();
+        newInning.startAt = new Date();
         newInning.gameType = "Cricket";
         await scoreInningRepo.save(newInning);
       }
