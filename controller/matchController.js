@@ -84,7 +84,6 @@ app.post(
 
     const newMatch = matchRepo.create(matchObj);
     const saveMatch = await matchRepo.save(newMatch);
-    console.log(saveMatch);
     if (saveMatch) {
       let redisObj = {
         gameType: matchObj.gameType,
@@ -92,7 +91,7 @@ app.post(
         teamB: matchObj.teamB,
         title: matchObj.title,
         currentInning: matchObj.currentInning || 1,
-        startDate: matchObj?.startDate?.toString(),
+        startAt: matchObj?.startAt?.toString(),
         overType: matchObj.overType,
         noBallRun: matchObj.noBallRun,
         totalOver: matchObj.totalOver,
@@ -131,7 +130,6 @@ function checkCricketRequiredFileds(body) {
   ];
   return cricketRequiredFileds.some((key) => {
     if (!body[key]) {
-      console.log(key);
       return true;
     }
   });
@@ -146,7 +144,7 @@ app.get(
 
     const match = await matchRepo
       .createQueryBuilder("match")
-      .orderBy("match.startDate", "DESC")
+      .orderBy("match.startAt", "DESC")
       .getMany();
 
     const homeContent = await ejs.renderFile(__dirname + "/../views/home.ejs", {
