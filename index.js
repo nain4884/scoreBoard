@@ -3,28 +3,19 @@ const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const RedisStore = require("connect-redis").default;
-const { body, validationResult } = require("express-validator");
 const path = require("path");
 
-// const User = require("./models/User.entity");
-const catchAsyncErrors = require("./middleware/catchAsyncErrors");
-const MatchSchema = require("./models/Match.entity");
-const controller = require("./controller");
-const isLoggedIn = require("./middleware/checkLogin");
-
-const ejs = require("ejs");
-const { isAuthenticates } = require("./middleware/auth");
-const { getDataSource } = require("./config/PostGresConnection");
 const scoreController = require("./controller/scoreController");
 const playerController = require("./controller/playerController");
 const tossController = require("./controller/tossController");
+const authController = require("./controller/authController");
+const matchController = require("./controller/matchController");
 
 const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 const redis = require("./config/redisConnection");
-const { getMatchByIdService } = require("./services/scoreService");
 
 let redisStore = new RedisStore({
   client: redis,
@@ -56,13 +47,10 @@ app.listen(PORT, () => {
 app.use("/score", scoreController);
 app.use("/player", playerController);
 app.use("/toss", tossController);
-app.get(
-  "/",
-  isAuthenticates,
-  catchAsyncErrors(async (req, res, next) => {
-    const AppDataSource = await getDataSource();
-    const matchRepo = AppDataSource.getRepository(MatchSchema);
+app.use("/", authController);
+app.use("/", matchController);
 
+<<<<<<< Updated upstream
     const match = await matchRepo
       .createQueryBuilder("match")
       .orderBy("match.startAt", "DESC")
@@ -188,3 +176,5 @@ app.post("/addMatch", isLoggedIn, (req, res, next) => {
 app.get("/getMatchById/:marketId", isLoggedIn, (req, res, next) => {
   controller.getMatchById(req, res);
 });
+=======
+>>>>>>> Stashed changes
