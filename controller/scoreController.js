@@ -695,7 +695,6 @@ app.post(
       return res.status(500).send("playerType not found.");
     }
     let redisObj = await setAndGetInningData(inningNumber, marketId);
-    console.log(redisObj);
     if (playerType == "striker") {
       redisObj.striker = playerName;
     }

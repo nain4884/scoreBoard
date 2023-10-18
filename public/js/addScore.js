@@ -142,9 +142,10 @@ const handleChangeScore = async (key) => {
         localStorage.getItem("ballStart") == "true" &&
         !events.includes("ball stop")
       ) {
-        events.push("ball stop");
+        events = ["ball stop"];
+          
       } else if (!events.includes("ball start")) {
-        events.push("ball start");
+        events = ["ball start"];
       }
       break;
     case "Enter":
@@ -192,13 +193,36 @@ const handleChangeScore = async (key) => {
         Object.keys(ballEventKeys).includes(key) &&
         !events.includes(key)
       ) {
-        events.push(ballEventKeys[key]);
+        let isValid = true;
+        events?.forEach((items) => {
+          
+          if (
+            !Object.keys(ballEventKeys).find(
+              (key) => ballEventKeys[key].key === items
+            ) ||
+            !ballEventKeys[
+              Object.keys(ballEventKeys).find(
+                (key) => ballEventKeys[key].key === items
+              )
+            ]?.validKeys?.includes(key)
+          ) {
+            isValid = false;
+          }
+        });
+
+        if (isValid) {
+          events.push(ballEventKeys[key]?.key);
+        } else {
+          events = [key];
+        }
       }
       break;
   }
 
   elements.currScoreShow.innerHTML = `<p>Event keys: ${events
-    .map((item) => (keyName[item] ? keyName[item] : item))
+    .map((item) =>
+      ballEventKeys[item]?.name ? ballEventKeys[item]?.name : item
+    )
     .join(",")}</p><p>Selected score: ${score}</p>`;
 };
 
@@ -227,7 +251,6 @@ const getScore = async (isJson) => {
     }
     if (isJson) {
       currInningData = await response.json();
-      console.log(currInningData);
     } else {
       document.getElementById("scoreDisplay").innerHTML = await response.text();
     }
@@ -337,7 +360,6 @@ const setPlayer = async () => {
     currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
       `inn${currInningData?.currentInning}NonStriker`
     ];
-  
 };
 
 /**
