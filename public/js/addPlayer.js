@@ -145,7 +145,7 @@ function getSelectedPlayerType() {
  */
 function getGameType() {
   // Replace with your logic to get the game type.
-  return "SomeGameType";
+  return gameType;
 }
 
 /**

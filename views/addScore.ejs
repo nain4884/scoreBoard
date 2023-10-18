@@ -3,12 +3,16 @@
     background-color: rgb(248, 200, 81) !important;
   }
 
+  #scoreDisplay{
+    margin-bottom: 1%;
+  }
   .add-match-container {
     max-width: 97%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    margin-top: 2%;
   }
 
   .exchange-icon {
@@ -52,6 +56,16 @@
     right: 0px;
     top: 0px;
   }
+  #bowler{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: left;
+    flex-wrap: wrap;
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
 
   @media screen and (max-width: 768px) {
     .add-match-container {
@@ -80,23 +94,25 @@
       </div>
       <form class="card p-3 mt-3 was-validated" id="score-form">
         <div class="row">
-          <div class="form-group col-md-3">
+          <div class="form-group col-md-5">
             <label for="batsmanStrike">Batsman strike:</label>
-            <input maxlength="40" type="text" class="form-control" id="batsmanStrike" placeholder="Enter Batsman name on strike">
+            <select class="form-control" id="batsmanStrike">
+
+
+            </select>
           </div>
-          <div class="form-group col-md-1 exchange-icon">
+          <div class="form-group col-md-2 exchange-icon">
             <button class="btn btn-primary" id="exchange" title="Change strike">
               <i class="bi bi-arrow-left-right"></i> <!-- Bootstrap exchange icon class -->
             </button>
           </div>
-          <div class="form-group col-md-3">
-            <label for="batsmanNonStrike">Batsman non-strike:</label>
-            <input maxlength="40" type="text" class="form-control" id="batsmanNonStrike" placeholder="Enter Batsman name on non-strike">
-          </div>
           <div class="form-group col-md-5">
-            <label for="bowler">Bowler:</label>
-            <input maxlength="40" type="text" class="form-control" id="bowler" placeholder="Enter Bowler name">
+            <label for="batsmanNonStrike">Batsman non-strike:</label>
+            <select class="form-control" id="batsmanNonStrike">
+            </select>
+
           </div>
+          
           <div class="form-group col-md-3">
             <label for="bowlerType">Bowler Type:</label>
             <br />
@@ -108,6 +124,9 @@
                 <input type="radio" name="bowlerType" value="faster"> Faster
               </label>
             </div>
+          </div>
+          <div class="col-md-9" id="bowler">
+
           </div>
           <div class="form-group col-md-12" style="display: flex; align-items:end;">
             <button style="width: 100%;" id="changeInning" class="btn btn-primary">
@@ -132,6 +151,7 @@
 </div>
 <script>
   const currentInning = "<%= data?.currentInning %>";
+  const gameType = "<%= data?.gameType %>";
 </script>
 <script src="/js/constant.js"></script>
 <script src="/js/showToast.js"></script>

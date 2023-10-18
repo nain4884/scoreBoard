@@ -1,16 +1,17 @@
 /**
- * Object containing references to various HTML elements.
+ * Represents an object containing references to various HTML elements.
+ *
  * @typedef {Object} Elements
- * @property {HTMLElement} exchangeButton - The exchange button element.
- * @property {HTMLElement} striker - The striker input element.
- * @property {HTMLElement} nonStriker - The non-striker input element.
- * @property {HTMLElement} bowlerType - The bowler type input element.
- * @property {HTMLElement} bowler - The bowler input element.
- * @property {HTMLElement} changeInning - The change inning button element.
- * @property {HTMLElement} scoreBox - The score box input element.
- * @property {HTMLElement} form - The form element.
+ * @property {HTMLElement} exchangeButton - The button to exchange strike.
+ * @property {HTMLSelectElement} striker - The striker's input element.
+ * @property {HTMLSelectElement} nonStriker - The non-striker's input element.
+ * @property {NodeList} bowlerType - Radio buttons for selecting bowler type.
+ * @property {HTMLSelectElement} bowler - The bowler's input element.
+ * @property {HTMLElement} changeInning - The button for changing the inning.
+ * @property {HTMLInputElement} scoreBox - The input element for score events.
+ * @property {HTMLFormElement} form - The form element.
  * @property {HTMLElement} inning - The inning element.
- * @property {HTMLElement} currScoreShow - The current score display element.
+ * @property {HTMLElement} currScoreShow - The element displaying current score.
  */
 
 /** @type {Elements} */
@@ -18,7 +19,7 @@ const elements = {
   exchangeButton: document.getElementById("exchange"),
   striker: document.getElementById("batsmanStrike"),
   nonStriker: document.getElementById("batsmanNonStrike"),
-  bowlerType: document.getElementById("bowlerType"),
+  bowlerType: document.querySelectorAll('input[name="bowlerType"]'),
   bowler: document.getElementById("bowler"),
   changeInning: document.getElementById("changeInning"),
   scoreBox: document.getElementById("scoreEvent"),
@@ -29,16 +30,22 @@ const elements = {
 
 let score = 0;
 let events = [];
+let currInningData = null;
+let selectedBaller = null;
+let hideBaller = false;
+let disableStriker = false;
+let disableNonStriker = false;
 
 /** @type {number} */
 let currentInningVal = currentInning;
 const marketId = window.location.href.split("/").pop();
 let currScore = -1;
+
 /**
  * Change player information via an API call.
  *
  * @param {string} type - The type of player (e.g., "striker", "nonStriker").
- * @param {string} value - The new player value.
+ * @param {string} value - The new player's value.
  */
 const changePlayer = async (type, value) => {
   try {
@@ -52,6 +59,7 @@ const changePlayer = async (type, value) => {
         playerType: type,
         playerName: value,
         inningNumber: currentInningVal,
+        bowlerType: type == "bowler" ? selectedBaller?.bowlerType : "",
       }),
     });
 
@@ -61,7 +69,8 @@ const changePlayer = async (type, value) => {
     }
 
     const data = await response.json();
-    getScore();
+    getScore(false);
+    getScore(true);
   } catch (error) {
     console.error("Error:", error);
     // Display an error message to the user
@@ -122,7 +131,6 @@ const handleChangeInning = async () => {
  * @param {string} key - The key pressed.
  */
 const handleChangeScore = async (key) => {
-
   switch (key) {
     case "Escape":
     case "esc":
@@ -149,7 +157,7 @@ const handleChangeScore = async (key) => {
           body: JSON.stringify({
             marketId,
             inningNumber: currentInningVal,
-            eventType: events,
+            eventType: events?.length == 0 ? ["b"] : events,
             score: score,
           }),
         });
@@ -160,7 +168,8 @@ const handleChangeScore = async (key) => {
         }
 
         const data = await response.json();
-        await getScore();
+        await getScore(false);
+        await getScore(true);
         if (data?.message == "Ball Started") {
           localStorage.setItem("ballStart", true);
         } else if (data?.message == "Ball Stop") {
@@ -193,10 +202,17 @@ const handleChangeScore = async (key) => {
     .join(",")}</p><p>Selected score: ${score}</p>`;
 };
 
-const getScore = async () => {
+/**
+ * Fetch the match score from the API.
+ *
+ * @param {boolean} isJson - Whether to fetch JSON data or plain text.
+ */
+const getScore = async (isJson) => {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/score/getMatchScore/${marketId}`,
+      `${API_BASE_URL}/score/getMatchScore/${marketId}${
+        isJson ? "?isJson=" + isJson : ""
+      }`,
       {
         method: "GET",
         headers: {
@@ -209,7 +225,12 @@ const getScore = async () => {
       showToast(await response.text(), "error");
       throw Error("API request failed");
     }
-    document.getElementById("scoreDisplay").innerHTML = await response.text();
+    if (isJson) {
+      currInningData = await response.json();
+      console.log(currInningData);
+    } else {
+      document.getElementById("scoreDisplay").innerHTML = await response.text();
+    }
   } catch (error) {
     console.log(error);
   }
@@ -233,6 +254,102 @@ const debounce = (func, delay = 1000) => {
 };
 
 /**
+ * Fetch player data from the API.
+ *
+ * @param {string} type - The type of player (e.g., "batsman", "baller").
+ */
+const getPlayers = async (type) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/player/getPlayerByMatch`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        marketId,
+        teamName:
+          currInningData?.innings[
+            parseInt(currInningData?.currentInning) - 1
+          ]?.[`inn${parseInt(currInningData?.currentInning)}TeamName`],
+        gameType: gameType,
+        findBowler: type == "baller",
+        outPlayer: false,
+      }),
+    });
+
+    if (!response.ok) {
+      showToast(await response.text(), "error");
+      throw new Error("API request failed");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    // Display an error message to the user
+  }
+};
+
+/**
+ * Populate player options based on the selected bowler type.
+ */
+const setPlayer = async () => {
+  const playerData = await getPlayers();
+  elements.striker.innerHTML = '<option value="">Select the striker</option>';
+  elements.nonStriker.innerHTML =
+    '<option value="">Select the non striker</option>';
+
+  playerData?.batsman?.map((item) => {
+    const option = document.createElement("option");
+    option.value = item.playerName;
+    option.text = item.playerName;
+    elements.striker.appendChild(option.cloneNode(true));
+    elements.nonStriker.appendChild(option);
+  });
+
+  elements.bowler.innerHTML = "";
+  playerData?.bowler
+    ?.filter(
+      (item) =>
+        item?.bowlerType == getSelectedBallerType() || !getSelectedBallerType()
+    )
+    ?.map((item) => {
+      const button = document.createElement("button");
+      button.classList.add("btn", "btn-primary"); // Add Bootstrap button classes
+      button.textContent = `${item.playerName} (${item?.bowlerType})`;
+
+      // Add an event listener to the button
+      button.onclick = function () {
+        selectedBaller = item;
+        changePlayer("bowler", item?.playerName);
+        elements.bowler.style.display = "none";
+        hideBaller = true;
+      };
+
+      elements?.bowler?.appendChild(button);
+    });
+
+  elements.striker.value =
+    currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
+      `inn${currInningData?.currentInning}Striker`
+    ];
+  elements.nonStriker.value =
+    currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
+      `inn${currInningData?.currentInning}NonStriker`
+    ];
+  
+};
+
+/**
+ * Get the selected bowler type.
+ *
+ * @returns {string} - The selected bowler type.
+ */
+function getSelectedBallerType() {
+  return document.querySelector('input[name="bowlerType"]:checked')?.value;
+}
+
+/**
  * Event Listeners
  */
 elements.exchangeButton.addEventListener("click", (e) => {
@@ -248,14 +365,7 @@ elements.nonStriker.addEventListener(
   "input",
   debounce(() => changePlayer("nonStriker", elements.nonStriker.value))
 );
-elements.bowler.addEventListener(
-  "input",
-  debounce(() => changePlayer("bowler", elements.bowler.value))
-);
-elements.bowlerType.addEventListener(
-  "input",
-  debounce(() => changePlayer("bowlerType", elements.bowlerType.value))
-);
+
 elements.form.addEventListener("submit", (event) => {
   event.preventDefault();
 });
@@ -265,6 +375,7 @@ elements.form.addEventListener("keydown", (event) => {
     event.preventDefault();
   }
 });
+
 elements.scoreBox.addEventListener("keydown", (e) => {
   handleChangeScore(e.key);
 });
@@ -274,4 +385,12 @@ elements.changeInning.addEventListener("click", (e) => {
   handleChangeInning();
 });
 
-window.onload = getScore;
+window.onload = async () => {
+  await getScore(false);
+  await getScore(true);
+  await setPlayer();
+};
+
+elements?.bowlerType?.forEach((radioButton) => {
+  radioButton.addEventListener("click", setPlayer);
+});
