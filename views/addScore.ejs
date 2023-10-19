@@ -3,9 +3,10 @@
     background-color: rgb(248, 200, 81) !important;
   }
 
-  #scoreDisplay{
+  #scoreDisplay {
     margin-bottom: 1%;
   }
+
   .add-match-container {
     max-width: 97%;
     position: absolute;
@@ -56,7 +57,8 @@
     right: 0px;
     top: 0px;
   }
-  #bowler{
+
+  #bowler {
     display: flex;
     gap: 20px;
     align-items: center;
@@ -66,7 +68,7 @@
     padding: 10px;
     margin-bottom: 10px;
   }
-
+ 
   @media screen and (max-width: 768px) {
     .add-match-container {
       max-width: 100%;
@@ -100,6 +102,11 @@
 
 
             </select>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" checked class="custom-control-input" id="strikerSwitch">
+              <label class="custom-control-label" for="strikerSwitch">Enable</label>
+            </div>
+
           </div>
           <div class="form-group col-md-2 exchange-icon">
             <button class="btn btn-primary" id="exchange" title="Change strike">
@@ -110,9 +117,12 @@
             <label for="batsmanNonStrike">Batsman non-strike:</label>
             <select class="form-control" id="batsmanNonStrike">
             </select>
-
+            <div class="custom-control custom-switch">
+              <input type="checkbox" checked class="custom-control-input" id="nonStrikerSwitch">
+              <label class="custom-control-label" for="nonStrikerSwitch">Enable</label>
+            </div>
           </div>
-          
+
           <div class="form-group col-md-3">
             <label for="bowlerType">Bowler Type:</label>
             <br />
@@ -123,6 +133,10 @@
               <label class="btn btn-secondary">
                 <input type="radio" name="bowlerType" value="faster"> Faster
               </label>
+            </div>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" checked class="custom-control-input" id="ballerSwitch">
+              <label class="custom-control-label" for="ballerSwitch">Enable</label>
             </div>
           </div>
           <div class="col-md-9" id="bowler">

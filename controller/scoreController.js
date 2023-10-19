@@ -355,7 +355,7 @@ app.get(
       margin-right: auto;
       margin-left: auto;
       color: white;
-      height: 80px;
+      height: 15vh;
       align-items: center;
       display: grid;
       background-position: bottom;
@@ -522,7 +522,9 @@ app.get(
               </div>
               </div>
               <div class="row-ctm">
-              <div class="team">
+              ${
+                parseInt(currentInning) == 1
+                  ? `<div class="team">
                   <div class="team_name">${inn1TeamName}</div>
                   <div class="curr_inn">
                       <span class="run">${inn1Score}/${inn1Wicket}</span>
@@ -531,7 +533,18 @@ app.get(
                           <span class="over">CRR : ${inn1crr} | RRR: ${inn1rrr}</span>
                   </div>
                   
+              </div>`
+                  : `<div class="team">
+              <div class="team_name">${inn2TeamName}</div>
+              <div class="curr_inn">
+                  <span class="run">${inn2Score}/${inn2Wicket}</span>
+                  <span class="over">(${inn2over})</span>
+                  <br>
+                      <span class="over">CRR : ${inn2crr} | RRR: ${inn2rrr}</span>
               </div>
+              
+          </div>`
+              }
               <div class="match_status">
                   <span class="commantry">${
                     parseInt(currentInning) == 2 ? inn2Message : inn1Message
@@ -547,7 +560,19 @@ app.get(
                           </li><li class="six-balls "></ul>
                     </div></span>
                   </div>
-                  <div class="team">
+                  ${
+                    parseInt(currentInning) == 2
+                      ? `<div class="team">
+                      <div class="team_name">${inn1TeamName}</div>
+                      <div class="curr_inn">
+                          <span class="run">${inn1Score}/${inn1Wicket}</span>
+                          <span class="over">(${inn1over})</span>
+                          <br>
+                              <span class="over">CRR : ${inn1crr} | RRR: ${inn1rrr}</span>
+                      </div>
+                      
+                  </div>`
+                      : `<div class="team">
                   <div class="team_name">${inn2TeamName}</div>
                   <div class="curr_inn">
                       <span class="run">${inn2Score}/${inn2Wicket}</span>
@@ -556,7 +581,8 @@ app.get(
                           <span class="over">CRR : ${inn2crr} | RRR: ${inn2rrr}</span>
                   </div>
                   
-              </div>
+              </div>`
+                  }
               </div>
               </div>`;
       res.send(file);
@@ -790,7 +816,9 @@ app.post(
 
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     let matchDetails = await redisClient.hGetAll(marketId);
-    redisObj.isFreeHit = redisObj.isFreeHit ? JSON.parse(redisObj.isFreeHit) : false;
+    redisObj.isFreeHit = redisObj.isFreeHit
+      ? JSON.parse(redisObj.isFreeHit)
+      : false;
     redisObj.over = redisObj.over ? parseFloat(redisObj.over) : 0;
     let isLastBall = false;
 
@@ -957,18 +985,19 @@ app.post(
     redisObj.over = redisObj?.over?.toFixed(1);
     redisObj.isFreeHit = redisObj.isFreeHit.toString();
 
-    redisClient.hSet(marketId + "Inning" + inningNumber, redisObj).catch(err => {
-      console.log(err);
-    });
+    redisClient
+      .hSet(marketId + "Inning" + inningNumber, redisObj)
+      .catch((err) => {
+        console.log(err);
+      });
     redisObj.isLastBall = isLastBall;
     const { customMsg, startAt, stopAt, isFreeHit, ...dbUpdateObj } = redisObj;
 
-    scoreInningRepo.update(
-      { marketId: marketId, inningNumber: inningNumber },
-      dbUpdateObj
-    ).catch(err => {
-      console.log(err);
-    });
+    scoreInningRepo
+      .update({ marketId: marketId, inningNumber: inningNumber }, dbUpdateObj)
+      .catch((err) => {
+        console.log(err);
+      });
 
     res.json(redisObj);
   })
@@ -1094,8 +1123,10 @@ app.get(
   "/help",
   isAuthenticates,
   catchAsyncErrors(async (req, res, next) => {
-    const helpContent = await ejs.renderFile(__dirname + "/../views/help.ejs", {
-    });
+    const helpContent = await ejs.renderFile(
+      __dirname + "/../views/help.ejs",
+      {}
+    );
 
     res.render("layout/mainLayout", {
       title: "Help",
