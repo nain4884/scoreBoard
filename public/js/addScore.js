@@ -101,24 +101,26 @@ const changeStrike = async () => {
  */
 const handleChangeInning = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/score/changeInning`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        marketId,
-        inningNumber: parseInt(currentInningVal) + 1,
-      }),
-    });
+    if (currentInningVal < 2) {
+      const response = await fetch(`${API_BASE_URL}/score/changeInning`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          marketId,
+          inningNumber: parseInt(currentInningVal) + 1,
+        }),
+      });
 
-    if (!response.ok) {
-      showToast(await response.text(), "error");
-      throw new Error("API request failed");
+      if (!response.ok) {
+        showToast(await response.text(), "error");
+        throw new Error("API request failed");
+      }
+
+      currentInningVal = parseInt(currentInningVal) + 1;
+      elements.inning.innerHTML = currentInningVal;
     }
-
-    currentInningVal = parseInt(currentInningVal) + 1;
-    elements.inning.innerHTML = currentInningVal;
   } catch (error) {
     showToast(error, "error");
     // Display an error message to the user
@@ -143,7 +145,6 @@ const handleChangeScore = async (key) => {
         !events.includes("ball stop")
       ) {
         events = ["ball stop"];
-          
       } else if (!events.includes("ball start")) {
         events = ["ball start"];
       }
@@ -195,7 +196,6 @@ const handleChangeScore = async (key) => {
       ) {
         let isValid = true;
         events?.forEach((items) => {
-          
           if (
             !Object.keys(ballEventKeys).find(
               (key) => ballEventKeys[key].key === items
@@ -213,7 +213,7 @@ const handleChangeScore = async (key) => {
         if (isValid) {
           events.push(ballEventKeys[key]?.key);
         } else {
-          events = [key];
+          events = [ballEventKeys[key]?.key];
         }
       }
       break;
@@ -221,7 +221,15 @@ const handleChangeScore = async (key) => {
 
   elements.currScoreShow.innerHTML = `<p>Event keys: ${events
     .map((item) =>
-      ballEventKeys[item]?.name ? ballEventKeys[item]?.name : item
+      Object.keys(ballEventKeys)?.find(
+        (items) => ballEventKeys[items]?.key == item
+      )
+        ? ballEventKeys[
+            Object.keys(ballEventKeys)?.find(
+              (items) => ballEventKeys[items]?.key == item
+            )
+          ]?.name
+        : item
     )
     .join(",")}</p><p>Selected score: ${score}</p>`;
 };
@@ -379,14 +387,12 @@ elements.exchangeButton.addEventListener("click", (e) => {
   changeStrike();
 });
 
-elements.striker.addEventListener(
-  "input",
-  debounce(() => changePlayer("striker", elements.striker.value))
-);
-elements.nonStriker.addEventListener(
-  "input",
-  debounce(() => changePlayer("nonStriker", elements.nonStriker.value))
-);
+elements.striker.addEventListener("input", () => {
+  changePlayer("striker", elements.striker.value);
+});
+elements.nonStriker.addEventListener("input", () => {
+  changePlayer("nonStriker", elements.nonStriker.value);
+});
 
 elements.form.addEventListener("submit", (event) => {
   event.preventDefault();

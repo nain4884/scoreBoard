@@ -7,7 +7,7 @@ window.onload = () => {
           ${item}
         </div>
         <div style="flex:1;font-weight:500;">
-          ${ballEventKeys[key]?.name}
+          ${ballEventKeys[item]?.name}
         </div>
       </div>`;
   });

@@ -56,21 +56,22 @@
           <span class="bi bi-pencil edit-icon"></span>
         </a>
       </div>
-      <a href='/score/add/<%= item?.marketId %>'> <button>
+      <div class="p-2">
+      <a href='/score/add/<%= item?.marketId %>'> <button class="btn btn-primary">
           score
         </button>
       </a>
 
-      <a href='/player/add/<%= item?.marketId %>'> <button>
+      <a href='/player/add/<%= item?.marketId %>'> <button class="btn btn-primary">
           add player
         </button>
       </a>
 
-      <a href='/toss/<%= item?.marketId %>'> <button>
+      <a href='/toss/<%= item?.marketId %>'> <button class="btn btn-primary">
           toss
         </button>
       </a>
-
+    </div>
     </div>
     <% }); %>
   </div>

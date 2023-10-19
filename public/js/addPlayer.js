@@ -91,7 +91,7 @@ async function addPlayerToMatch() {
     teamName: teamName.value,
     playerName: playerName.value,
     playerType: getSelectedPlayerType(),
-    bowlerType: bowlerType.value || 'spinner',
+    bowlerType: bowlerType.value || "spinner",
   };
 
   return fetch("/player/add", {
@@ -154,7 +154,12 @@ function getGameType() {
 function resetForm() {
   playerName.value = "";
   bowlerType.value = "";
-  playerType.forEach((radioButton) => (radioButton.checked = false));
+  playerType.forEach((radioButton) =>
+    radioButton?.value == "batsman"
+      ? (radioButton.checked = true)
+      : (radioButton.checked = false)
+  );
+
   hideBowlerCont();
   getPlayersTable();
 }
@@ -166,7 +171,12 @@ function resetForm() {
  */
 function createTableFromData(data) {
   const table = document.createElement("table");
-  table.classList.add("table", "table-striped", "table-bordered"); // Add Bootstrap table classes
+  table.classList.add(
+    "table",
+    "table-striped",
+    "table-bordered",
+    "table-player"
+  ); // Add Bootstrap table classes
 
   if (data.length === 0) {
     const emptyRow = table.insertRow();
@@ -175,28 +185,50 @@ function createTableFromData(data) {
     cell.textContent = "No data available.";
   } else {
     const headerRow = table.insertRow();
-    const headerCell1 = document.createElement("th");
-    headerCell1.textContent = "Player Name";
-    headerRow.appendChild(headerCell1);
-    const headerCell2 = document.createElement("th");
-    headerCell2.textContent = "Player Type";
-    headerRow.appendChild(headerCell2);
 
-    data.forEach((item, index) => {
-      const row = table.insertRow();
-      const cell1 = row.insertCell();
-      cell1.textContent = item.playerName;
-      const cell2 = row.insertCell();
-      cell2.textContent = `${item.playerType} ${
-        item?.bowlerType ? "(" + item?.bowlerType?.toUpperCase() + ")" : ""
-      }`;
-
-      // Add Bootstrap table row classes for better design
-      row.classList.add(index % 2 === 0 ? "table-primary" : "table-secondary");
+    const headers = ["Serial No", "Player Name", "Player Type"];
+    headers.forEach((headerText) => {
+      const headerCell = document.createElement("th");
+      headerCell.textContent = headerText;
+      headerRow.appendChild(headerCell);
     });
+
+    let serialNumber = 1;
+
+    data?.batsman
+      ?.filter((item) => item?.teamName == teamName?.value)
+      ?.forEach((item, index) => {
+        addPlayerToTable(table, item, index, serialNumber++);
+      });
+
+    data?.bowler
+      ?.filter((item) => item?.teamName == teamName?.value)
+      ?.forEach((item, index) => {
+        addPlayerToTable(table, item, index, serialNumber++);
+      });
   }
 
   return table;
+}
+
+function addPlayerToTable(table, player, index, serialNumber) {
+  const row = table.insertRow();
+  const cells = [
+    serialNumber,
+    player.playerName,
+    `${player.playerType} ${
+      player.playerType === "bowler"
+        ? `(${player.bowlerType.toUpperCase()})`
+        : ""
+    }`,
+  ];
+  cells.forEach((cellText) => {
+    const cell = row.insertCell();
+    cell.textContent = cellText;
+  });
+
+  // Add Bootstrap table row classes for better design
+  row.classList.add(index % 2 === 0 ? "table-primary" : "table-secondary");
 }
 
 const getPlayersTable = async () => {
