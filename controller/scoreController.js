@@ -3,6 +3,7 @@ const app = Router();
 const redisClient = require("./../config/redisConnection");
 const MatchSchema = require("./../models/Match.entity");
 const ScoreInning = require("./../models/ScoreInning.entity");
+const PlayerSchema = require("../models/Player.entity");
 const {
   getDataSource,
   AppDataSource,
@@ -20,6 +21,7 @@ const { isAuthenticates } = require("../middleware/auth");
 
 const matchRepo = AppDataSource.getRepository(MatchSchema);
 const scoreInningRepo = AppDataSource.getRepository(ScoreInning);
+const playerRepo = AppDataSource.getRepository(PlayerSchema);
 
 app.get(
   "/getMatchScore/:marketId",
@@ -722,9 +724,15 @@ app.post(
     }
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     if (playerType == "striker") {
+      if(redisObj.striker && redisObj.striker != '' && redisObj.striker != playerName){
+        await this.playerRepo.update({marketId: marketId, teamName: redisObj.teamName, playerName: redisObj.striker}, { isPlayerOut: true});
+      }
       redisObj.striker = playerName;
     }
     if (playerType == "nonStriker") {
+      if(redisObj.nonStriker && redisObj.nonStriker != '' && redisObj.nonStriker != playerName){
+        await this.playerRepo.update({marketId: marketId, teamName: redisObj.teamName, playerName: redisObj.nonStriker}, { isPlayerOut: true});
+      }
       redisObj.nonStriker = playerName;
     }
     if (playerType == "bowler") {
@@ -822,6 +830,25 @@ app.post(
     redisObj.over = redisObj.over ? parseFloat(redisObj.over) : 0;
     let isLastBall = false;
 
+    let lastBallStatus = {};
+    lastBallStatus.eventType = "b";
+    lastBallStatus.score = redisObj.score;
+    lastBallStatus.inningNumber = inningNumber;
+    lastBallStatus.over =   redisObj.over
+    lastBallStatus.wicket =   redisObj.wicket
+    lastBallStatus.message = redisObj.message;
+    lastBallStatus.striker = redisObj.striker;
+    lastBallStatus.nonStriker = redisObj.nonStriker;
+    lastBallStatus.isLastBall = isLastBall;
+    lastBallStatus.isFreeHit = redisObj.isFreeHit
+    lastBallStatus.crr = redisObj.crr;
+    if(inningNumber == 2){
+      if(redisObj.customMsg){
+        lastBallStatus.customMsg = redisObj.customMsg;
+      }
+      lastBallStatus.rrr = redisObj.rrr;
+    }
+
     if (eventType.includes("b")) {
       redisObj.score = parseInt(redisObj.score) + score;
       redisObj.over = redisObj.over + 0.1;
@@ -903,6 +930,7 @@ app.post(
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
+      await this.playerRepo.update({marketId: marketId, teamName: redisObj.teamName, playerName: redisObj.striker}, { isPlayerOut: true});
     }
 
     if (eventType.includes("r")) {
@@ -984,6 +1012,7 @@ app.post(
     );
     redisObj.over = redisObj?.over?.toFixed(1);
     redisObj.isFreeHit = redisObj.isFreeHit.toString();
+    redisObj.lastBallStatus = JSON.stringify(lastBallStatus);
 
     redisClient
       .hSet(marketId + "Inning" + inningNumber, redisObj)
@@ -991,7 +1020,18 @@ app.post(
         console.log(err);
       });
     redisObj.isLastBall = isLastBall;
-    const { customMsg, startAt, stopAt, isFreeHit, ...dbUpdateObj } = redisObj;
+    let dbUpdateObj = {
+      score: redisObj.score,
+      over: redisObj.over,
+      striker: redisObj.striker,
+      nonStriker: redisObj.nonStriker,
+      overRuns: redisObj.overRuns,
+      wicket: redisObj.wicket,
+      crr: redisObj.crr,
+      rrr: redisObj.rrr,
+      message: redisObj.message,
+      lastOver: redisObj.lastOver,
+    }
 
     scoreInningRepo
       .update({ marketId: marketId, inningNumber: inningNumber }, dbUpdateObj)
@@ -1134,6 +1174,73 @@ app.get(
     });
   })
 );
+
+app.get("/revertLastBall", isAuthenticates, catchAsyncErrors( async (req, res, next) => {
+  let { marketId, inningNumber } = req.body;
+  if (!marketId) {
+    return res.status(500).send("marketId not found.");
+  }
+  if (!inningNumber) {
+    return res.status(500).send("Inning number not found.");
+  }
+  let redisObj = await setAndGetInningData(inningNumber, marketId);
+  let lastBallStatus = {};
+  if(redisObj.lastBallStatus){
+    lastBallStatus = JSON.parse(redisObj.lastBallStatus);
+  }
+  if(inningNumber != lastBallStatus.inningNumber){
+    return res.status(500).send("Inning May be change can not undo the action.");
+  }
+
+  redisObj.score = lastBallStatus.score;
+  redisObj.over = lastBallStatus.over;
+  redisObj.message = lastBallStatus.message;
+  if(redisObj.wicket != lastOver.wicket){
+    if(lastBallStatus.striker != redisObj.striker || lastBallStatus.striker != redisObj.nonStriker){
+      await this.playerRepo.update({marketId: marketId, teamName: redisObj.teamName, playerName: lastBallStatus.striker}, { isPlayerOut: false});
+    }
+    if(lastBallStatus.nonStriker != redisObj.striker || lastBallStatus.nonStriker != redisObj.nonStriker){
+      await this.playerRepo.update({marketId: marketId, teamName: redisObj.teamName, playerName: lastBallStatus.nonStriker}, { isPlayerOut: false});
+    }
+  }
+  redisObj.striker = lastBallStatus.striker;
+  redisObj.nonStriker = lastBallStatus.nonStriker;
+  redisObj.wicket = lastBallStatus.wicket;
+  redisObj.crr = lastBallStatus.crr;
+  redisObj.isFreeHit = lastBallStatus.isFreeHit;
+  redisObj.isLastBall = lastBallStatus.isLastBall;
+
+  if (inningNumber == 2) {
+    redisObj.rrr = lastBallStatus.rrr;
+    if (lastBallStatus.customMsg) {
+      redisObj.customMsg = lastBallStatus.customMsg;
+    }
+  }
+  await redisClient.hSet(marketId + "Inning" + inningNumber, redisObj).catch((err) => {
+    console.log(err);
+  });
+
+  let dbUpdateObj = {
+    score: redisObj.score,
+    over: redisObj.over,
+    striker: redisObj.striker,
+    nonStriker: redisObj.nonStriker,
+    overRuns: redisObj.overRuns,
+    wicket: redisObj.wicket,
+    crr: redisObj.crr,
+    rrr: redisObj.rrr,
+    message: redisObj.message,
+    lastOver: redisObj.lastOver,
+  }
+
+  scoreInningRepo
+    .update({ marketId: marketId, inningNumber: inningNumber }, dbUpdateObj)
+    .catch((err) => {
+      console.log(err);
+    });
+
+  return res.json(redisObj);
+}))
 
 // timeout r
 // drink break d
