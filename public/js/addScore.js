@@ -93,7 +93,6 @@ function changeCheckboxState(type, action = false) {
     checkboxElement = elements.ballerSwitch;
 
   }
-
   // Change the checked state of the checkbox and dispatch the 'change' event.
   checkboxElement.checked = action;
   checkboxElement.dispatchEvent(event);
@@ -142,6 +141,8 @@ const handleChangeInning = async () => {
 
       currentInningVal = parseInt(currentInningVal) + 1;
       elements.inning.innerHTML = currentInningVal;
+      await getScore(false);
+      await getScore(true);
     }
   } catch (error) {
     showToast(error, "error");
@@ -167,7 +168,7 @@ const handleChangeScore = async (key) => {
         !events.includes("ball stop")
       ) {
         events = ["ball stop"];
-      } else if (!events.includes("ball start")) {
+      } else if (localStorage.getItem("ballStart") == "false" &&!events.includes("ball start")) {
         events = ["ball start"];
       }
       break;
