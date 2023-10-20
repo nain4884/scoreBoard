@@ -29,6 +29,7 @@ const elements = {
   strikerSwitch: document.getElementById("strikerSwitch"),
   nonStrikerSwitch: document.getElementById("nonStrikerSwitch"),
   ballerSwitch: document.getElementById("ballerSwitch"),
+  undoBtn: document.getElementById("undo"),
 };
 
 let score = 0;
@@ -91,7 +92,6 @@ function changeCheckboxState(type, action = false) {
     checkboxElement = elements.nonStrikerSwitch;
   } else if (type == "baller") {
     checkboxElement = elements.ballerSwitch;
-
   }
   // Change the checked state of the checkbox and dispatch the 'change' event.
   checkboxElement.checked = action;
@@ -143,6 +143,7 @@ const handleChangeInning = async () => {
       elements.inning.innerHTML = currentInningVal;
       await getScore(false);
       await getScore(true);
+      await setPlayer();
     }
   } catch (error) {
     showToast(error, "error");
@@ -168,7 +169,10 @@ const handleChangeScore = async (key) => {
         !events.includes("ball stop")
       ) {
         events = ["ball stop"];
-      } else if (localStorage.getItem("ballStart") == "false" &&!events.includes("ball start")) {
+      } else if (
+        !events.includes("ball start") &&
+        !events.includes("ball stop")
+      ) {
         events = ["ball start"];
       }
       break;
@@ -195,8 +199,9 @@ const handleChangeScore = async (key) => {
         const data = await response.json();
         await getScore(false);
         await getScore(true);
+        await setPlayer();
 
-        messageBasedActions(data?.message, data?.isLastBall);
+        await messageBasedActions(events, data?.isLastBall);
 
         currScore = -1;
         elements.currScoreShow.innerHTML = "";
@@ -255,21 +260,19 @@ const handleChangeScore = async (key) => {
     .join(",")}</p><p>Selected score: ${score}</p>`;
 };
 
-const messageBasedActions = (msg, isLastBall) => {
-  msg = msg.toLowerCase().trim();
-
+const messageBasedActions = async (event, isLastBall) => {
   if (isLastBall) {
     changeCheckboxState("baller", true);
   }
 
-  if (msg === "wicket") {
+  if (event?.includes("wck")) {
     changeCheckboxState("striker", true);
-  } else if (msg === "run out") {
+  } else if (event?.includes("r")) {
     changeCheckboxState("striker", true);
     changeCheckboxState("nonStriker", true);
-  } else if (msg == "ball started") {
+  } else if (event?.includes("ball start")) {
     localStorage.setItem("ballStart", true);
-  } else if (msg == "ball stop") {
+  } else if (event.includes("ball stop")) {
     localStorage.setItem("ballStart", false);
   }
 };
@@ -418,6 +421,39 @@ function getSelectedBallerType() {
   return document.querySelector('input[name="bowlerType"]:checked')?.value;
 }
 
+const undoEvent = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/score/revertLastBall`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        marketId,
+        inningNumber: currInningData?.currentInning,
+      }),
+    });
+
+    if (!response.ok) {
+      showToast(await response.text(), "error");
+      throw new Error("API request failed");
+    }
+    if (response.url !== `${API_BASE_URL}/score/revertLastBall`) {
+      // Handle redirection, e.g., perform a client-side redirection
+      window.location.href = response.url;
+      return;
+    }
+
+    const data = await response.json();
+    await getScore(false);
+    await getScore(true);
+    await setPlayer();
+  } catch (error) {
+    console.error("Error:", error);
+    // Display an error message to the user
+  }
+};
+
 /**
  * Event Listeners
  */
@@ -475,3 +511,5 @@ elements.ballerSwitch.addEventListener("change", () => {
     ? "flex"
     : "none";
 });
+
+elements.undoBtn.addEventListener("click", undoEvent);
