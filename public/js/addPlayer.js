@@ -16,40 +16,14 @@ const playerType = document.querySelectorAll('input[name="playerType"]');
 const bowlerCont = document.getElementById("bowlerCont");
 const teamName = document.getElementById("teamName");
 const playerName = document.getElementById("playerName");
-const bowlerType = document.getElementById("bowlerType");
+const bowlerType = document.querySelectorAll('input[name="bowlerType"]');
 const form = document.querySelector("form");
 const tableContainer = document.getElementById("playerTable");
-
 /**
  * Get the market ID from the URL.
  * @type {string}
  */
 const marketId = window.location.href.split("/").pop();
-
-/**
- * Handle the change event for the player type.
- */
-function handlePlayerTypeChange() {
-  if (getSelectedPlayerType() == "bowler") {
-    showBowlerCont();
-  } else {
-    hideBowlerCont();
-  }
-}
-
-/**
- * Show the bowler container.
- */
-function showBowlerCont() {
-  bowlerCont.style.display = "inline";
-}
-
-/**
- * Hide the bowler container.
- */
-function hideBowlerCont() {
-  bowlerCont.style.display = "none";
-}
 
 /**
  * Handle the form submission.
@@ -91,7 +65,7 @@ async function addPlayerToMatch() {
     teamName: teamName.value,
     playerName: playerName.value,
     playerType: getSelectedPlayerType(),
-    bowlerType: bowlerType.value || "spinner",
+    bowlerType: getSelectedBallerType(),
   };
 
   return fetch("/player/add", {
@@ -140,6 +114,14 @@ function getSelectedPlayerType() {
 }
 
 /**
+ * Get the selected bowler type.
+ * @returns {string} - The selected bowler type.
+ */
+function getSelectedBallerType() {
+  return document.querySelector('input[name="bowlerType"]:checked').value;
+}
+
+/**
  * Get the game type (replace with your actual gameType logic).
  * @returns {string} - The game type.
  */
@@ -153,14 +135,17 @@ function getGameType() {
  */
 function resetForm() {
   playerName.value = "";
-  bowlerType.value = "";
+  bowlerType?.forEach((radioButton) =>
+    radioButton?.value == "spinner"
+      ? (radioButton.checked = true)
+      : (radioButton.checked = false)
+  );
   playerType.forEach((radioButton) =>
     radioButton?.value == "batsman"
       ? (radioButton.checked = true)
       : (radioButton.checked = false)
   );
 
-  hideBowlerCont();
   getPlayersTable();
 }
 
@@ -232,18 +217,13 @@ function addPlayerToTable(table, player, index, serialNumber) {
 }
 
 const getPlayersTable = async () => {
+  console.log("yes");
   const data = await getPlayers();
   tableContainer.innerHTML = "";
   const tableElement = createTableFromData(data);
   tableContainer.appendChild(tableElement);
 };
 
-/**
- * Attach event listeners.
- */
-playerType.forEach((radioButton) => {
-  radioButton.addEventListener("click", handlePlayerTypeChange);
-});
 form.addEventListener("submit", handleSubmit);
 
 teamName.addEventListener("change", getPlayersTable);

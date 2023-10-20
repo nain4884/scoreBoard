@@ -157,6 +157,18 @@ const handleChangeInning = async () => {
  * @param {string} key - The key pressed.
  */
 const handleChangeScore = async (key) => {
+  if (
+    elements.strikerSwitch.checked ||
+    elements.nonStrikerSwitch.checked ||
+    elements.ballerSwitch.checked
+  ) {
+    showToast(
+      "Please select the batsman and baller, if already selected then disable all the inputs by the switch",
+      "error"
+    );
+    return;
+  }
+
   switch (key) {
     case "Escape":
     case "esc":
