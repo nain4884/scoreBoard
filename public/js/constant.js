@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://localhost:4000";
+const protocol = window.location.protocol;
+const host = window.location.host;
+const API_BASE_URL = protocol+'//'+host;
 
 const ballEventKeys = {
   b: { key: "b", name: "Ball", validKeys: [] }, //ball with score
