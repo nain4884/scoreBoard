@@ -382,72 +382,73 @@ const getPlayers = async (type) => {
  */
 const setPlayer = async () => {
   const playerData = await getPlayers();
-  elements.striker.innerHTML = '<option value="">Select the striker</option>';
-  elements.nonStriker.innerHTML =
-    '<option value="">Select the non striker</option>';
-  // for striker
-  playerData?.batsman
-    ?.filter(
-      (item) =>
-        item?.playerName !=
-        currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
-          `inn${currInningData?.currentInning}NonStriker`
-        ]
-    )
-    ?.map((item) => {
+
+  clearSelectBox(elements.striker);
+  clearSelectBox(elements.nonStriker);
+
+  const currentInning = parseInt(currInningData?.currentInning) - 1;
+  const nonStrikerName =
+    currInningData?.innings[currentInning]?.[
+      `inn${currInningData?.currentInning}NonStriker`
+    ];
+  const strikerName =
+    currInningData?.innings[currentInning]?.[
+      `inn${currInningData?.currentInning}Striker`
+    ];
+
+  // Populate Striker and Non-Striker options
+  populatePlayerOptions(elements.striker, playerData?.batsman, nonStrikerName);
+  populatePlayerOptions(elements.nonStriker, playerData?.batsman, strikerName);
+
+  clearBowlerBox(elements.bowler);
+
+  // Populate Bowler options
+  populateBowlerOptions(
+    elements.bowler,
+    playerData?.bowler,
+    getSelectedBallerType()
+  );
+
+  // Set Striker and Non-Striker values
+  elements.striker.value = strikerName;
+  elements.nonStriker.value = nonStrikerName;
+};
+
+const clearSelectBox = (selectElement) => {
+  selectElement.innerHTML = '<option value="">Select a player</option>';
+};
+
+const populatePlayerOptions = (selectElement, playerList, excludeName) => {
+  playerList?.forEach((item) => {
+    if (item.playerName !== excludeName) {
       const option = document.createElement("option");
       option.value = item.playerName;
       option.text = item.playerName;
-      elements.striker.appendChild(option);
-    });
-  // for non
+      selectElement.appendChild(option);
+    }
+  });
+};
 
-  playerData?.batsman
-    ?.filter(
-      (item) =>
-        item?.playerName !=
-        currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
-          `inn${currInningData?.currentInning}Striker`
-        ]
-    )
-    ?.map((item) => {
-      const option = document.createElement("option");
-      option.value = item.playerName;
-      option.text = item.playerName;
-      elements.nonStriker.appendChild(option);
-    });
+const clearBowlerBox = (bowlerElement) => {
+  bowlerElement.innerHTML = "";
+};
 
-  elements.bowler.innerHTML = "";
-  playerData?.bowler
-    ?.filter(
-      (item) =>
-        item?.bowlerType == getSelectedBallerType() ||
-        !getSelectedBallerType() ||
-        getSelectedBallerType() == "all"
-    )
-    ?.map((item) => {
+const populateBowlerOptions = (bowlerElement, bowlerList, selectedType) => {
+  bowlerList?.forEach((item) => {
+    if (selectedType === "all" || item.bowlerType === selectedType) {
       const button = document.createElement("button");
-      button.classList.add("btn", "btn-primary"); // Add Bootstrap button classes
-      button.textContent = `${item.playerName} (${item?.bowlerType})`;
+      button.classList.add("btn", "btn-primary");
+      button.textContent = `${item.playerName} (${item.bowlerType})`;
 
-      // Add an event listener to the button
-      button.onclick = function () {
+      button.onclick = () => {
         selectedBaller = item;
-        changePlayer("bowler", item?.playerName);
+        changePlayer("bowler", item.playerName);
         changeCheckboxState("baller", false);
       };
 
-      elements?.bowler?.appendChild(button);
-    });
-
-  elements.striker.value =
-    currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
-      `inn${currInningData?.currentInning}Striker`
-    ];
-  elements.nonStriker.value =
-    currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
-      `inn${currInningData?.currentInning}NonStriker`
-    ];
+      bowlerElement.appendChild(button);
+    }
+  });
 };
 
 /**
