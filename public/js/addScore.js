@@ -403,7 +403,6 @@ const getPlayers = async (type) => {
  * Populate player options based on the selected bowler type.
  */
 const setPlayer = async () => {
-  changePlayer("bowlerType", getSelectedBallerType());
   const playerData = await getPlayers();
 
   clearSelectBox(elements.striker);
@@ -588,7 +587,10 @@ window.onload = async () => {
 };
 
 elements?.bowlerType?.forEach((radioButton) => {
-  radioButton.addEventListener("click", setPlayer);
+  radioButton.addEventListener("click", () => {    
+      setPlayer();
+      changePlayer("bowlerType", getSelectedBallerType());  
+  });
 });
 
 // elements.strikerSwitch.addEventListener("change", (e) => {
