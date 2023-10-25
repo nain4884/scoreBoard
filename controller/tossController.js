@@ -15,6 +15,7 @@ app.get(
         __dirname + "/../views/addToss.ejs",
         {
             matchData: matchData,
+            marketId:marketId
         }
       );
       res.render("layout/mainLayout", {

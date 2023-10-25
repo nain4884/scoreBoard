@@ -26,9 +26,9 @@ const elements = {
   form: document.getElementById("score-form"),
   inning: document.getElementById("inning"),
   currScoreShow: document.getElementById("curr-score"),
-  strikerSwitch: document.getElementById("strikerSwitch"),
-  nonStrikerSwitch: document.getElementById("nonStrikerSwitch"),
-  ballerSwitch: document.getElementById("ballerSwitch"),
+  // strikerSwitch: document.getElementById("strikerSwitch"),
+  // nonStrikerSwitch: document.getElementById("nonStrikerSwitch"),
+  // ballerSwitch: document.getElementById("ballerSwitch"),
   undoBtn: document.getElementById("undo"),
 };
 
@@ -37,12 +37,11 @@ let events = [];
 let currInningData = null;
 let selectedBaller = null;
 
-let disableStriker = false;
-let disableNonStriker = false;
+// let disableStriker = false;
+// let disableNonStriker = false;
 
 /** @type {number} */
 let currentInningVal = currentInning;
-const marketId = window.location.href.split("/").pop();
 let currScore = -1;
 
 /**
@@ -75,28 +74,29 @@ const changePlayer = async (type, value) => {
     const data = await response.json();
     getScore(false);
     getScore(true);
-    changeCheckboxState(type);
+
+    // changeCheckboxState(type);
   } catch (error) {
     console.error("Error:", error);
     // Display an error message to the user
   }
 };
 
-function changeCheckboxState(type, action = false) {
-  var event = new Event("change", { bubbles: true });
-  var checkboxElement;
+// function changeCheckboxState(type, action = false) {
+//   var event = new Event("change", { bubbles: true });
+//   var checkboxElement;
 
-  if (type === "striker") {
-    checkboxElement = elements.strikerSwitch;
-  } else if (type === "nonStriker") {
-    checkboxElement = elements.nonStrikerSwitch;
-  } else if (type == "baller") {
-    checkboxElement = elements.ballerSwitch;
-  }
-  // Change the checked state of the checkbox and dispatch the 'change' event.
-  checkboxElement.checked = action;
-  checkboxElement.dispatchEvent(event);
-}
+//   if (type === "striker") {
+//     checkboxElement = elements.strikerSwitch;
+//   } else if (type === "nonStriker") {
+//     checkboxElement = elements.nonStrikerSwitch;
+//   } else if (type == "baller") {
+//     checkboxElement = elements.ballerSwitch;
+//   }
+//   // Change the checked state of the checkbox and dispatch the 'change' event.
+//   checkboxElement.checked = action;
+//   checkboxElement.dispatchEvent(event);
+// }
 
 /**
  * Swap values between two input fields.
@@ -158,17 +158,17 @@ const handleChangeInning = async () => {
  * @param {string} key - The key pressed.
  */
 const handleChangeScore = async (key) => {
-  if (
-    elements.strikerSwitch.checked ||
-    elements.nonStrikerSwitch.checked ||
-    elements.ballerSwitch.checked
-  ) {
-    showToast(
-      "Please select the batsman and baller, if already selected then disable all the inputs by the switch",
-      "error"
-    );
-    return;
-  }
+  // if (
+  //   elements.strikerSwitch.checked ||
+  //   elements.nonStrikerSwitch.checked ||
+  //   elements.ballerSwitch.checked
+  // ) {
+  //   showToast(
+  //     "Please select the batsman and baller, if already selected then disable all the inputs by the switch",
+  //     "error"
+  //   );
+  //   return;
+  // }
 
   switch (key) {
     case "Escape":
@@ -188,42 +188,10 @@ const handleChangeScore = async (key) => {
       ) {
         events = ["ball start"];
       }
+      await liveScore();
       break;
     case "Enter":
-      try {
-        const response = await fetch(`${API_BASE_URL}/score/changeScore`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            marketId,
-            inningNumber: currentInningVal,
-            eventType: events?.length == 0 ? ["b"] : events,
-            score: score,
-          }),
-        });
-
-        if (!response.ok) {
-          showToast(await response.text(), "error");
-          throw Error("API request failed");
-        }
-
-        const data = await response.json();
-        await getScore(false);
-        await getScore(true);
-        await setPlayer();
-
-        await messageBasedActions(events, data?.isLastBall);
-
-        currScore = -1;
-        elements.currScoreShow.innerHTML = "";
-        score = 0;
-        events = [];
-      } catch (error) {
-        console.error("Error:", error);
-        // Display an error message to the user
-      }
+      await liveScore();
       break;
     default:
       if (!isNaN(key) && parseInt(key) <= 6) {
@@ -255,6 +223,11 @@ const handleChangeScore = async (key) => {
           events = [ballEventKeys[key]?.key];
         }
       }
+
+      if (ballEventKeys[key]?.directLive) {
+        await liveScore();
+      }
+
       break;
   }
 
@@ -273,17 +246,59 @@ const handleChangeScore = async (key) => {
     .join(",")}</p><p>Selected score: ${score}</p>`;
 };
 
+const liveScore = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/score/changeScore`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        marketId,
+        inningNumber: currentInningVal,
+        eventType: events?.length == 0 ? ["b"] : events,
+        score: score,
+      }),
+    });
+
+    if (!response.ok) {
+      showToast(await response.text(), "error");
+      throw Error("API request failed");
+    }
+
+    const data = await response.json();
+    await getScore(false);
+    await getScore(true);
+    await setPlayer();
+
+    await messageBasedActions(events, data?.isLastBall);
+
+    currScore = -1;
+    elements.currScoreShow.innerHTML = "";
+    score = 0;
+    events = [];
+  } catch (error) {
+    console.error("Error:", error);
+    // Display an error message to the user
+  }
+};
+
 const messageBasedActions = async (event, isLastBall) => {
-  if (isLastBall) {
-    changeCheckboxState("baller", true);
+  // if (isLastBall) {
+  //   changeCheckboxState("baller", true);
+  // }
+
+  if (!event?.includes("ball stop") || !event?.includes("ball start")) {
+    localStorage.setItem("ballStart", false);
   }
 
-  if (event?.includes("wck")) {
-    changeCheckboxState("striker", true);
-  } else if (event?.includes("r")) {
-    changeCheckboxState("striker", true);
-    changeCheckboxState("nonStriker", true);
-  } else if (event?.includes("ball start")) {
+  // if (event?.includes("wck")) {
+  //   changeCheckboxState("striker", true);
+  // } else if (event?.includes("r")) {
+  //   changeCheckboxState("striker", true);
+  //   changeCheckboxState("nonStriker", true);
+  // } else
+  if (event?.includes("ball start")) {
     localStorage.setItem("ballStart", true);
   } else if (event.includes("ball stop")) {
     localStorage.setItem("ballStart", false);
@@ -397,8 +412,8 @@ const setPlayer = async () => {
     ];
 
   // Populate Striker and Non-Striker options
-  populatePlayerOptions(elements.striker, playerData?.batsman, nonStrikerName);
-  populatePlayerOptions(elements.nonStriker, playerData?.batsman, strikerName);
+  populatePlayerOptions(elements.striker, playerData?.batsman, "");
+  populatePlayerOptions(elements.nonStriker, playerData?.batsman, "");
 
   clearBowlerBox(elements.bowler);
 
@@ -443,7 +458,7 @@ const populateBowlerOptions = (bowlerElement, bowlerList, selectedType) => {
       button.onclick = () => {
         selectedBaller = item;
         changePlayer("bowler", item.playerName);
-        changeCheckboxState("baller", false);
+        // changeCheckboxState("baller", false);
       };
 
       bowlerElement.appendChild(button);
@@ -532,30 +547,30 @@ window.onload = async () => {
   await getScore(true);
   await setPlayer();
 
-  if (elements.striker.value !== "" && elements.striker.value) {
-    changeCheckboxState("striker", false);
-  }
-  if (elements.nonStriker.value !== "" && elements.nonStriker.value) {
-    changeCheckboxState("nonStriker", false);
-  }
+  // if (elements.striker.value !== "" && elements.striker.value) {
+  //   changeCheckboxState("striker", false);
+  // }
+  // if (elements.nonStriker.value !== "" && elements.nonStriker.value) {
+  //   changeCheckboxState("nonStriker", false);
+  // }
 };
 
 elements?.bowlerType?.forEach((radioButton) => {
   radioButton.addEventListener("click", setPlayer);
 });
 
-elements.strikerSwitch.addEventListener("change", (e) => {
-  elements.striker.disabled = !elements.strikerSwitch.checked;
-});
+// elements.strikerSwitch.addEventListener("change", (e) => {
+//   elements.striker.disabled = !elements.strikerSwitch.checked;
+// });
 
-elements.nonStrikerSwitch.addEventListener("change", (e) => {
-  elements.nonStriker.disabled = !elements.nonStrikerSwitch.checked;
-});
+// elements.nonStrikerSwitch.addEventListener("change", (e) => {
+//   elements.nonStriker.disabled = !elements.nonStrikerSwitch.checked;
+// });
 
-elements.ballerSwitch.addEventListener("change", () => {
-  elements.bowler.style.display = elements?.ballerSwitch?.checked
-    ? "flex"
-    : "none";
-});
+// elements.ballerSwitch.addEventListener("change", () => {
+//   elements.bowler.style.display = elements?.ballerSwitch?.checked
+//     ? "flex"
+//     : "none";
+// });
 
 elements.undoBtn.addEventListener("click", undoEvent);

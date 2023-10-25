@@ -45,7 +45,10 @@
     <%match?.map((item)=>{%>
     <div class="match-box">
       <div class="match-name">
-        <b><%= item?.title%></b>
+        <a href="/match/<%= item?.marketId %>">
+
+          <b><%= item?.title%></b>
+        </a>
         <span>
           (<%=new Date(item?.startAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit',
           minute: '2-digit',
@@ -56,22 +59,7 @@
           <span class="bi bi-pencil edit-icon"></span>
         </a>
       </div>
-      <div class="p-2">
-      <a href='/score/add/<%= item?.marketId %>'> <button class="btn btn-primary">
-          score
-        </button>
-      </a>
 
-      <a href='/player/add/<%= item?.marketId %>'> <button class="btn btn-primary">
-          add player
-        </button>
-      </a>
-
-      <a href='/toss/<%= item?.marketId %>'> <button class="btn btn-primary">
-          toss
-        </button>
-      </a>
-    </div>
     </div>
     <% }); %>
   </div>

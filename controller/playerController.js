@@ -61,7 +61,7 @@ app.get(
     }
     const addPlayerContent = await ejs.renderFile(
       __dirname + "/../views/addPlayer.ejs",
-      { matchData: matchData, edit: false }
+      { matchData: matchData, edit: false,marketId:marketId }
     );
     res.render("layout/mainLayout", {
       title: "Add Player",

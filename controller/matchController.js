@@ -1,7 +1,10 @@
 // Controller.js
 const ejs = require("ejs");
 const { Router } = require("express");
-const { getDataSource, AppDataSource } = require("../config/PostGresConnection.js");
+const {
+  getDataSource,
+  AppDataSource,
+} = require("../config/PostGresConnection.js");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const MatchSchema = require("../models/Match.entity");
 const redisClient = require("../config/redisConnection");
@@ -9,7 +12,6 @@ const { getMatchByIdService } = require("../services/scoreService");
 const { isAuthenticates } = require("../middleware/auth.js");
 const app = Router();
 const matchRepo = AppDataSource.getRepository(MatchSchema);
-
 
 app.get(
   "/addmatch",
@@ -53,7 +55,6 @@ app.post(
     if (!body.id && checkCricketRequiredFileds(body)) {
       return res.status(500).send("Add all required fields for add matches");
     }
-   
 
     let alreadyMatchAdded = await matchRepo.findOne({
       where: { marketId: body.marketId },
@@ -117,6 +118,27 @@ app.get(
   })
 );
 
+app.get(
+  "/match/:marketId",
+  isAuthenticates,
+  catchAsyncErrors(async (req, res, next) => {
+    const { marketId } = req.params;
+  
+
+    const matchContent = await ejs.renderFile(
+      __dirname + "/../views/matchDetails.ejs",
+      {
+        marketId: marketId,
+      }
+    );
+
+    res.render("layout/mainLayout", {
+      title: "Match",
+      body: matchContent,
+    });
+  })
+);
+
 function checkCricketRequiredFileds(body) {
   let cricketRequiredFileds = [
     "gameType",
@@ -140,7 +162,6 @@ app.get(
   "/",
   isAuthenticates,
   catchAsyncErrors(async (req, res, next) => {
-
     const match = await matchRepo
       .createQueryBuilder("match")
       .orderBy("match.startAt", "DESC")

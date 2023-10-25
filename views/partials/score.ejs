@@ -1,0 +1,35 @@
+<style>
+  .match-btn-cont {
+    display: flex;
+    gap: 10px;
+
+  }
+</style>
+<div  class="p-2">
+  <div id="scoreDisplay">
+
+  </div>
+  <div class="match-btn-cont">
+    <div class="p-2">
+      <a href='/score/add/<%= marketId %>'> <button class="btn btn-primary">
+          score
+        </button>
+      </a>
+
+      <a href='/player/add/<%= marketId %>'> <button class="btn btn-primary">
+          add player
+        </button>
+      </a>
+
+      <a href='/toss/<%= marketId %>'> <button class="btn btn-primary">
+          toss
+        </button>
+      </a>
+    </div>
+  </div>
+</div>
+<script>
+  const marketId = "<%= marketId %>";
+</script>
+<script src="/js/constant.js"></script>
+<script src="/js/getScore.js"></script>

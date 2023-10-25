@@ -5,19 +5,11 @@
 
   .add-player-container {
     max-width: 97%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+
   }
 
   #bowlerCont {
     display: none;
-  }
-
-  #playerTable {
-    overflow: auto;
-    height: 50vh;
   }
 
 
@@ -26,14 +18,15 @@
   @media screen and (max-width: 768px) {
     .add-player-container {
       max-width: 100%;
-      position: relative;
-      top: 0%;
-      left: 0%;
-      transform: translate(0%, 0%);
+
     }
   }
 </style>
-
+<div style="position: relative;">
+  <%- include('./partials/score.ejs',{
+  marketId: marketId
+}) %>
+</div>
 <div class="container add-player-container">
   <div class="row">
     <div class="col-md-12 card p-3">
@@ -81,7 +74,7 @@
                   </label>
                 </div>
               </div>
-             
+
               <div class="form-group col-md-4">
                 <label for="bowlerType">Bowler Type:</label>
                 <br />
@@ -95,7 +88,7 @@
                 </div>
               </div>
               <div class="form-group col-md-12">
-                <button style="width: 100%;" class="btn btn-primary">
+                <button id="submitBtn" style="width: 100%;" class="btn btn-primary">
                   Add Player
                 </button>
               </div>
@@ -114,6 +107,5 @@
 <script>
   const gameType = "<%= matchData?.gameType %>";
 </script>
-<script src="/js/constant.js"></script>
 <script src="/js/showToast.js"></script>
 <script src="/js/addPlayer.js"></script>

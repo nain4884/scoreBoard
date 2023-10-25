@@ -5,10 +5,6 @@
 
   .add-toss-container {
     max-width: 97%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
   }
 
   #bowlerCont {
@@ -19,15 +15,16 @@
   @media screen and (max-width: 768px) {
     .add-toss-container {
       max-width: 100%;
-      position: relative;
-      top: 0%;
-      left: 0%;
-      transform: translate(0%, 0%);
     }
   }
 </style>
-
+<div style="position: relative;">
+  <%- include('./partials/score.ejs',{
+  marketId: marketId
+}) %>
+</div>
 <div class="container add-toss-container">
+  
   <div class="row">
     <div class="col-md-12 card p-3">
 
@@ -89,6 +86,5 @@
 <script>
   const gameType = "<%= matchData?.gameType %>";
 </script>
-<script src="/js/constant.js"></script>
 <script src="/js/showToast.js"></script>
 <script src="/js/addToss.js"></script>

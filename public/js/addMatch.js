@@ -97,7 +97,6 @@ async function setMatchValues(data) {
   // Extract date and time components
   const datePart = selectedDate.toISOString().split("T")[0];
   const timePart = selectedDate.toISOString().split("T")[1].substring(0, 5); // HH:mm
-  console.log(datePart,timePart);
   startTime.value = `${datePart}T${timePart}`;
 }
 

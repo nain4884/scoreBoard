@@ -461,6 +461,11 @@ app.get(
         -webkit-transform: translate(-50%,-50%);
         transform: translate(-50%,-50%)
       }
+      .animate-name{
+        // animation: txt 3s ease-out infinite;
+        // font-family: tahomabd;
+        // font-size: 12px;
+      }
       @-webkit-keyframes txt {
         0% {
             -webkit-transform: scale(1);
@@ -512,14 +517,14 @@ app.get(
               <div class="container-main">
               <div class="row-ctm"> 
               <div class="team">
-                <div>
-                  Striker: ${striker}, Non-Striker: ${nonStriker}
+                <div class="animate-name">
+                  ${striker}, ${nonStriker}
                 </div>
               </div>
               <div class="match_status"></div>
               <div class="team">
-                <div>
-                  Bowler: ${bowler}(${bowlerType})
+                <div class="animate-name">
+                  ${bowler}(${bowlerType})
                 </div>
               </div>
               </div>
@@ -603,6 +608,7 @@ app.get(
       __dirname + "/../views/addScore.ejs",
       {
         data: matchData,
+        marketId:marketId
       }
     );
     res.render("layout/mainLayout", {

@@ -1,5 +1,4 @@
 const form = document.querySelector("form");
-const marketId = window.location.href.split("/").pop();
 
 /**
  * Get the selected team type.
