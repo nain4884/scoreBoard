@@ -608,7 +608,7 @@ app.get(
       __dirname + "/../views/addScore.ejs",
       {
         data: matchData,
-        marketId:marketId
+        marketId: marketId,
       }
     );
     res.render("layout/mainLayout", {
@@ -622,6 +622,14 @@ app.get(
   "/",
   catchAsyncErrors(async (req, res, next) => {
     res.render("score.ejs");
+  })
+);
+
+app.post(
+  "/runout",
+  catchAsyncErrors(async (req, res, next) => {
+    const { isStriker } = req.body;
+    return res.status(200).json({});
   })
 );
 
@@ -700,7 +708,7 @@ app.post(
     newInning.startAt = new Date();
     newInning.startAt = newInning.startAt.toString();
     newInning.stopAt = newInning.stopAt?.toString() || "";
-    newInning.message = `Toss won by ${newInning.teamName} and choose first ${firstChoose}`
+    newInning.message = `Toss won by ${newInning.teamName} and choose first ${firstChoose}`;
     await redisClient.hSet(marketId + "Inning1", newInning);
     matchRepo.update(
       { marketId: marketId },
@@ -920,7 +928,7 @@ app.post(
       redisObj.overRuns = redisObj.overRuns + " W";
       let message = "WIDE ";
       if (score) {
-        message = message + '+' + (await numberToWords(score));
+        message = message + "+" + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
@@ -941,7 +949,7 @@ app.post(
       redisObj.overRuns = redisObj.overRuns + " NB";
       let message = "NO BALL ";
       if (score) {
-        message = message + '+' + (await numberToWords(score));
+        message = message + "+" + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.isFreeHit = true;
@@ -966,7 +974,7 @@ app.post(
       redisObj.overRuns = redisObj.overRuns + " WKT";
       let message = "WICKET ";
       if (score) {
-        message = message + '+' + (await numberToWords(score));
+        message = message + "+" + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
@@ -996,7 +1004,7 @@ app.post(
       redisObj.overRuns = redisObj.overRuns + " WCK";
       let message = "RUN OUT ";
       if (score) {
-        message = message + '+' + (await numberToWords(score));
+        message = message + "+" + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
@@ -1054,7 +1062,15 @@ app.post(
       }
     }
 
-    if( !(eventType.includes("ball start") || eventType.includes("ball stop") || eventType.includes("d")) || eventType.includes("timeout") ||eventType.includes("u") ){
+    if (
+      !(
+        eventType.includes("ball start") ||
+        eventType.includes("ball stop") ||
+        eventType.includes("d")
+      ) ||
+      eventType.includes("timeout") ||
+      eventType.includes("u")
+    ) {
       if (score % 2 == 1) {
         let tempName = redisObj.striker;
         redisObj.striker = redisObj.nonStriker;

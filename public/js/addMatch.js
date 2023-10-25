@@ -100,7 +100,6 @@ async function setMatchValues(data) {
   startTime.value = `${datePart}T${timePart}`;
 }
 
-
 // Event listeners
 gameType.addEventListener("change", () => {
   fetchCompetitionList();
@@ -132,8 +131,7 @@ form.onsubmit = async (e) => {
         noBallRun: noBall.value,
         totalOver: overs.value,
         id: getQueryParam("id"),
-        marketId:  getQueryParam("marketId"),
-
+        marketId: getQueryParam("marketId"),
       };
     } else {
       const selectedMatch = JSON.parse(matchType.value);
@@ -148,7 +146,7 @@ form.onsubmit = async (e) => {
         teamB: teamB.value,
         teamC: teamC.value,
         title: selectedMatch?.event?.name,
-        startAt: new Date(selectedMatch?.marketStartTime),
+        startAt: startTime?.value,
         overType: overBall.value,
         noBallRun: noBall.value,
         totalOver: overs.value,

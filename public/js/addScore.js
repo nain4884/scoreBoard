@@ -31,6 +31,9 @@ const elements = {
   // ballerSwitch: document.getElementById("ballerSwitch"),
   undoBtn: document.getElementById("undo"),
   changeOver: document.getElementById("changeOver"),
+  strikerOut: document.getElementById("strikerOut"),
+  nonStrikerOut: document.getElementById("nonStrikerOut"),
+  runOutCont: document.getElementById("runOutCont"),
 };
 
 let score = 0;
@@ -292,6 +295,9 @@ const messageBasedActions = async (event, isLastBall) => {
   if (!event?.includes("ball stop") || !event?.includes("ball start")) {
     localStorage.setItem("ballStart", false);
   }
+  if (event.includes("r")) {
+    elements.runOutCont.classList.remove("d-none");
+  }
 
   // if (event?.includes("wck")) {
   //   changeCheckboxState("striker", true);
@@ -509,6 +515,30 @@ const undoEvent = async () => {
   }
 };
 
+const runOutEvent = async (isStriker) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/score/runout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        isStriker,
+      }),
+    });
+
+    if (!response.ok) {
+      showToast(await response.text(), "error");
+      throw new Error("API request failed");
+    }
+   
+    elements.runOutCont.classList.add("d-none");
+  } catch (error) {
+    console.error("Error:", error);
+    // Display an error message to the user
+  }
+};
+
 /**
  * Event Listeners
  */
@@ -578,4 +608,10 @@ elements.undoBtn.addEventListener("click", undoEvent);
 elements.changeOver.addEventListener("click", async () => {
   events.push("over change");
   await liveScore();
+});
+elements.strikerOut.addEventListener("click", async () => {
+  runOutEvent(true);
+});
+elements.nonStrikerOut.addEventListener("click", async () => {
+  runOutEvent(true);
 });
