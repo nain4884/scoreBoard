@@ -403,6 +403,7 @@ const getPlayers = async (type) => {
  * Populate player options based on the selected bowler type.
  */
 const setPlayer = async () => {
+  changePlayer("bowlerType", getSelectedBallerType());
   const playerData = await getPlayers();
 
   clearSelectBox(elements.striker);

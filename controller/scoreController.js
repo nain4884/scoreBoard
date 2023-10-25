@@ -778,7 +778,7 @@ app.post(
     }
     if (playerType == "bowlerType") {
       redisObj.bowlerType = bowlerType;
-      redisObj.message = bowlerType;
+      redisObj.message = bowlerType.toUpperCase();
     }
     if (playerType == "message") {
       redisObj.message = playerName;
