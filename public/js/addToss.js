@@ -59,7 +59,7 @@ async function handleSubmit(event) {
     }
 
     showToast("Toss declared successfully");
-    window.location.replace("/");
+    // window.location.replace("/");
   } catch (error) {
     console.error("Error:", error);
   }
