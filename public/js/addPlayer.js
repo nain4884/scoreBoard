@@ -23,7 +23,6 @@ const submitBtn = document.getElementById("submitBtn");
 
 let selectedPlayer = null;
 
-
 /**
  * Handle the form submission.
  * @param {Event} event - The form submission event.
@@ -71,6 +70,7 @@ async function addPlayerToMatch() {
       playerName: playerName.value,
       playerType: getSelectedPlayerType(),
       bowlerType: getSelectedBallerType(),
+      id: selectedPlayer.id,
     };
   } else {
     requestBody /** @type {Player} */ = {
@@ -262,9 +262,8 @@ const getPlayersTable = async () => {
   tableContainer.innerHTML = "";
   const tableElement = createTableFromData(data);
   tableContainer.appendChild(tableElement);
-  selectedPlayer=null;
+  selectedPlayer = null;
   submitBtn.innerHTML = "Add Player";
-
 };
 
 form.addEventListener("submit", handleSubmit);

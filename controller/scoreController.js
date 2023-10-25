@@ -1021,6 +1021,9 @@ app.post(
     if (eventType.includes("u")) {
       redisObj.message = "THIRD UMPIRE";
     }
+    if (eventType.includes("over change")) {
+      redisObj.message = "Over Change";
+    }
 
     // update common value in all condition
     if (inningNumber == 2) {

@@ -30,6 +30,7 @@ const elements = {
   // nonStrikerSwitch: document.getElementById("nonStrikerSwitch"),
   // ballerSwitch: document.getElementById("ballerSwitch"),
   undoBtn: document.getElementById("undo"),
+  changeOver: document.getElementById("changeOver"),
 };
 
 let score = 0;
@@ -574,3 +575,7 @@ elements?.bowlerType?.forEach((radioButton) => {
 // });
 
 elements.undoBtn.addEventListener("click", undoEvent);
+elements.changeOver.addEventListener("click", async () => {
+  events.push("over change");
+  await liveScore();
+});
