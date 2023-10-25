@@ -87,6 +87,7 @@ async function fetchEventList(id) {
  */
 async function setMatchValues(data) {
   data = JSON.parse(data);
+  console.log(data);
 
   teamA.value = data?.runners?.[0]?.runnerName || "";
   teamB.value = data?.runners?.[1]?.runnerName || "";
@@ -96,8 +97,10 @@ async function setMatchValues(data) {
   // Extract date and time components
   const datePart = selectedDate.toISOString().split("T")[0];
   const timePart = selectedDate.toISOString().split("T")[1].substring(0, 5); // HH:mm
+  console.log(datePart,timePart);
   startTime.value = `${datePart}T${timePart}`;
 }
+
 
 // Event listeners
 gameType.addEventListener("change", () => {
@@ -130,6 +133,8 @@ form.onsubmit = async (e) => {
         noBallRun: noBall.value,
         totalOver: overs.value,
         id: getQueryParam("id"),
+        marketId:  getQueryParam("marketId"),
+
       };
     } else {
       const selectedMatch = JSON.parse(matchType.value);

@@ -144,6 +144,7 @@ const handleChangeInning = async () => {
       await getScore(false);
       await getScore(true);
       await setPlayer();
+      showToast("Inning changed successfully", "success");
     }
   } catch (error) {
     showToast(error, "error");
@@ -384,20 +385,45 @@ const setPlayer = async () => {
   elements.striker.innerHTML = '<option value="">Select the striker</option>';
   elements.nonStriker.innerHTML =
     '<option value="">Select the non striker</option>';
+  // for striker
+  playerData?.batsman
+    ?.filter(
+      (item) =>
+        item?.playerName !=
+        currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
+          `inn${currInningData?.currentInning}NonStriker`
+        ]
+    )
+    ?.map((item) => {
+      const option = document.createElement("option");
+      option.value = item.playerName;
+      option.text = item.playerName;
+      elements.striker.appendChild(option);
+    });
+  // for non
 
-  playerData?.batsman?.map((item) => {
-    const option = document.createElement("option");
-    option.value = item.playerName;
-    option.text = item.playerName;
-    elements.striker.appendChild(option.cloneNode(true));
-    elements.nonStriker.appendChild(option);
-  });
+  playerData?.batsman
+    ?.filter(
+      (item) =>
+        item?.playerName !=
+        currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
+          `inn${currInningData?.currentInning}Striker`
+        ]
+    )
+    ?.map((item) => {
+      const option = document.createElement("option");
+      option.value = item.playerName;
+      option.text = item.playerName;
+      elements.nonStriker.appendChild(option);
+    });
 
   elements.bowler.innerHTML = "";
   playerData?.bowler
     ?.filter(
       (item) =>
-        item?.bowlerType == getSelectedBallerType() || !getSelectedBallerType()
+        item?.bowlerType == getSelectedBallerType() ||
+        !getSelectedBallerType() ||
+        getSelectedBallerType() == "all"
     )
     ?.map((item) => {
       const button = document.createElement("button");
@@ -504,6 +530,13 @@ window.onload = async () => {
   await getScore(false);
   await getScore(true);
   await setPlayer();
+
+  if (elements.striker.value !== "" && elements.striker.value) {
+    changeCheckboxState("striker", false);
+  }
+  if (elements.nonStriker.value !== "" && elements.nonStriker.value) {
+    changeCheckboxState("nonStriker", false);
+  }
 };
 
 elements?.bowlerType?.forEach((radioButton) => {

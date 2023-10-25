@@ -53,9 +53,7 @@
   }
 
   .undo-btn {
-    position: absolute;
-    right: 0px;
-    top: 0px;
+    width: 100%;
   }
 
   #bowler {
@@ -68,7 +66,13 @@
     padding: 10px;
     margin-bottom: 10px;
   }
- 
+
+  .btn-cont {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+  }
+
   @media screen and (max-width: 768px) {
     .add-match-container {
       max-width: 100%;
@@ -133,6 +137,9 @@
               <label class="btn btn-secondary">
                 <input type="radio" name="bowlerType" value="faster"> Faster
               </label>
+              <label class="btn btn-secondary">
+                <input type="radio" name="bowlerType" value="all" checked> Any
+              </label>
             </div>
             <div class="custom-control custom-switch">
               <input type="checkbox" checked class="custom-control-input" id="ballerSwitch">
@@ -142,9 +149,12 @@
           <div class="col-md-9" id="bowler">
 
           </div>
-          <div class="form-group col-md-12" style="display: flex; align-items:end;">
+          <div class="form-group col-md-12 btn-cont">
             <button style="width: 100%;" id="changeInning" class="btn btn-primary">
               Change Inning
+            </button>
+            <button class="undo-btn btn btn-secondary" id="undo">
+              Undo <i class="bi bi-arrow-counterclockwise rotate-180"></i>
             </button>
           </div>
         </div>
@@ -154,9 +164,7 @@
           <p id="curr-score">
             Please enter your score
           </p>
-          <button class="undo-btn btn btn-secondary" id="undo">
-            <i class="bi bi-arrow-counterclockwise rotate-180"></i>
-          </button>
+
         </div>
       </form>
     </div>
