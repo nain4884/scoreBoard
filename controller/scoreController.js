@@ -955,7 +955,7 @@ app.post(
       if (isLastBall) {
         redisObj.over = Math.ceil(redisObj.over);
       }
-      redisObj.overRuns = redisObj.overRuns + " WCK";
+      redisObj.overRuns = redisObj.overRuns + " WKT";
       let message = "WICKET ";
       if (score) {
         message = message + (await numberToWords(score));
@@ -1040,6 +1040,11 @@ app.post(
     }
 
     if (score % 2 == 1) {
+      let tempName = redisObj.striker;
+      redisObj.striker = redisObj.nonStriker;
+      redisObj.nonStriker = tempName;
+    }
+    if (isLastBall) {
       let tempName = redisObj.striker;
       redisObj.striker = redisObj.nonStriker;
       redisObj.nonStriker = tempName;
