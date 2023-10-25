@@ -22,12 +22,12 @@ app.post(
         if (!playerObject) {
           return res.status(400).send("Please provide valid id");
         }
-        playerObject.marketId = body.marketId;
-        playerObject.gameType = body.gameType;
-        playerObject.teamName = body.teamName;
-        playerObject.playerName = body.playerName;
-        playerObject.playerType = body.playerType;
-        playerObject.bowlerType = body.bowlerType;
+        playerObject.marketId = body.marketId || playerObject.marketId;
+        playerObject.gameType = body.gameType || playerObject.gameType;
+        playerObject.teamName = body.teamName || playerObject.teamName;
+        playerObject.playerName = body.playerName || playerObject.playerName;
+        playerObject.playerType = body.playerType || playerObject.playerType;
+        playerObject.bowlerType = body.bowlerType || playerObject.bowlerType;
       } else {
         playerObject = {
           marketId: body.marketId,

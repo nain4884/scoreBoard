@@ -700,6 +700,7 @@ app.post(
     newInning.startAt = new Date();
     newInning.startAt = newInning.startAt.toString();
     newInning.stopAt = newInning.stopAt?.toString() || "";
+    newInning.message = `Toss won by ${newInning.teamName} and choose first ${firstChoose}`
     await redisClient.hSet(marketId + "Inning1", newInning);
     matchRepo.update(
       { marketId: marketId },
@@ -769,6 +770,7 @@ app.post(
     }
     if (playerType == "bowlerType") {
       redisObj.bowlerType = bowlerType;
+      redisObj.message = bowlerType;
     }
     if (playerType == "message") {
       redisObj.message = playerName;
@@ -835,7 +837,7 @@ app.post("/changeInning", async (req, res, next) => {
     bowler: "",
     bowlerType: "",
     teamName: innin1Team == match.teamA ? match.teamB : match.teamA,
-    message: "",
+    message: "Inning Change",
     lastOver: "",
   };
   const newInning = scoreInningRepo.create(redisObj);
@@ -918,7 +920,7 @@ app.post(
       redisObj.overRuns = redisObj.overRuns + " W";
       let message = "WIDE ";
       if (score) {
-        message = message + (await numberToWords(score));
+        message = message + '+' + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
@@ -939,7 +941,7 @@ app.post(
       redisObj.overRuns = redisObj.overRuns + " NB";
       let message = "NO BALL ";
       if (score) {
-        message = message + (await numberToWords(score));
+        message = message + '+' + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.isFreeHit = true;
@@ -964,7 +966,7 @@ app.post(
       redisObj.overRuns = redisObj.overRuns + " WKT";
       let message = "WICKET ";
       if (score) {
-        message = message + (await numberToWords(score));
+        message = message + '+' + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
@@ -994,7 +996,7 @@ app.post(
       redisObj.overRuns = redisObj.overRuns + " WCK";
       let message = "RUN OUT ";
       if (score) {
-        message = message + (await numberToWords(score));
+        message = message + '+' + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
