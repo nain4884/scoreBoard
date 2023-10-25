@@ -1010,6 +1010,10 @@ app.post(
       redisObj.message = "Time Out";
     }
 
+    if (eventType.includes("u")) {
+      redisObj.message = "THIRD UMPIRE";
+    }
+
     // update common value in all condition
     if (inningNumber == 2) {
       let totalBallInMatch = convertOverToBall(
@@ -1039,7 +1043,7 @@ app.post(
       }
     }
 
-    if( !(eventType.includes("ball start") || eventType.includes("ball stop") || eventType.includes("d")) || eventType.includes("timeout")){
+    if( !(eventType.includes("ball start") || eventType.includes("ball stop") || eventType.includes("d")) || eventType.includes("timeout") ||eventType.includes("u") ){
       if (score % 2 == 1) {
         let tempName = redisObj.striker;
         redisObj.striker = redisObj.nonStriker;
