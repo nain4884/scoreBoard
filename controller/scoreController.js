@@ -1039,15 +1039,17 @@ app.post(
       }
     }
 
-    if (score % 2 == 1) {
-      let tempName = redisObj.striker;
-      redisObj.striker = redisObj.nonStriker;
-      redisObj.nonStriker = tempName;
-    }
-    if (isLastBall) {
-      let tempName = redisObj.striker;
-      redisObj.striker = redisObj.nonStriker;
-      redisObj.nonStriker = tempName;
+    if( !(eventType.includes("ball start") || eventType.includes("ball stop") || eventType.includes("d")) || eventType.includes("timeout")){
+      if (score % 2 == 1) {
+        let tempName = redisObj.striker;
+        redisObj.striker = redisObj.nonStriker;
+        redisObj.nonStriker = tempName;
+      }
+      if (isLastBall) {
+        let tempName = redisObj.striker;
+        redisObj.striker = redisObj.nonStriker;
+        redisObj.nonStriker = tempName;
+      }
     }
     redisObj.crr = calculateCurrRate(
       redisObj.score,
