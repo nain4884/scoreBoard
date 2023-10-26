@@ -357,7 +357,7 @@ app.get(
       margin-right: auto;
       margin-left: auto;
       color: white;
-      height: 15vh;
+      height: 16vh;
       align-items: center;
       display: grid;
       background-position: bottom;
@@ -378,6 +378,7 @@ app.get(
       flex: 0 0 25%;
       max-width: 25%;
       text-align: center;
+      overflow:hidden;
       }
       .match_status {
       flex: 0 0 50%;
@@ -436,6 +437,7 @@ app.get(
       .score-over ul li {
       display: inline-block;
       color: #fff;
+      font-size:1em;
       }
       .score-over ul li p{
       margin: 0;
@@ -462,9 +464,10 @@ app.get(
         transform: translate(-50%,-50%)
       }
       .animate-name{
-        // animation: txt 3s ease-out infinite;
-        // font-family: tahomabd;
-        // font-size: 12px;
+        animation: txt 3s ease-out infinite;
+        font-family: tahomabd;
+        font-size: 0.8em;
+        font-weight:500;
       }
       @-webkit-keyframes txt {
         0% {
@@ -518,8 +521,11 @@ app.get(
               <div class="row-ctm"> 
               <div class="team">
                 <div class="animate-name">
-                  ${striker}, ${nonStriker}
+                  ${striker}
                 </div>
+                <div>
+                ${nonStriker}
+              </div>
               </div>
               <div class="match_status"></div>
               <div class="team">
@@ -926,9 +932,9 @@ app.post(
         redisObj.over = Math.ceil(redisObj.over);
       }
       redisObj.overRuns = redisObj.overRuns + " W";
-      let message = "WIDE ";
+      let message = "WIDE";
       if (score) {
-        message = message + "+" + (await numberToWords(score));
+        message = message + " + " + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
@@ -937,7 +943,7 @@ app.post(
     if (eventType.includes("n")) {
       redisObj.score =
         parseInt(redisObj.score) + score + parseInt(matchDetails.noBallRun);
-      if (!eventType.includes("r")) {
+      if (eventType.includes("r")) {
         redisObj.wicket = parseInt(redisObj.wicket) + 1;
       }
       isLastBall =
@@ -946,13 +952,43 @@ app.post(
       if (isLastBall) {
         redisObj.over = Math.ceil(redisObj.over);
       }
-      redisObj.overRuns = redisObj.overRuns + " NB";
-      let message = "NO BALL ";
+      if ((redisObj.over % 1).toFixed(1) == 0.1) {
+        redisObj.lastOver = redisObj.overRuns;
+        redisObj.overRuns = " NB";
+      } else {
+        redisObj.overRuns = redisObj.overRuns + " NB";
+      }
+      let message = "NO BALL";
       if (score) {
-        message = message + "+" + (await numberToWords(score));
+        message = message + " + " + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.isFreeHit = true;
+      redisObj.message = message;
+    } else if (eventType.includes("r")) {
+      redisObj.score = parseInt(redisObj.score) + score;
+      if (!eventType.includes("n")) {
+        redisObj.over = parseFloat(redisObj.over) + 0.1;
+        redisObj.isFreeHit = false;
+      }
+      redisObj.wicket = parseInt(redisObj.wicket) + 1;
+      isLastBall =
+        (matchDetails.overType / 10).toFixed(1) ==
+        (redisObj.over % 1).toFixed(1);
+      if (isLastBall) {
+        redisObj.over = Math.ceil(redisObj.over);
+      }
+      if ((redisObj.over % 1).toFixed(1) == 0.1) {
+        redisObj.lastOver = redisObj.overRuns;
+        redisObj.overRuns = " WKT";
+      } else {
+        redisObj.overRuns = redisObj.overRuns + " WKT";
+      }
+      let message = "RUN OUT";
+      if (score) {
+        message = message + " + " + (await numberToWords(score));
+        redisObj.overRuns = redisObj.overRuns + "+" + score;
+      }
       redisObj.message = message;
     }
 
@@ -971,10 +1007,15 @@ app.post(
       if (isLastBall) {
         redisObj.over = Math.ceil(redisObj.over);
       }
-      redisObj.overRuns = redisObj.overRuns + " WKT";
-      let message = "WICKET ";
+      if ((redisObj.over % 1).toFixed(1) == 0.1) {
+        redisObj.lastOver = redisObj.overRuns;
+        redisObj.overRuns = " WKT";
+      } else {
+        redisObj.overRuns = redisObj.overRuns + " WKT";
+      }
+      let message = "WICKET";
       if (score) {
-        message = message + "+" + (await numberToWords(score));
+        message = message + " + " + (await numberToWords(score));
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
@@ -986,28 +1027,6 @@ app.post(
         },
         { isPlayerOut: true }
       );
-    }
-
-    if (eventType.includes("r")) {
-      redisObj.score = parseInt(redisObj.score) + score;
-      if (!eventType.includes("n")) {
-        redisObj.over = parseFloat(redisObj.over) + 0.1;
-        redisObj.isFreeHit = false;
-      }
-      redisObj.wicket = parseInt(redisObj.wicket) + 1;
-      isLastBall =
-        (matchDetails.overType / 10).toFixed(1) ==
-        (redisObj.over % 1).toFixed(1);
-      if (isLastBall) {
-        redisObj.over = Math.ceil(redisObj.over);
-      }
-      redisObj.overRuns = redisObj.overRuns + " WCK";
-      let message = "RUN OUT ";
-      if (score) {
-        message = message + "+" + (await numberToWords(score));
-        redisObj.overRuns = redisObj.overRuns + "+" + score;
-      }
-      redisObj.message = message;
     }
 
     if (eventType.includes("ball start")) {
