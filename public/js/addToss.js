@@ -57,8 +57,9 @@ async function handleSubmit(event) {
       showToast(errorMessage, "error");
       throw new Error("API request failed");
     }
-
+    await showScore();
     showToast("Toss declared successfully");
+
     // window.location.replace("/");
   } catch (error) {
     console.error("Error:", error);
