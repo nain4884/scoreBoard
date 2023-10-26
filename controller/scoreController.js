@@ -1124,7 +1124,7 @@ app.post(
       .catch((err) => {
         console.log(err);
       });
-    if (redisObj.isFreeHit == "true" || redisObj.isFreeHit) {
+    if (redisObj.isFreeHit == "true" || redisObj.isFreeHit==true) {
       setTimeout(() => {
         redisObj.message = "Free Hit";
         delete redisObj.isLastBall;
