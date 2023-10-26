@@ -634,8 +634,40 @@ app.get(
 app.post(
   "/runout",
   catchAsyncErrors(async (req, res, next) => {
-    const { isStriker, inningNumber, teamName, batsmanName } = req.body;
-    return res.status(200).json({});
+    const { marketId, isStriker, inningNumber, teamName, batsmanName } = req.body;
+    if (!marketId) {
+      return res.status(500).send("marketId not found.");
+    }
+    if (!inningNumber) {
+      return res.status(500).send("Inning number not found.");
+    }
+    if (!isStriker) {
+      return res.status(500).send("Choose batsman not found.");
+    }
+    let redisObj = await setAndGetInningData(inningNumber, marketId);
+    if(isStriker){
+      await playerRepo.update(
+        {
+          marketId: marketId,
+          teamName: redisObj.teamName,
+          playerName: redisObj.striker,
+        },
+        { isPlayerOut: true }
+      );
+      redisObj.striker = '';
+    } else {
+      await playerRepo.update(
+        {
+          marketId: marketId,
+          teamName: redisObj.teamName,
+          playerName: redisObj.nonStriker,
+        },
+        { isPlayerOut: true }
+      );
+      redisObj.nonStriker = '';
+    }
+    await redisClient.hSet(marketId + "Inning" + inningNumber, redisObj);
+    return res.status(200).json(redisObj);
   })
 );
 
@@ -714,7 +746,7 @@ app.post(
     newInning.startAt = new Date();
     newInning.startAt = newInning.startAt.toString();
     newInning.stopAt = newInning.stopAt?.toString() || "";
-    newInning.message = `Toss won by ${newInning.teamName} and choose first ${firstChoose}`;
+    newInning.message = `Toss won by ${teamName} and choose first ${firstChoose}`;
     await redisClient.hSet(marketId + "Inning1", newInning);
     matchRepo.update(
       { marketId: marketId },
@@ -745,37 +777,39 @@ app.post(
     }
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     if (playerType == "striker") {
-      if (
-        redisObj.striker &&
-        redisObj.striker != "" &&
-        redisObj.striker != playerName
-      ) {
-        await playerRepo.update(
-          {
-            marketId: marketId,
-            teamName: redisObj.teamName,
-            playerName: redisObj.striker,
-          },
-          { isPlayerOut: true }
-        );
-      }
+      // if (
+      //   redisObj.striker &&
+      //   redisObj.striker != "" &&
+      //   redisObj.striker != playerName &&
+      //   redisObj.nonStriker != playerName
+      // ) {
+      //   await playerRepo.update(
+      //     {
+      //       marketId: marketId,
+      //       teamName: redisObj.teamName,
+      //       playerName: redisObj.striker,
+      //     },
+      //     { isPlayerOut: true }
+      //   );
+      // }
       redisObj.striker = playerName;
     }
     if (playerType == "nonStriker") {
-      if (
-        redisObj.nonStriker &&
-        redisObj.nonStriker != "" &&
-        redisObj.nonStriker != playerName
-      ) {
-        await playerRepo.update(
-          {
-            marketId: marketId,
-            teamName: redisObj.teamName,
-            playerName: redisObj.nonStriker,
-          },
-          { isPlayerOut: true }
-        );
-      }
+      // if (
+      //   redisObj.nonStriker &&
+      //   redisObj.nonStriker != "" &&
+      //   redisObj.striker != playerName &&
+      //   redisObj.nonStriker != playerName
+      // ) {
+      //   await playerRepo.update(
+      //     {
+      //       marketId: marketId,
+      //       teamName: redisObj.teamName,
+      //       playerName: redisObj.nonStriker,
+      //     },
+      //     { isPlayerOut: true }
+      //   );
+      // }
       redisObj.nonStriker = playerName;
     }
     if (playerType == "bowler") {
@@ -889,6 +923,7 @@ app.post(
     lastBallStatus.score = redisObj.score;
     lastBallStatus.inningNumber = inningNumber;
     lastBallStatus.over = redisObj.over;
+    lastBallStatus.overRuns = redisObj.overRuns;
     lastBallStatus.wicket = redisObj.wicket;
     lastBallStatus.message = redisObj.message;
     lastBallStatus.striker = redisObj.striker;
@@ -912,7 +947,7 @@ app.post(
       if (isLastBall) {
         redisObj.over = Math.ceil(redisObj.over);
       }
-      if ((redisObj.over % 1).toFixed(1) == 0.1) {
+      if ((redisObj.over % 1).toFixed(1) == 0.1 && redisObj.over != 0.1) {
         redisObj.lastOver = redisObj.overRuns;
         redisObj.overRuns = score.toString();
       } else {
@@ -965,7 +1000,9 @@ app.post(
       }
       redisObj.isFreeHit = true;
       redisObj.message = message;
-    } else if (eventType.includes("r")) {
+    } 
+    else 
+    if (eventType.includes("r")) {
       redisObj.score = parseInt(redisObj.score) + score;
       if (!eventType.includes("n")) {
         redisObj.over = parseFloat(redisObj.over) + 0.1;
@@ -999,6 +1036,14 @@ app.post(
       }
       if (!redisObj.isFreeHit) {
         redisObj.wicket = parseInt(redisObj.wicket) + 1;
+        await playerRepo.update(
+          {
+            marketId: marketId,
+            teamName: redisObj.teamName,
+            playerName: redisObj.striker,
+          },
+          { isPlayerOut: true }
+        );
       }
       redisObj.isFreeHit = false;
       isLastBall =
@@ -1019,14 +1064,7 @@ app.post(
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
-      await playerRepo.update(
-        {
-          marketId: marketId,
-          teamName: redisObj.teamName,
-          playerName: redisObj.striker,
-        },
-        { isPlayerOut: true }
-      );
+      redisObj.striker = '';
     }
 
     if (eventType.includes("ball start")) {
@@ -1115,16 +1153,17 @@ app.post(
       .catch((err) => {
         console.log(err);
       });
-    if (redisObj.isFreeHit) {
+      
+    if (redisObj.isFreeHit && JSON.parse(redisObj.isFreeHit)) {
       setTimeout(() => {
-        redisObj.message = "Free Hit";
-        delete redisObj.isLastBall;
+        // redisObj.message = "Free Hit";
+        // delete redisObj.isLastBall;
         redisClient
-          .hSet(marketId + "Inning" + inningNumber, redisObj)
+          .hSet(marketId + "Inning" + inningNumber, "message", "FREE HIT")
           .catch((err) => {
             console.log(err);
           });
-      }, 5000);
+      }, 3000);
     }
 
     redisObj.isLastBall = isLastBall;
@@ -1308,6 +1347,7 @@ app.post(
     redisObj.score = lastBallStatus.score;
     redisObj.over = lastBallStatus.over;
     redisObj.message = lastBallStatus.message;
+    redisObj.overRuns = lastBallStatus.overRuns;
     if (redisObj.wicket != lastBallStatus.wicket) {
       if (
         lastBallStatus.striker != redisObj.striker ||

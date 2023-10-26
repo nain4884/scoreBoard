@@ -302,7 +302,7 @@ const messageBasedActions = async (event, isLastBall, isFreeHit) => {
     setTimeout(async () => {
       await getScore(true);
       await getScore(false);
-    }, 5500);
+    }, 3500);
   }
 
   // if (event?.includes("wck")) {
@@ -529,6 +529,7 @@ const runOutEvent = async (isStriker) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        marketId,
         isStriker,
         inningNumber: currentInningVal,
         teamName:
