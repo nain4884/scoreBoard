@@ -362,6 +362,7 @@ app.get(
       display: grid;
       background-position: bottom;
       position: relative;
+      width:100%;
       }
       @media only screen and (max-width: 767px) {
       .container-main {
