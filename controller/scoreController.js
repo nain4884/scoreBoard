@@ -357,7 +357,7 @@ app.get(
       margin-right: auto;
       margin-left: auto;
       color: white;
-      height: 19vh;
+      height: auto;
       align-items: center;
       display: grid;
       background-position: bottom;
@@ -520,9 +520,11 @@ app.get(
   .team_name {
     font-size: 0.9em;
     }
-    .curr_inn{
-      font-size: 0.6em;
-
+    .over{
+      font-size:0.8em;
+    }
+    .curr-run-rate{
+      font-size:0.7em;
     }
   }
 
@@ -593,7 +595,7 @@ app.get(
                           <span class="run">${inn1Score}/${inn1Wicket}</span>
                           <span class="over">(${inn1over})</span>
                           <br>
-                              <span class="over">CRR : ${inn1crr} | RRR: ${inn1rrr}</span>
+                              <span class="over curr-run-rate">CRR : ${inn1crr} | RRR: ${inn1rrr}</span>
                       </div>
                       
                   </div>`
@@ -603,7 +605,7 @@ app.get(
                       <span class="run">${inn2Score}/${inn2Wicket}</span>
                       <span class="over">(${inn2over})</span>
                       <br>
-                          <span class="over">CRR : ${inn2crr} | RRR: ${inn2rrr}</span>
+                          <span class="over curr-run-rate">CRR : ${inn2crr} | RRR: ${inn2rrr}</span>
                   </div>
                   
               </div>`
