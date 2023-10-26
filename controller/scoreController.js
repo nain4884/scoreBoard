@@ -543,9 +543,8 @@ app.get(
               <div class="team">
                 <div class="animate-name">
                   ${bowler}
-                  <br/>
-                  (${bowlerType})
                 </div>
+                ${bowlerType}
               </div>
               </div>
               <div class="row-ctm">
