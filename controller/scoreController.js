@@ -972,7 +972,7 @@ app.post(
       if (isLastBall) {
         redisObj.over = Math.ceil(redisObj.over);
       }
-      redisObj.overRuns = redisObj.overRuns + " W";
+      redisObj.overRuns = redisObj.overRuns + " Wd";
       let message = "WIDE";
       if (score) {
         message = message + " + " + (await numberToWords(score));
@@ -1094,6 +1094,8 @@ app.post(
     }
     if (eventType.includes("over change")) {
       redisObj.message = "Over Change";
+      redisObj.bowler = '';
+      redisObj.bowlerType = '';
     }
 
     // update common value in all condition
@@ -1129,7 +1131,7 @@ app.post(
       !(
         eventType.includes("ball start") ||
         eventType.includes("ball stop") ||
-        eventType.includes("d")
+        eventType.includes("d") || eventType.includes("over change")
       ) ||
       eventType.includes("timeout") ||
       eventType.includes("u")
