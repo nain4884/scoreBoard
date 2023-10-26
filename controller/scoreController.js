@@ -650,9 +650,6 @@ app.post(
     if (!inningNumber) {
       return res.status(500).send("Inning number not found.");
     }
-    if (!isStriker) {
-      return res.status(500).send("Choose batsman not found.");
-    }
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     if(isStriker){
       await playerRepo.update(
