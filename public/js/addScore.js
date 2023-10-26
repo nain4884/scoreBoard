@@ -548,6 +548,10 @@ const runOutEvent = async (isStriker) => {
     }
 
     elements.runOutCont.classList.add("d-none");
+    await getScore(true);
+    await getScore(false);
+    await setPlayer();
+
   } catch (error) {
     console.error("Error:", error);
     // Display an error message to the user
@@ -631,5 +635,5 @@ elements.strikerOut.addEventListener("click", async () => {
   runOutEvent(true);
 });
 elements.nonStrikerOut.addEventListener("click", async () => {
-  runOutEvent(true);
+  runOutEvent(false);
 });
