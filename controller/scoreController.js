@@ -357,7 +357,7 @@ app.get(
       margin-right: auto;
       margin-left: auto;
       color: white;
-      height: 16vh;
+      height: 18vh;
       align-items: center;
       display: grid;
       background-position: bottom;
@@ -405,7 +405,7 @@ app.get(
       }
       .team_name {
       text-transform: capitalize;
-      font-size: 14px;
+      font-size: 0.9em;
       margin: 0;
       font-weight: 600;
       }
@@ -515,7 +515,16 @@ app.get(
         max-width: 25%;
         text-align: center;
 }
-      }
+@media only screen and (max-width: 767px) {
+  .team_name {
+    font-size: 0.7em;
+    }
+    .curr_inn{
+      font-size: 0.5em;
+
+    }
+  }
+
       </style>
               <div class="container-main">
               <div class="row-ctm"> 
@@ -523,7 +532,7 @@ app.get(
                 <div class="animate-name">
                   ${striker}
                 </div>
-                <div>
+                <div style="font-size:0.8em;">
                 ${nonStriker}
               </div>
               </div>
@@ -1115,7 +1124,7 @@ app.post(
       .catch((err) => {
         console.log(err);
       });
-    if (redisObj.isFreeHit) {
+    if (redisObj.isFreeHit == "true" || redisObj.isFreeHit) {
       setTimeout(() => {
         redisObj.message = "Free Hit";
         delete redisObj.isLastBall;
