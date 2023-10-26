@@ -275,7 +275,7 @@ const liveScore = async () => {
     await getScore(true);
     await setPlayer();
 
-    await messageBasedActions(events, data?.isLastBall);
+    await messageBasedActions(events, data?.isLastBall, data?.isFreeHit);
 
     currScore = -1;
     elements.currScoreShow.innerHTML = "";
@@ -287,7 +287,7 @@ const liveScore = async () => {
   }
 };
 
-const messageBasedActions = async (event, isLastBall) => {
+const messageBasedActions = async (event, isLastBall, isFreeHit) => {
   // if (isLastBall) {
   //   changeCheckboxState("baller", true);
   // }
@@ -297,6 +297,12 @@ const messageBasedActions = async (event, isLastBall) => {
   }
   if (event.includes("r")) {
     elements.runOutCont.classList.remove("d-none");
+  }
+  if (isFreeHit === "true" || isFreeHit === true) {
+    setTimeout(async () => {
+      await getScore(true);
+      await getScore(false);
+    }, 5500);
   }
 
   // if (event?.includes("wck")) {
@@ -524,6 +530,14 @@ const runOutEvent = async (isStriker) => {
       },
       body: JSON.stringify({
         isStriker,
+        inningNumber: currentInningVal,
+        teamName:
+          currInningData?.innings[
+            parseInt(currInningData?.currentInning) - 1
+          ]?.[`inn${parseInt(currInningData?.currentInning)}TeamName`],
+        batsmanName: isStriker
+          ? elements.striker.value
+          : elements.nonStriker?.value,
       }),
     });
 
@@ -531,7 +545,7 @@ const runOutEvent = async (isStriker) => {
       showToast(await response.text(), "error");
       throw new Error("API request failed");
     }
-   
+
     elements.runOutCont.classList.add("d-none");
   } catch (error) {
     console.error("Error:", error);
@@ -587,9 +601,9 @@ window.onload = async () => {
 };
 
 elements?.bowlerType?.forEach((radioButton) => {
-  radioButton.addEventListener("click", () => {    
-      setPlayer();
-      changePlayer("bowlerType", getSelectedBallerType());  
+  radioButton.addEventListener("click", () => {
+    setPlayer();
+    changePlayer("bowlerType", getSelectedBallerType());
   });
 });
 

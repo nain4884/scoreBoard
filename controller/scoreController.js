@@ -634,7 +634,7 @@ app.get(
 app.post(
   "/runout",
   catchAsyncErrors(async (req, res, next) => {
-    const { isStriker } = req.body;
+    const { isStriker, inningNumber, teamName, batsmanName } = req.body;
     return res.status(200).json({});
   })
 );
@@ -1115,6 +1115,18 @@ app.post(
       .catch((err) => {
         console.log(err);
       });
+    if (redisObj.isFreeHit) {
+      setTimeout(() => {
+        redisObj.message = "Free Hit";
+        delete redisObj.isLastBall;
+        redisClient
+          .hSet(marketId + "Inning" + inningNumber, redisObj)
+          .catch((err) => {
+            console.log(err);
+          });
+      }, 5000);
+    }
+
     redisObj.isLastBall = isLastBall;
     let dbUpdateObj = {
       score: redisObj.score,
