@@ -587,7 +587,10 @@ window.onload = async () => {
 };
 
 elements?.bowlerType?.forEach((radioButton) => {
-  radioButton.addEventListener("click", setPlayer);
+  radioButton.addEventListener("click", () => {    
+      setPlayer();
+      changePlayer("bowlerType", getSelectedBallerType());  
+  });
 });
 
 // elements.strikerSwitch.addEventListener("change", (e) => {
