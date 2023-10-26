@@ -357,7 +357,7 @@ app.get(
       margin-right: auto;
       margin-left: auto;
       color: white;
-      height: 18vh;
+      height: 19vh;
       align-items: center;
       display: grid;
       background-position: bottom;
@@ -518,10 +518,10 @@ app.get(
 }
 @media only screen and (max-width: 767px) {
   .team_name {
-    font-size: 0.7em;
+    font-size: 0.9em;
     }
     .curr_inn{
-      font-size: 0.5em;
+      font-size: 0.6em;
 
     }
   }
@@ -540,7 +540,9 @@ app.get(
               <div class="match_status"></div>
               <div class="team">
                 <div class="animate-name">
-                  ${bowler}(${bowlerType})
+                  ${bowler}
+                  <br/>
+                  (${bowlerType})
                 </div>
               </div>
               </div>
@@ -644,7 +646,8 @@ app.get(
 app.post(
   "/runout",
   catchAsyncErrors(async (req, res, next) => {
-    const { marketId, isStriker, inningNumber, teamName, batsmanName } = req.body;
+    const { marketId, isStriker, inningNumber, teamName, batsmanName } =
+      req.body;
     if (!marketId) {
       return res.status(500).send("marketId not found.");
     }
@@ -652,7 +655,7 @@ app.post(
       return res.status(500).send("Inning number not found.");
     }
     let redisObj = await setAndGetInningData(inningNumber, marketId);
-    if(isStriker){
+    if (isStriker) {
       await playerRepo.update(
         {
           marketId: marketId,
@@ -661,7 +664,7 @@ app.post(
         },
         { isPlayerOut: true }
       );
-      redisObj.striker = '';
+      redisObj.striker = "";
     } else {
       await playerRepo.update(
         {
@@ -671,7 +674,7 @@ app.post(
         },
         { isPlayerOut: true }
       );
-      redisObj.nonStriker = '';
+      redisObj.nonStriker = "";
     }
     await redisClient.hSet(marketId + "Inning" + inningNumber, redisObj);
     return res.status(200).json(redisObj);
@@ -1007,9 +1010,7 @@ app.post(
       }
       redisObj.isFreeHit = true;
       redisObj.message = message;
-    } 
-    else 
-    if (eventType.includes("r")) {
+    } else if (eventType.includes("r")) {
       redisObj.score = parseInt(redisObj.score) + score;
       if (!eventType.includes("n")) {
         redisObj.over = parseFloat(redisObj.over) + 0.1;
@@ -1071,7 +1072,7 @@ app.post(
         redisObj.overRuns = redisObj.overRuns + "+" + score;
       }
       redisObj.message = message;
-      redisObj.striker = '';
+      redisObj.striker = "";
     }
 
     if (eventType.includes("ball start")) {
@@ -1095,8 +1096,8 @@ app.post(
     }
     if (eventType.includes("over change")) {
       redisObj.message = "Over Change";
-      redisObj.bowler = '';
-      redisObj.bowlerType = '';
+      redisObj.bowler = "";
+      redisObj.bowlerType = "";
     }
 
     // update common value in all condition
@@ -1132,7 +1133,8 @@ app.post(
       !(
         eventType.includes("ball start") ||
         eventType.includes("ball stop") ||
-        eventType.includes("d") || eventType.includes("over change")
+        eventType.includes("d") ||
+        eventType.includes("over change")
       ) ||
       eventType.includes("timeout") ||
       eventType.includes("u")
@@ -1162,7 +1164,7 @@ app.post(
       .catch((err) => {
         console.log(err);
       });
-    if (redisObj.isFreeHit == "true" || redisObj.isFreeHit==true) {
+    if (redisObj.isFreeHit == "true" || redisObj.isFreeHit == true) {
       setTimeout(() => {
         // redisObj.message = "Free Hit";
         // delete redisObj.isLastBall;
