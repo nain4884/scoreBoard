@@ -357,7 +357,7 @@ app.get(
       margin-right: auto;
       margin-left: auto;
       color: white;
-      height: auto;
+      height: 18vh;
       align-items: center;
       display: grid;
       background-position: bottom;
@@ -366,7 +366,7 @@ app.get(
       }
       @media only screen and (max-width: 767px) {
       .container-main {
-      height: 105px !important;
+      height: auto !important;
       }
       }
       .row-ctm {
@@ -577,6 +577,7 @@ app.get(
                   }</span>
                   <p class="target">${customMsg || ""}</p>
                   <span class="day"><div class="score-over">
+                  
                           <ul><li class="six-balls ">
                             ${
                               parseInt(currentInning) == 2
@@ -1119,15 +1120,16 @@ app.post(
         remainingBall,
         matchDetails.overType
       );
-      if (remainingBall <= 100) {
-        let totalRunInn1 = await redisClient.hGet(
-          marketId + "Inning1",
-          "score"
-        );
-        redisObj.customMsg = `BAN NEED ${
-          totalRunInn1 - redisObj.score
-        } RUNS OFF ${remainingBall} BALLS`;
-      }
+      // if (remainingBall <= 100) {
+      let totalRunInn1 = await redisClient.hGet(marketId + "Inning1", "score");
+      let teamNameInn2 = await redisClient.hGet(
+        marketId + "Inning2",
+        "teamName"
+      );
+      redisObj.customMsg = `${teamNameInn2} NEED ${
+        totalRunInn1 - redisObj.score
+      } RUNS OFF ${remainingBall} BALLS`;
+      // }
     }
 
     if (
