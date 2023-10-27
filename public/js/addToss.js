@@ -5,7 +5,7 @@ const form = document.querySelector("form");
  * @returns {string} - The selected team type.
  */
 function getSelectedTeam() {
-  return document.querySelector('input[name="teamName"]:checked').value;
+  return document.querySelector('input[name="teamName"]:checked')?.value;
 }
 
 /**
@@ -13,7 +13,7 @@ function getSelectedTeam() {
  * @returns {string} - The selected playerType type.
  */
 function getSelectedPlayerType() {
-  return document.querySelector('input[name="playerType"]:checked').value;
+  return document.querySelector('input[name="playerType"]:checked')?.value;
 }
 
 /**
@@ -21,6 +21,15 @@ function getSelectedPlayerType() {
  * @returns {Promise<Response>} - The API response.
  */
 async function declareToss() {
+
+if(!getSelectedTeam()){
+  showToast("Please choose the team","error");
+  return;
+}
+if(!getSelectedPlayerType()){
+  showToast("Please choose the choose first","error");
+  return;
+}
   const requestBody /** @type {Toss} */ = {
     marketId,
     teamName: getSelectedTeam(),
