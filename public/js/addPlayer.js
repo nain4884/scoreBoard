@@ -269,3 +269,13 @@ const getPlayersTable = async () => {
 form.addEventListener("submit", handleSubmit);
 
 teamName.addEventListener("change", getPlayersTable);
+playerName.addEventListener("input", function () {
+  console.log(this.value);
+  var inputValue = this.value;
+  if (/[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\\/\-=]/.test(inputValue)) {
+    playerName.value = this.value.replace(
+      /[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\\/\-=]/,
+      ""
+    );
+  }
+});
