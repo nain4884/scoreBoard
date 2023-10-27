@@ -174,3 +174,10 @@ form.onsubmit = async (e) => {
     console.error("Error:", error);
   }
 };
+
+overs.addEventListener("input", (e) => {
+  const newValue = e.target.value.replace(/[^0-9]/g, "");
+  if (newValue !== e.target.value) {
+    overs.value = newValue;
+  }
+});
