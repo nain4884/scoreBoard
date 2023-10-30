@@ -129,7 +129,7 @@ form.onsubmit = async (e) => {
         startAt: startTime?.value,
         overType: overBall.value,
         noBallRun: noBall.value,
-        totalOver: overs.value,
+        totalOver: parseInt(overs.value),
         id: getQueryParam("id"),
         marketId: getQueryParam("marketId"),
       };
@@ -149,7 +149,7 @@ form.onsubmit = async (e) => {
         startAt: startTime?.value,
         overType: overBall.value,
         noBallRun: noBall.value,
-        totalOver: overs.value,
+        totalOver: parseInt(overs.value),
       };
     }
 
@@ -177,8 +177,12 @@ form.onsubmit = async (e) => {
 
 overs.addEventListener("input", (e) => {
   const newValue = e.target.value.replace(/[^0-9]/g, "");
+  
   if (newValue !== e.target.value) {
     overs.value = newValue;
+  }
+  if(newValue==0){
+    overs.value="";
   }
 });
 
