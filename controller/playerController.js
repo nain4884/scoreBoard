@@ -4,7 +4,7 @@ const PlayerSchema = require("../models/Player.entity");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const { getMatchByIdService } = require("../services/scoreService");
 const ejs = require("ejs");
-const { Not } = require("typeorm");
+const { Not, ILike } = require("typeorm");
 const { isAuthenticates } = require("../middleware/auth");
 
 const app = Router();
@@ -31,6 +31,17 @@ app.post(
         playerObject.playerType = body.playerType || playerObject.playerType;
         playerObject.bowlerType = body.bowlerType || playerObject.bowlerType;
       } else {
+        const isPlayerExist = await playerRepo.findOne({
+          where: {
+            playerName: ILike(body.playerName.toLowerCase()),
+            marketId: body.marketId,
+            teamName: body.teamName,
+          },
+        });
+        if (isPlayerExist) {
+          return res.status(400).send("Player name already exist");
+        }
+
         playerObject = {
           marketId: body.marketId,
           gameType: body.gameType,
@@ -45,7 +56,7 @@ app.post(
       if (savePlayer) {
         return res.json(savePlayer);
       } else {
-        return req.status(500).send("Error while saving data");
+        return res.status(500).send("Error while saving data");
       }
     } catch (error) {
       res.status(500).send("error while adding player ", error);

@@ -90,8 +90,6 @@ const getPlayers = async () => {
   }
 };
 
-
-
 /**
  * Reset the form fields and selected player type.
  */
@@ -163,7 +161,7 @@ function addPlayerToTable(table, player, index, serialNumber) {
   const cells = [
     serialNumber,
     player.playerName,
-    `${player.playerType} ${
+    `${player.playerType?.charAt(0).toUpperCase() + player.playerType?.slice(1)} ${
       player.playerType === "bowler"
         ? `(${player.bowlerType.toUpperCase()})`
         : ""
@@ -217,7 +215,6 @@ elements.form.addEventListener("submit", handleSubmit);
 
 elements.teamName.addEventListener("change", getPlayersTable);
 elements.playerName.addEventListener("input", function () {
- 
   var inputValue = this.value;
   if (/[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\\/\-=]/.test(inputValue)) {
     elements.playerName.value = this.value.replace(
