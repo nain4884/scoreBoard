@@ -1,4 +1,4 @@
-const keys = document.getElementById("keys");
+const keys = getById("keys");
 
 window.onload = () => {
   Object.keys(ballEventKeys)?.map((item) => {

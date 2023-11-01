@@ -1,168 +1,115 @@
-/**
- * @typedef {Object} Player
- * @property {string} marketId - The market ID.
- * @property {string} gameType - The game type.
- * @property {string} teamName - The team name.
- * @property {string} playerName - The player's name.
- * @property {string} playerType - The type of player.
- * @property {string} bowlerType - The bowler type.
- */
-
-/**
- * DOM elements
- * @type {NodeListOf<HTMLInputElement>}
- */
-const playerType = document.querySelectorAll('input[name="playerType"]');
-const bowlerCont = document.getElementById("bowlerCont");
-const teamName = document.getElementById("teamName");
-const playerName = document.getElementById("playerName");
-const bowlerType = document.querySelectorAll('input[name="bowlerType"]');
-const form = document.querySelector("form");
-const tableContainer = document.getElementById("playerTable");
-const submitBtn = document.getElementById("submitBtn");
-
 let selectedPlayer = null;
+/**
+ * Enum containing element IDs and their corresponding HTMLElements.
+ */
+const elements = {
+  playerType: document.querySelectorAll('input[name="playerType"]'),
+  bowlerCont: getById("bowlerCont"),
+  teamName: getById("teamName"),
+  playerName: getById("playerName"),
+  bowlerType: document.querySelectorAll('input[name="bowlerType"]'),
+  form: document.querySelector("form"),
+  tableContainer: getById("playerTable"),
+  submitBtn: getById("submitBtn"),
+};
 
 /**
  * Handle the form submission.
  * @param {Event} event - The form submission event.
  */
-async function handleSubmit(event) {
+const handleSubmit = async (event) => {
   event.preventDefault();
 
-  if (!form.checkValidity()) {
+  if (!elements.form.checkValidity()) {
     return;
   }
 
-  form.classList.add("was-validated");
+  elements.form.classList.add("was-validated");
 
   try {
     const response = await addPlayerToMatch();
-
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      showToast(errorMessage, "error");
-      throw new Error("API request failed");
+    if (response) {
+      showToast(`Player ${selectedPlayer ? "updated" : "added"} successfully`);
+      if (selectedPlayer != null) {
+        selectedPlayer = null;
+        elements.submitBtn.innerHTML = "Add Player";
+      }
+      resetForm();
     }
-
-    showToast(`Player ${selectedPlayer ? "updated" : "added"} successfully`);
-    if (selectedPlayer != null) {
-      selectedPlayer = null;
-      submitBtn.innerHTML = "Add Player";
-    }
-    resetForm();
   } catch (error) {
     console.error("Error:", error);
   }
-}
+};
 
 /**
  * Add a player to the match using an API request.
  * @returns {Promise<Response>} - The API response.
  */
-async function addPlayerToMatch() {
+const addPlayerToMatch = async () => {
   let requestBody = null;
   if (selectedPlayer) {
     requestBody /** @type {Player} */ = {
       marketId,
-      gameType: getGameType(), // Make sure you have a reference to gameType
-      teamName: teamName.value,
-      playerName: playerName.value,
-      playerType: getSelectedPlayerType(),
-      bowlerType: getSelectedBallerType(),
+      gameType: gameType, // Make sure you have a reference to gameType
+      teamName: elements.teamName.value,
+      playerName: elements.playerName.value,
+      playerType: getRadioValue("playerType"),
+      bowlerType: getRadioValue("bowlerType"),
       id: selectedPlayer.id,
     };
   } else {
     requestBody /** @type {Player} */ = {
       marketId,
-      gameType: getGameType(), // Make sure you have a reference to gameType
-      teamName: teamName.value,
-      playerName: playerName.value,
-      playerType: getSelectedPlayerType(),
-      bowlerType: getSelectedBallerType(),
+      gameType: gameType, // Make sure you have a reference to gameType
+      teamName: elements.teamName.value,
+      playerName: elements.playerName.value,
+      playerType: getRadioValue("playerType"),
+      bowlerType: getRadioValue("bowlerType"),
     };
   }
+  return apiService.post("/player/add", requestBody);
+};
 
-  return fetch("/player/add", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(requestBody),
-  });
-}
-
-async function getPlayers() {
+const getPlayers = async () => {
   try {
     const requestBody /** @type {Player} */ = {
       marketId,
-      gameType: getGameType(), // Make sure you have a reference to gameType
+      gameType: gameType, // Make sure you have a reference to gameType
       teamName: teamName.value,
     };
 
-    const response = await fetch("/player/getPlayerByMatch", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody),
-    });
+    const response = await apiService.post(
+      "/player/getPlayerByMatch",
+      requestBody
+    );
 
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      showToast(errorMessage, "error");
-      throw new Error("API request failed");
-    }
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error:", error);
   }
-}
+};
 
-/**
- * Get the selected player type.
- * @returns {string} - The selected player type.
- */
-function getSelectedPlayerType() {
-  return document.querySelector('input[name="playerType"]:checked').value;
-}
 
-/**
- * Get the selected bowler type.
- * @returns {string} - The selected bowler type.
- */
-function getSelectedBallerType() {
-  return document.querySelector('input[name="bowlerType"]:checked').value;
-}
-
-/**
- * Get the game type (replace with your actual gameType logic).
- * @returns {string} - The game type.
- */
-function getGameType() {
-  // Replace with your logic to get the game type.
-  return gameType;
-}
 
 /**
  * Reset the form fields and selected player type.
  */
-function resetForm() {
-  playerName.value = "";
-  bowlerType?.forEach((radioButton) =>
+const resetForm = async () => {
+  elements.playerName.value = "";
+  elements.bowlerType?.forEach((radioButton) =>
     radioButton?.value == "spinner"
       ? (radioButton.checked = true)
       : (radioButton.checked = false)
   );
-  playerType.forEach((radioButton) =>
+  elements.playerType.forEach((radioButton) =>
     radioButton?.value == "batsman"
       ? (radioButton.checked = true)
       : (radioButton.checked = false)
   );
 
   getPlayersTable();
-}
+};
 
 /**
  * Create an HTML table from an array of data objects.
@@ -246,7 +193,7 @@ function addPlayerToTable(table, player, index, serialNumber) {
 
 const selectPlayer = async (item) => {
   selectedPlayer = { ...item };
-  playerName.value = selectedPlayer.playerName;
+  elements.playerName.value = selectedPlayer.playerName;
   document.querySelector(
     `input[name="bowlerType"][value="${selectedPlayer.bowlerType}"]`
   ).checked = true;
@@ -254,26 +201,26 @@ const selectPlayer = async (item) => {
     `input[name="playerType"][value="${selectedPlayer.playerType}"]`
   ).checked = true;
 
-  submitBtn.innerHTML = "Update Player";
+  elements.submitBtn.innerHTML = "Update Player";
 };
 
 const getPlayersTable = async () => {
   const data = await getPlayers();
-  tableContainer.innerHTML = "";
+  elements.tableContainer.innerHTML = "";
   const tableElement = createTableFromData(data);
-  tableContainer.appendChild(tableElement);
+  elements.tableContainer.appendChild(tableElement);
   selectedPlayer = null;
-  submitBtn.innerHTML = "Add Player";
+  elements.submitBtn.innerHTML = "Add Player";
 };
 
-form.addEventListener("submit", handleSubmit);
+elements.form.addEventListener("submit", handleSubmit);
 
-teamName.addEventListener("change", getPlayersTable);
-playerName.addEventListener("input", function () {
-  console.log(this.value);
+elements.teamName.addEventListener("change", getPlayersTable);
+elements.playerName.addEventListener("input", function () {
+ 
   var inputValue = this.value;
   if (/[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\\/\-=]/.test(inputValue)) {
-    playerName.value = this.value.replace(
+    elements.playerName.value = this.value.replace(
       /[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\\/\-=]/,
       ""
     );

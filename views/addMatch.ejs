@@ -1,8 +1,4 @@
 <style>
-  form {
-    background-color: rgb(248, 200, 81) !important;
-  }
-
   .add-match-container {
     max-width: 97%;
     position: absolute;
@@ -29,7 +25,7 @@
 
       <h5><%= edit ? 'Edit Match' : 'Add Match' %></h5>
 
-      <form class="card p-3 mt-3 was-validated">
+      <form class="card p-3 mt-3 was-validated" id="form">
         <div class="row">
           <div class="form-group col-md-12 <%= !edit ? 'd-none':''%>">
             <h5><%= matchData?.title %></h5>
@@ -115,6 +111,5 @@
 <script>
   const isEdit = JSON.parse("<%= edit %>");
 </script>
-<script src="/js/constant.js"></script>
-<script src="/js/showToast.js"></script>
+
 <script src="/js/addMatch.js"></script>

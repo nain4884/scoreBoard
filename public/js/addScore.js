@@ -16,33 +16,27 @@
 
 /** @type {Elements} */
 const elements = {
-  exchangeButton: document.getElementById("exchange"),
-  striker: document.getElementById("batsmanStrike"),
-  nonStriker: document.getElementById("batsmanNonStrike"),
+  exchangeButton: getById("exchange"),
+  striker: getById("batsmanStrike"),
+  nonStriker: getById("batsmanNonStrike"),
   bowlerType: document.querySelectorAll('input[name="bowlerType"]'),
-  bowler: document.getElementById("bowler"),
-  changeInning: document.getElementById("changeInning"),
-  scoreBox: document.getElementById("scoreEvent"),
-  form: document.getElementById("score-form"),
-  inning: document.getElementById("inning"),
-  currScoreShow: document.getElementById("curr-score"),
-  // strikerSwitch: document.getElementById("strikerSwitch"),
-  // nonStrikerSwitch: document.getElementById("nonStrikerSwitch"),
-  // ballerSwitch: document.getElementById("ballerSwitch"),
-  undoBtn: document.getElementById("undo"),
-  changeOver: document.getElementById("changeOver"),
-  strikerOut: document.getElementById("strikerOut"),
-  nonStrikerOut: document.getElementById("nonStrikerOut"),
-  runOutCont: document.getElementById("runOutCont"),
+  bowler: getById("bowler"),
+  changeInning: getById("changeInning"),
+  scoreBox: getById("scoreEvent"),
+  form: getById("score-form"),
+  inning: getById("inning"),
+  currScoreShow: getById("curr-score"),
+  undoBtn: getById("undo"),
+  changeOver: getById("changeOver"),
+  strikerOut: getById("strikerOut"),
+  nonStrikerOut: getById("nonStrikerOut"),
+  runOutCont: getById("runOutCont"),
 };
 
 let score = 0;
 let events = [];
 let currInningData = null;
 let selectedBaller = null;
-
-// let disableStriker = false;
-// let disableNonStriker = false;
 
 /** @type {number} */
 let currentInningVal = currentInning;
@@ -56,51 +50,24 @@ let currScore = -1;
  */
 const changePlayer = async (type, value) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/score/updatePlayer`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        marketId,
-        playerType: type,
-        playerName: value,
-        inningNumber: currentInningVal,
-        bowlerType: type == "bowler" ? selectedBaller?.bowlerType : "",
-      }),
-    });
+    const playerData = {
+      marketId,
+      playerType: type,
+      playerName: value,
+      inningNumber: currentInningVal,
+      bowlerType: type == "bowler" ? selectedBaller?.bowlerType : "",
+    };
+    const response = await apiService.post("/score/updatePlayer", playerData);
 
-    if (!response.ok) {
-      showToast(await response.text(), "error");
-      throw new Error("API request failed");
+    if (response) {
+      getScore(false);
+      getScore(true);
     }
-
-    const data = await response.json();
-    getScore(false);
-    getScore(true);
-
-    // changeCheckboxState(type);
   } catch (error) {
     console.error("Error:", error);
     // Display an error message to the user
   }
 };
-
-// function changeCheckboxState(type, action = false) {
-//   var event = new Event("change", { bubbles: true });
-//   var checkboxElement;
-
-//   if (type === "striker") {
-//     checkboxElement = elements.strikerSwitch;
-//   } else if (type === "nonStriker") {
-//     checkboxElement = elements.nonStrikerSwitch;
-//   } else if (type == "baller") {
-//     checkboxElement = elements.ballerSwitch;
-//   }
-//   // Change the checked state of the checkbox and dispatch the 'change' event.
-//   checkboxElement.checked = action;
-//   checkboxElement.dispatchEvent(event);
-// }
 
 /**
  * Swap values between two input fields.
@@ -127,31 +94,22 @@ const changeStrike = async () => {
 const handleChangeInning = async () => {
   try {
     if (currentInningVal < 2) {
-      const response = await fetch(`${API_BASE_URL}/score/changeInning`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          marketId,
-          inningNumber: parseInt(currentInningVal) + 1,
-        }),
-      });
-
-      if (!response.ok) {
-        showToast(await response.text(), "error");
-        throw new Error("API request failed");
+      const inningData = {
+        marketId,
+        inningNumber: parseInt(currentInningVal) + 1,
+      };
+      const response = await apiService.post("/score/changeInning", inningData);
+      if (response) {
+        currentInningVal = parseInt(currentInningVal) + 1;
+        elements.inning.innerHTML = currentInningVal;
+        await getScore(false);
+        await getScore(true);
+        await setPlayer();
+        showToast("Inning changed successfully", "success");
       }
-
-      currentInningVal = parseInt(currentInningVal) + 1;
-      elements.inning.innerHTML = currentInningVal;
-      await getScore(false);
-      await getScore(true);
-      await setPlayer();
-      showToast("Inning changed successfully", "success");
     }
   } catch (error) {
-    showToast(error, "error");
+    console.log(error);
     // Display an error message to the user
   }
 };
@@ -162,18 +120,6 @@ const handleChangeInning = async () => {
  * @param {string} key - The key pressed.
  */
 const handleChangeScore = async (key) => {
-  // if (
-  //   elements.strikerSwitch.checked ||
-  //   elements.nonStrikerSwitch.checked ||
-  //   elements.ballerSwitch.checked
-  // ) {
-  //   showToast(
-  //     "Please select the batsman and baller, if already selected then disable all the inputs by the switch",
-  //     "error"
-  //   );
-  //   return;
-  // }
-
   switch (key) {
     case "Escape":
     case "esc":
@@ -252,30 +198,21 @@ const handleChangeScore = async (key) => {
 
 const liveScore = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/score/changeScore`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        marketId,
-        inningNumber: currentInningVal,
-        eventType: events?.length == 0 ? ["b"] : events,
-        score: score,
-      }),
-    });
-
-    if (!response.ok) {
-      showToast(await response.text(), "error");
-      throw Error("API request failed");
-    }
+    const scoreData = {
+      marketId,
+      inningNumber: currentInningVal,
+      eventType: events?.length == 0 ? ["b"] : events,
+      score: score,
+    };
+    const response = await apiService.post("/score/changeScore", scoreData);
 
     const data = await response.json();
+
     await getScore(false);
     await getScore(true);
     await setPlayer();
 
-    await messageBasedActions(events, data?.isLastBall, data?.isFreeHit);
+    await messageBasedActions(events, data?.isFreeHit);
 
     currScore = -1;
     elements.currScoreShow.innerHTML = "";
@@ -287,11 +224,7 @@ const liveScore = async () => {
   }
 };
 
-const messageBasedActions = async (event, isLastBall, isFreeHit) => {
-  // if (isLastBall) {
-  //   changeCheckboxState("baller", true);
-  // }
-
+const messageBasedActions = async (event, isFreeHit) => {
   if (!event?.includes("ball stop") || !event?.includes("ball start")) {
     localStorage.setItem("ballStart", false);
   }
@@ -305,12 +238,6 @@ const messageBasedActions = async (event, isLastBall, isFreeHit) => {
     }, 3500);
   }
 
-  // if (event?.includes("wck")) {
-  //   changeCheckboxState("striker", true);
-  // } else if (event?.includes("r")) {
-  //   changeCheckboxState("striker", true);
-  //   changeCheckboxState("nonStriker", true);
-  // } else
   if (event?.includes("ball start")) {
     localStorage.setItem("ballStart", true);
   } else if (event.includes("ball stop")) {
@@ -325,47 +252,18 @@ const messageBasedActions = async (event, isLastBall, isFreeHit) => {
  */
 const getScore = async (isJson) => {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/score/getMatchScore/${marketId}${
-        isJson ? "?isJson=" + isJson : ""
-      }`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+    const response = await apiService.get(
+      `/score/getMatchScore/${marketId}${isJson ? "?isJson=" + isJson : ""}`
     );
 
-    if (!response.ok) {
-      showToast(await response.text(), "error");
-      throw Error("API request failed");
-    }
     if (isJson) {
       currInningData = await response.json();
     } else {
-      document.getElementById("scoreDisplay").innerHTML = await response.text();
+      getById("scoreDisplay").innerHTML = await response.text();
     }
   } catch (error) {
     console.log(error);
   }
-};
-
-/**
- * Debounce function to delay function execution.
- *
- * @param {Function} func - The function to be debounced.
- * @param {number} delay - The delay in milliseconds.
- * @returns {Function} - The debounced function.
- */
-const debounce = (func, delay = 1000) => {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func.apply(this, args);
-    }, delay);
-  };
 };
 
 /**
@@ -375,27 +273,17 @@ const debounce = (func, delay = 1000) => {
  */
 const getPlayers = async (type) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/player/getPlayerByMatch`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        marketId,
-        teamName:
-          currInningData?.innings[
-            parseInt(currInningData?.currentInning) - 1
-          ]?.[`inn${parseInt(currInningData?.currentInning)}TeamName`],
-        gameType: gameType,
-        findBowler: type == "baller",
-        outPlayer: false,
-      }),
-    });
-
-    if (!response.ok) {
-      showToast(await response.text(), "error");
-      throw new Error("API request failed");
-    }
+    const playerData = {
+      marketId,
+      teamName:
+        currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
+          `inn${parseInt(currInningData?.currentInning)}TeamName`
+        ],
+      gameType: gameType,
+      findBowler: type == "baller",
+      outPlayer: false,
+    };
+    const response =await apiService.post("/player/getPlayerByMatch", playerData);
 
     const data = await response.json();
     return data;
@@ -434,7 +322,7 @@ const setPlayer = async () => {
   populateBowlerOptions(
     elements.bowler,
     playerData?.bowler,
-    getSelectedBallerType()
+    getRadioValue("bowlerType")
   );
 
   // Set Striker and Non-Striker values
@@ -479,42 +367,23 @@ const populateBowlerOptions = (bowlerElement, bowlerList, selectedType) => {
   });
 };
 
-/**
- * Get the selected bowler type.
- *
- * @returns {string} - The selected bowler type.
- */
-function getSelectedBallerType() {
-  return document.querySelector('input[name="bowlerType"]:checked')?.value;
-}
-
 const undoEvent = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/score/revertLastBall`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        marketId,
-        inningNumber: currInningData?.currentInning,
-      }),
+    const response = await apiService.post("/score/revertLastBall", {
+      marketId,
+      inningNumber: currInningData?.currentInning,
     });
 
-    if (!response.ok) {
-      showToast(await response.text(), "error");
-      throw new Error("API request failed");
-    }
     if (response.url !== `${API_BASE_URL}/score/revertLastBall`) {
       // Handle redirection, e.g., perform a client-side redirection
       window.location.href = response.url;
       return;
     }
-
-    const data = await response.json();
-    await getScore(false);
-    await getScore(true);
-    await setPlayer();
+    if (response) {
+      await getScore(false);
+      await getScore(true);
+      await setPlayer();
+    }
   } catch (error) {
     console.error("Error:", error);
     // Display an error message to the user
@@ -523,35 +392,25 @@ const undoEvent = async () => {
 
 const runOutEvent = async (isStriker) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/score/runout`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        marketId,
-        isStriker,
-        inningNumber: currentInningVal,
-        teamName:
-          currInningData?.innings[
-            parseInt(currInningData?.currentInning) - 1
-          ]?.[`inn${parseInt(currInningData?.currentInning)}TeamName`],
-        batsmanName: isStriker
-          ? elements.striker.value
-          : elements.nonStriker?.value,
-      }),
+    const response = await apiService.post("/score/runout", {
+      marketId,
+      isStriker,
+      inningNumber: currentInningVal,
+      teamName:
+        currInningData?.innings[parseInt(currInningData?.currentInning) - 1]?.[
+          `inn${parseInt(currInningData?.currentInning)}TeamName`
+        ],
+      batsmanName: isStriker
+        ? elements.striker.value
+        : elements.nonStriker?.value,
     });
 
-    if (!response.ok) {
-      showToast(await response.text(), "error");
-      throw new Error("API request failed");
+    if (response) {
+      elements.runOutCont.classList.add("d-none");
+      await getScore(true);
+      await getScore(false);
+      await setPlayer();
     }
-
-    elements.runOutCont.classList.add("d-none");
-    await getScore(true);
-    await getScore(false);
-    await setPlayer();
-
   } catch (error) {
     console.error("Error:", error);
     // Display an error message to the user
@@ -596,35 +455,13 @@ window.onload = async () => {
   await getScore(false);
   await getScore(true);
   await setPlayer();
-
-  // if (elements.striker.value !== "" && elements.striker.value) {
-  //   changeCheckboxState("striker", false);
-  // }
-  // if (elements.nonStriker.value !== "" && elements.nonStriker.value) {
-  //   changeCheckboxState("nonStriker", false);
-  // }
 };
 
 elements?.bowlerType?.forEach((radioButton) => {
   radioButton.addEventListener("click", () => {
     setPlayer();
-    changePlayer("bowlerType", getSelectedBallerType());
   });
 });
-
-// elements.strikerSwitch.addEventListener("change", (e) => {
-//   elements.striker.disabled = !elements.strikerSwitch.checked;
-// });
-
-// elements.nonStrikerSwitch.addEventListener("change", (e) => {
-//   elements.nonStriker.disabled = !elements.nonStrikerSwitch.checked;
-// });
-
-// elements.ballerSwitch.addEventListener("change", () => {
-//   elements.bowler.style.display = elements?.ballerSwitch?.checked
-//     ? "flex"
-//     : "none";
-// });
 
 elements.undoBtn.addEventListener("click", undoEvent);
 elements.changeOver.addEventListener("click", async () => {

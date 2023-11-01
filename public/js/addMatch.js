@@ -1,189 +1,134 @@
-// client.js
-const gameType = document.getElementById("gameType");
-const tournament = document.getElementById("tournament");
-const matchType = document.getElementById("matchName");
-const teamA = document.getElementById("teamA");
-const teamB = document.getElementById("teamB");
-const teamC = document.getElementById("teamC");
-const startTime = document.getElementById("startTime");
-const overBall = document.getElementById("overBall");
-const noBall = document.getElementById("noBall");
-const overs = document.getElementById("overs");
-const form = document.querySelector("form");
-
-const getQueryParam = (paramName) =>
-  new URLSearchParams(window.location.search).get(paramName);
+/**
+ * Enum containing element IDs and their corresponding HTMLElements.
+ */
+const elements = {
+  gameType: getById("gameType"),
+  tournament: getById("tournament"),
+  matchType: getById("matchName"),
+  teamA: getById("teamA"),
+  teamB: getById("teamB"),
+  teamC: getById("teamC"),
+  startTime: getById("startTime"),
+  overBall: getById("overBall"),
+  noBall: getById("noBall"),
+  overs: getById("overs"),
+  form: getById("form"),
+};
 
 /**
- * Fetch a list of competitions and populate the tournament dropdown.
+ * Fetch data from a URL and populate a dropdown element with options.
+ * @param {HTMLElement} element - The dropdown element to populate.
+ * @param {string} url - The URL to fetch data from.
+ * @param {string} optionText - The text for the default "Select" option (optional).
+ * @param {string} valueField - The field to use as the option's value (optional).
  */
-async function fetchCompetitionList() {
-  try {
-    const response = await fetch(
-      "https://3200dev.fairgame.club/competitionList"
-    );
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      showToast(errorMessage, "error");
-      throw new Error("API request failed");
-    }
-    const data = await response.json();
+const fetchAndPopulate = async (
+  element,
+  url,
+  optionText = "Select",
+  appendOption
+) => {
+  const httpService = new HttpService(SERVER_API_BASE_URL);
+  const response = await httpService.get(url);
+  const data = await response.json();
+  element.innerHTML = "";
 
-    if (data) {
-      tournament.innerHTML = "";
+  element.appendChild(new Option(optionText, ""));
 
-      let optionElement = new Option("Select tournament", "");
-      tournament.appendChild(optionElement);
-
-      data?.forEach((option) => {
-        optionElement = new Option(
-          option.competition.name,
-          option.competition.id
-        );
-        tournament.appendChild(optionElement);
-      });
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
+  data.forEach((option) => appendOption(option));
+};
 
 /**
- * Fetch a list of events based on the selected tournament and populate the match type dropdown.
- *
- * @param {string} id - The ID of the selected tournament.
+ * Set values for match-related elements based on data.
+ * @param {object} data - The data containing match-related information.
  */
-async function fetchEventList(id) {
-  try {
-    const response = await fetch(
-      `https://3200dev.fairgame.club/eventList/${id}`
-    );
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      showToast(errorMessage, "error");
-      throw new Error("API request failed");
-    }
-    const data = await response.json();
-    if (data) {
-      matchType.innerHTML = "";
-
-      let optionElement = new Option("Select match type", "");
-      matchType.appendChild(optionElement);
-
-      data?.forEach((option) => {
-        optionElement = new Option(option.event.name, JSON.stringify(option));
-        matchType.appendChild(optionElement);
-      });
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
-/**
- * Set values for match based on the selected match type.
- *
- * @param {string} data - JSON string representing the selected match type.
- */
-async function setMatchValues(data) {
+const setMatchValues = (data) => {
   data = JSON.parse(data);
-  console.log(data);
-
-  teamA.value = data?.runners?.[0]?.runnerName || "";
-  teamB.value = data?.runners?.[1]?.runnerName || "";
-  teamC.value = data?.runners?.[2]?.runnerName || "";
-
+  ["teamA", "teamB", "teamC"].forEach((team, index) => {
+    elements[team].value = data?.runners?.[index]?.runnerName || "";
+  });
   const selectedDate = new Date(data?.marketStartTime);
-  // Extract date and time components
-  const datePart = selectedDate.toISOString().split("T")[0];
-  const timePart = selectedDate.toISOString().split("T")[1].substring(0, 5); // HH:mm
-  startTime.value = `${datePart}T${timePart}`;
-}
+  elements.startTime.value = selectedDate.toISOString().slice(0, 16);
+};
 
-// Event listeners
-gameType.addEventListener("change", () => {
-  fetchCompetitionList();
-});
-
-tournament.addEventListener("change", () => {
-  fetchEventList(tournament?.value);
-});
-
-matchType.addEventListener("change", () => {
-  setMatchValues(matchType?.value);
-});
-
-form.onsubmit = async (e) => {
-  e.preventDefault();
-
-  if (!form.checkValidity()) {
-    return;
+const oversInput = elements.overs;
+oversInput.addEventListener("input", () => {
+  oversInput.value = oversInput.value.replace(/[^0-9]/g, "");
+  if (oversInput.value === "0") {
+    oversInput.value = "";
   }
+});
+
+elements.gameType.addEventListener("change", () =>
+  fetchAndPopulate(
+    elements.tournament,
+    `/competitionList`,
+    "Selecr Tournament",
+    (option) =>
+      elements.tournament.appendChild(
+        new Option(option.competition.name, option.competition.id)
+      )
+  )
+);
+elements.tournament.addEventListener("change", () =>
+  fetchAndPopulate(
+    elements.matchType,
+    `/eventList/${elements.tournament.value}`,
+    "Select match type",
+    (option) =>
+      elements.matchType.appendChild(
+        new Option(option.event.name, JSON.stringify(option))
+      )
+  )
+);
+elements.matchType.addEventListener("change", () =>
+  setMatchValues(elements.matchType.value)
+);
+
+elements.form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+
+  if (!form.checkValidity()) return;
 
   form.classList.add("was-validated");
 
   try {
-    let data = {};
-    if (isEdit) {
-      data = {
-        startAt: startTime?.value,
-        overType: overBall.value,
-        noBallRun: noBall.value,
-        totalOver: parseInt(overs.value),
-        id: getQueryParam("id"),
-        marketId: getQueryParam("marketId"),
-      };
-    } else {
-      const selectedMatch = JSON.parse(matchType.value);
+    const selectedMatch = elements?.matchType?.value
+      ? JSON.parse(elements?.matchType?.value)
+      : {};
+    const data = isEdit
+      ? {
+          startAt: elements.startTime.value,
+          overType: elements.overBall.value,
+          noBallRun: elements.noBall.value,
+          totalOver: parseInt(elements.overs.value),
+          id: getQueryParam("id"),
+          marketId: getQueryParam("marketId"),
+        }
+      : {
+          marketId: selectedMatch.marketId,
+          eventId: selectedMatch.event.id,
+          competitionId: selectedMatch.competition.id,
+          competitionName: selectedMatch.competition.name,
+          gameType: selectedMatch.eventType.name,
+          teamA: elements.teamA.value,
+          teamB: elements.teamB.value,
+          teamC: elements.teamC.value,
+          title: selectedMatch.event.name,
+          startAt: elements.startTime.value,
+          overType: elements.overBall.value,
+          noBallRun: elements.noBall.value,
+          totalOver: parseInt(elements.overs.value),
+        };
 
-      data = {
-        marketId: selectedMatch?.marketId,
-        eventId: selectedMatch?.event?.id,
-        competitionId: selectedMatch?.competition?.id,
-        competitionName: selectedMatch?.competition?.name,
-        gameType: selectedMatch?.eventType?.name,
-        teamA: teamA.value,
-        teamB: teamB.value,
-        teamC: teamC.value,
-        title: selectedMatch?.event?.name,
-        startAt: startTime?.value,
-        overType: overBall.value,
-        noBallRun: noBall.value,
-        totalOver: parseInt(overs.value),
-      };
+    const response = await apiService.post(`/addMatch`, data);
+
+    if (response) {
+      showToast("Match added successfully");
+      window.location.replace("/");
     }
-
-    const response = await fetch("/addMatch", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      showToast(errorMessage, "error");
-      throw new Error("API request failed");
-    }
-
-    showToast("Match added successfully");
-
-    window.location.replace("/");
   } catch (error) {
     console.error("Error:", error);
   }
-};
-
-overs.addEventListener("input", (e) => {
-  const newValue = e.target.value.replace(/[^0-9]/g, "");
-  
-  if (newValue !== e.target.value) {
-    overs.value = newValue;
-  }
-  if(newValue==0){
-    overs.value="";
-  }
 });
-
-
