@@ -14,52 +14,48 @@ app.post(
   "/add",
   isAuthenticates,
   catchAsyncErrors(async (req, res, next) => {
-    try {
-      let body = req.body;
-      let playerObject = {};
-      if (body.id) {
-        playerObject = await playerRepo.findOne({
-          where: { id: body.id },
-        });
-        if (!playerObject) {
-          return res.status(400).send("Please provide valid id");
-        }
-        playerObject.marketId = body.marketId || playerObject.marketId;
-        playerObject.gameType = body.gameType || playerObject.gameType;
-        playerObject.teamName = body.teamName || playerObject.teamName;
-        playerObject.playerName = body.playerName || playerObject.playerName;
-        playerObject.playerType = body.playerType || playerObject.playerType;
-        playerObject.bowlerType = body.bowlerType || playerObject.bowlerType;
-      } else {
-        const isPlayerExist = await playerRepo.findOne({
-          where: {
-            playerName: ILike(body.playerName.toLowerCase()),
-            marketId: body.marketId,
-            teamName: body.teamName,
-          },
-        });
-        if (isPlayerExist) {
-          return res.status(400).send("Player name already exist");
-        }
-
-        playerObject = {
+    let body = req.body;
+    let playerObject = {};
+    if (body.id) {
+      playerObject = await playerRepo.findOne({
+        where: { id: body.id },
+      });
+      if (!playerObject) {
+        return res.status(400).send("Please provide valid id");
+      }
+      playerObject.marketId = body.marketId || playerObject.marketId;
+      playerObject.gameType = body.gameType || playerObject.gameType;
+      playerObject.teamName = body.teamName || playerObject.teamName;
+      playerObject.playerName = body.playerName || playerObject.playerName;
+      playerObject.playerType = body.playerType || playerObject.playerType;
+      playerObject.bowlerType = body.bowlerType || playerObject.bowlerType;
+    } else {
+      const isPlayerExist = await playerRepo.findOne({
+        where: {
+          playerName: ILike(body.playerName.toLowerCase()),
           marketId: body.marketId,
-          gameType: body.gameType,
           teamName: body.teamName,
-          playerName: body.playerName,
-          playerType: body.playerType,
-          bowlerType: body.bowlerType,
-        };
+        },
+      });
+      if (isPlayerExist) {
+        return res.status(400).send("Player name already exist");
       }
 
-      const savePlayer = await playerRepo.save(playerObject);
-      if (savePlayer) {
-        return res.json(savePlayer);
-      } else {
-        return res.status(500).send("Error while saving data");
-      }
-    } catch (error) {
-      res.status(500).send("error while adding player ", error);
+      playerObject = {
+        marketId: body.marketId,
+        gameType: body.gameType,
+        teamName: body.teamName,
+        playerName: body.playerName,
+        playerType: body.playerType,
+        bowlerType: body.bowlerType,
+      };
+    }
+
+    const savePlayer = await playerRepo.save(playerObject);
+    if (savePlayer) {
+      return res.json(savePlayer);
+    } else {
+      return res.status(500).send("Error while saving data");
     }
   })
 );

@@ -25,7 +25,6 @@ const playerRepo = AppDataSource.getRepository(PlayerSchema);
 
 app.get(
   "/getMatchScore/:marketId",
-  isAuthenticates,
 
   catchAsyncErrors(async (req, res, next) => {
     const marketId = req.params.marketId;
@@ -690,8 +689,6 @@ app.post(
     return res.status(200).json(redisObj);
   })
 );
-
-
 
 app.post(
   "/updatePlayer",

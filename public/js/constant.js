@@ -1,7 +1,8 @@
 const protocol = window.location.protocol;
 const host = window.location.host;
 const API_BASE_URL = protocol + "//" + host;
-const SERVER_API_BASE_URL = "https://3200dev.fairgame.club";
+
+
 
 const ballEventKeys = {
   b: { key: "b", name: "Ball", validKeys: [], directLive: false }, //ball with score
