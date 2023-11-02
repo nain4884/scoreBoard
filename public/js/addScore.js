@@ -283,7 +283,10 @@ const getPlayers = async (type) => {
       findBowler: type == "baller",
       outPlayer: false,
     };
-    const response =await apiService.post("/player/getPlayerByMatch", playerData);
+    const response = await apiService.post(
+      "/player/getPlayerByMatch",
+      playerData
+    );
 
     const data = await response.json();
     return data;
@@ -460,6 +463,7 @@ window.onload = async () => {
 elements?.bowlerType?.forEach((radioButton) => {
   radioButton.addEventListener("click", () => {
     setPlayer();
+    changePlayer("bowlerType", getRadioValue("bowlerType"));
   });
 });
 
