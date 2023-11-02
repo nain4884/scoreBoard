@@ -360,7 +360,7 @@ app.get(
       margin-right: auto;
       margin-left: auto;
       color: white;
-      height: 20vh;
+      height: auto;
       overflow:hidden;
       align-items: center;
       display: flex;
@@ -594,7 +594,7 @@ app.get(
 }
 @media only screen and (max-width: 767px) {
   .container-main {
-    height: 25vh !important;
+    height: auto !important;
     }
   .team_name {
     font-size: 1.05em;
