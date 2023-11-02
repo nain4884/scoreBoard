@@ -673,6 +673,7 @@ app.get(
               <div class="row-ctm black-back"> 
               <div class="team">
               <div class="striker-cont">
+              <div class="bat-icon">
               <svg class="bat-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 50 62.5" enable-background="new 0 0 50 50" xml:space="preserve">
               <g>
                   <path d="M1.8,38.4c-0.9,0.9-1.1,2.3-0.4,3.4c1.7,2.7,4,4.9,6.7,6.7c0.8,0.5,1.9,0.6,2.7,0.1c0.3-0.1,0.5-0.3,0.7-0.5l15.5-15.5 l-17-2.5L1.8,38.4z" fill="white" />
@@ -682,7 +683,7 @@ app.get(
                   <path d="M48.9,4.4L48.9,4.4l-3.2-3.2l0,0C45.6,1.1,45.4,1,45.3,1c-0.1,0-0.2,0-0.3,0.1l-1.2,1.2c-0.2,0.2-0.2,0.4,0,0.6l-11,11 c-0.2,0.1-0.3,0.3-0.5,0.4l2.6,2.6l0.8,0.8c0.1-0.2,0.2-0.4,0.4-0.5l11-11c0.2,0.2,0.5,0.2,0.6,0L48.9,5C49,4.8,49,4.6,48.9,4.4z" fill="white" />
               </g>
           </svg>
-          
+          </div>
               <div class="animate-name">
                   ${striker}
                 </div>
@@ -694,7 +695,8 @@ app.get(
               <div class="match_status"></div>
               <div class="team" style="text-align:right;">
                <div class="striker-cont bowler-cont" style="justify-content:right;">
-               <svg class="ball-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px"
+              <div class="ball-icon">
+               <svg class="ball-icon"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px"
                viewBox="0 0 1024 1280" style="enable-background:new 0 0 1024 1024;" xml:space="preserve">
                <g>
                    <g>
@@ -731,6 +733,7 @@ app.get(
                    </g>
                </g>
            </svg>
+           </div>
                 <div class="animate-name">
                   ${bowler}
                 </div>
