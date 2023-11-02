@@ -490,6 +490,7 @@ app.get(
       }
       .bat-icon,.ball-icon{
         height:20px;
+        width:20px;
       }
       @-webkit-keyframes txt {
         0% {
@@ -588,7 +589,6 @@ app.get(
 }
 .bowler-cont{
   justify-content:right;
-  margin-right:10px;
 }
 .curr-run-rate,.over,.team_name,.run{
   font-weight:900;
@@ -682,27 +682,33 @@ app.get(
               <div class="row-ctm black-back"> 
               <div class="team">
               <div class="striker-cont">
-             
+              <div class="bat-icon">
+                &#x1F3CF;
+            </div>
               <div class="animate-name">
                   ${striker}
                 </div>
-                <div class="bat-icon">
-                &#x1F3CF;
-            </div>
+               
                 </div>
-                <div style="font-size:0.8em;">
-                ${nonStriker}
-              </div>
+                <div class="striker-cont">
+              <div class="bat-icon">
+            </div>
+            <div style="font-size:0.8em;">
+            ${nonStriker}
+          </div>
+               
+                </div>
+                
               </div>
               <div class="match_status"></div>
               <div class="team" style="text-align:right;">
                <div class="striker-cont bowler-cont" style="justify-content:right; align-items:center;">
-              <div class="ball-icon">
-              &#x1F3C0;
-           </div>
+              
                 <div class="animate-name">
                   ${bowler}
                 </div>
+                <div class="ball-icon">
+           </div>
                 </div>
                 ${bowlerType}
               </div>
