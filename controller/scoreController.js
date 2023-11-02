@@ -369,6 +369,7 @@ app.get(
       position: relative;
       width:100%;
       flex-direction:column;  
+      font-weight:800;
       }
       
       .row-ctm {
