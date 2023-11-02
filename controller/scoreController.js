@@ -351,7 +351,7 @@ app.get(
       let file = `<style>
       html,body{ padding: 0; margin: 0; }
       .container-main {
-      padding: 10;
+      padding: 10px;
       background: linear-gradient(0deg, rgb(0 0 0 / 39%), rgb(0 0 0 / 30%)),url(https://www.stageandscreen.travel/sites/default/files/styles/large/public/LP%20-%20Cricket%20Australia.jpg?itok=dStxvjPW);
       background-repeat: no-repeat;
       background-size: cover;
@@ -519,13 +519,13 @@ app.get(
 }
 @media only screen and (max-width: 767px) {
   .team_name {
-    font-size: 0.9em;
+    font-size: 1.05em;
     }
     .over{
-      font-size:0.8em;
+      font-size:1em;
     }
     .curr-run-rate{
-      font-size:0.7em;
+      font-size:0.9em;
     }
   }
 
@@ -557,7 +557,7 @@ app.get(
                       <span class="run">${inn1Score}/${inn1Wicket}</span>
                       <span class="over">(${inn1over})</span>
                       <br>
-                          <span class="over">CRR : ${inn1crr} | RRR: ${inn1rrr}</span>
+                          <span class="curr-run-rate">CRR : ${inn1crr} | RRR: ${inn1rrr}</span>
                   </div>
                   
               </div>`
@@ -567,7 +567,7 @@ app.get(
                   <span class="run">${inn2Score}/${inn2Wicket}</span>
                   <span class="over">(${inn2over})</span>
                   <br>
-                      <span class="over">CRR : ${inn2crr} | RRR: ${inn2rrr}</span>
+                      <span class="curr-run-rate">CRR : ${inn2crr} | RRR: ${inn2rrr}</span>
               </div>
               
           </div>`
