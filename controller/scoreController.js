@@ -685,7 +685,7 @@ app.get(
               <div class="bat-icon">
                 &#x1F3CF;
             </div>
-              <div class="animate-name">
+              <div class="animate-name" style="line-height:0.8;">
                   ${striker}
                 </div>
                
@@ -704,7 +704,7 @@ app.get(
               <div class="team" style="text-align:right;">
                <div class="striker-cont bowler-cont" style="justify-content:right; align-items:center;">
               
-                <div class="animate-name">
+                <div class="animate-name" style="line-height:0.8;">
                   ${bowler}
                 </div>
                 <div class="ball-icon">
