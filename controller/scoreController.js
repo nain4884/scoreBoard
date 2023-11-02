@@ -353,6 +353,7 @@ app.get(
       <style>
       html,body{ padding: 0; margin: 0; }
       .container-main {
+        padding-top:10px;
       background: linear-gradient(0deg, rgb(0 0 0 / 39%), rgb(0 0 0 / 30%)),url(https://www.stageandscreen.travel/sites/default/files/styles/large/public/LP%20-%20Cricket%20Australia.jpg?itok=dStxvjPW);
       background-repeat: no-repeat;
       background-size: cover;
@@ -396,6 +397,7 @@ app.get(
       }
       .black-back{
         background-color:#00000066;
+        padding-bottom:10px;
       }
       .inn1 {
       font-size: 10px;
@@ -592,7 +594,7 @@ app.get(
 }
 @media only screen and (max-width: 767px) {
   .container-main {
-    height: 18vh !important;
+    height: 25vh !important;
     }
   .team_name {
     font-size: 1.05em;
