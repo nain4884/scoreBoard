@@ -477,10 +477,10 @@ app.get(
       .animate-name{
         animation: bat-ball-txt 3s ease-out infinite;
         font-family: tahomabd;
-        font-size: 0.8em;
+        font-size: 1em;
         font-weight:800;
         
-    margin-top: 10px;
+        margin-top: 10px;
 
       }
       .striker-cont{
@@ -693,7 +693,7 @@ app.get(
                 <div class="striker-cont">
               <div class="bat-icon">
             </div>
-            <div style="font-size:0.8em;">
+            <div style="font-size:1em;">
             ${nonStriker}
           </div>
                
@@ -710,7 +710,15 @@ app.get(
                 <div class="ball-icon">
            </div>
                 </div>
+                <div class="striker-cont bowler-cont" style="justify-content:right; align-items:center;">
+              
+                <div style="font-size:0.8em; font-weight:500;">
                 ${bowlerType}
+                </div>
+                <div class="ball-icon">
+           </div>
+                </div>
+                
               </div>
               </div>
 
