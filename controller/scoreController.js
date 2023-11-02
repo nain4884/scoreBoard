@@ -530,8 +530,8 @@ app.get(
 
       @-webkit-keyframes bat-ball-txt {
         0% {
-            -webkit-transform: scale(1);
-            transform: scale(1);
+            -webkit-transform: scale(1.1);
+            transform: scale(1.1);
             color:white;
         }
       
@@ -542,8 +542,8 @@ app.get(
         }
       
         100% {
-            -webkit-transform: scale(1);
-            transform: scale(1);
+            -webkit-transform: scale(1.1);
+            transform: scale(1.1);
             color:white;
 
         }
@@ -552,8 +552,8 @@ app.get(
       
       @keyframes  bat-ball-txt {
         0% {
-          -webkit-transform: scale(1);
-          transform: scale(1);
+          -webkit-transform: scale(1.1);
+          transform: scale(1.1);
           color:white;
         }
       
@@ -564,8 +564,8 @@ app.get(
         }
       
       100% {
-          -webkit-transform: scale(1);
-          transform: scale(1);
+          -webkit-transform: scale(1.1);
+          transform: scale(1.1);
           color:white;
         }
       }
