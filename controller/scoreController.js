@@ -370,7 +370,7 @@ app.get(
       width:100%;
       flex-direction:column;  
       font-weight:800;
-      font-family:tahomabd !important;
+      font-family:system-ui !important;
       }
       
       .row-ctm {
