@@ -674,7 +674,7 @@ app.get(
               <div class="team">
               <div class="striker-cont">
               <div class="bat-icon">
-              <svg class="bat-icon" xmlns="http://www.w3.org/2000/svg" height="20px" width="20px" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 50 62.5" enable-background="new 0 0 50 50" xml:space="preserve">
+              <svg class="bat-icon" xmlns="http://www.w3.org/2000/svg" height="20" width="20" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 50 62.5" enable-background="new 0 0 50 50" xml:space="preserve">
               <g>
                   <path d="M1.8,38.4c-0.9,0.9-1.1,2.3-0.4,3.4c1.7,2.7,4,4.9,6.7,6.7c0.8,0.5,1.9,0.6,2.7,0.1c0.3-0.1,0.5-0.3,0.7-0.5l15.5-15.5 l-17-2.5L1.8,38.4z" fill="white" />
                   <path d="M34.1,17.6L31,14.5c-0.2,0-0.3-0.1-0.5-0.1c-0.6-0.3-1.3-0.7-1.8-1.3c-0.5-0.4-1.2-0.4-1.6,0L16.3,24l9.9,1.6L34.1,17.6z" fill="white" />
@@ -697,7 +697,7 @@ app.get(
                <div class="striker-cont bowler-cont" style="justify-content:right;">
               <div class="ball-icon">
                <svg class="ball-icon"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px"
-               viewBox="0 0 1024 1280" style="enable-background:new 0 0 1024 1024;" xml:space="preserve" height="20px" width="20px">
+               viewBox="0 0 1024 1280" style="enable-background:new 0 0 1024 1024;" xml:space="preserve" height="20" width="20">
                <g>
                    <g>
                        <g>
