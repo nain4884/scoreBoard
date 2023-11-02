@@ -359,6 +359,7 @@ app.get(
       margin-left: auto;
       color: white;
       height: 20vh;
+      overflow:hidden;
       align-items: center;
       display: flex;
       justify-content:space-between;
