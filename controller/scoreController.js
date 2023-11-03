@@ -380,7 +380,7 @@ app.get(
         padding:0px 10px;
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: start;
       justify-content:center;
       width:100%;
       }
