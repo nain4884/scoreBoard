@@ -163,6 +163,7 @@ app.get(
   catchAsyncErrors(async (req, res, next) => {
     const match = await matchRepo
       .createQueryBuilder("match")
+      .where("match.stopAt IS NULL")
       .orderBy("match.startAt", "DESC")
       .getMany();
 
@@ -185,7 +186,6 @@ app.post(
     let currMatch = await matchRepo.findOne({
       where: { marketId: marketId },
     });
-    console.log(currMatch);
     if (!currMatch) {
       return res.status(400).send("Please add valid match");
     }

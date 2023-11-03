@@ -140,11 +140,7 @@ const handleChangeScore = async (key) => {
         events = ["ball start"];
       }
       await liveScore();
-      if (localStorage.getItem("ballStart") == "true") {
-        events = ["ball start"];
-      } else {
-        events = ["ball stop"];
-      }
+
       break;
     case "Enter":
       await liveScore();
@@ -201,38 +197,44 @@ const handleChangeScore = async (key) => {
         : item
     )
     .join(",")}</p><p>Selected score: ${score}</p>`;
+
+  if (key == "Shift") {
+    if (localStorage.getItem("ballStart") == "true") {
+      elements.currScoreShow.innerHTML = `<p>Event keys: Ball Start</p><p>Selected score: ${score}</p>`;
+    } else {
+      elements.currScoreShow.innerHTML = `<p>Event keys: Ball Stop</p><p>Selected score: ${score}</p>`;
+    }
+  }
 };
 
 const liveScore = async () => {
   if (events?.includes("ball") && score == "") {
     return;
   }
-  if (events?.length > 0) {
-    try {
-      const scoreData = {
-        marketId,
-        inningNumber: currentInningVal,
-        eventType: events?.length == 0 ? ["b"] : events,
-        score: score,
-      };
-      const response = await apiService.post("/score/changeScore", scoreData);
+  try {
+    const scoreData = {
+      marketId,
+      inningNumber: currentInningVal,
+      eventType: events?.length == 0 ? ["b"] : events,
+      score: score,
+    };
+    const response = await apiService.post("/score/changeScore", scoreData);
 
-      const data = await response.json();
+    const data = await response.json();
 
-      await getScore(false);
-      await getScore(true);
-      await setPlayer();
+    await getScore(false);
+    await getScore(true);
+    await setPlayer();
 
-      await messageBasedActions(events, data?.isFreeHit);
+    await messageBasedActions(events, data?.isFreeHit);
 
-      currScore = -1;
-      elements.currScoreShow.innerHTML = "";
-      score = "";
-      events = [];
-    } catch (error) {
-      console.error("Error:", error);
-      // Display an error message to the user
-    }
+    currScore = -1;
+    elements.currScoreShow.innerHTML = "";
+    score = "";
+    events = [];
+  } catch (error) {
+    console.error("Error:", error);
+    // Display an error message to the user
   }
 };
 
