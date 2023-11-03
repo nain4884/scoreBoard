@@ -52,6 +52,7 @@ app.get(
       tossWin,
       firstBatTeam;
     let matchDetails = await redisClient.hGetAll(marketId);
+
     if (matchDetails && Object.keys(matchDetails).length) {
       gameType = matchDetails.gameType;
       teamA = matchDetails.teamA;
@@ -118,6 +119,8 @@ app.get(
       inn1TeamName,
       customMsg;
     let inn1Redis = await redisClient.hGetAll(marketId + "Inning1");
+    console.log(inn1Redis);
+
     if (inn1Redis && Object.keys(inn1Redis).length) {
       inn1Score = inn1Redis.score;
       inn1over = inn1Redis.over;
@@ -282,16 +285,16 @@ app.get(
 
         let redisObj = {
           score: inn2Score,
-          over: inn1over,
-          wicket: inn1Wicket,
-          overRuns: inn1overRuns,
-          crr: inn1crr,
-          rrr: inn1rrr,
-          striker: inn1Striker,
-          nonStriker: inn1NonStriker,
-          bowler: inn1Bowler,
-          bowlerType: inn1BowlerType,
-          teamName: inn1TeamName,
+          over: inn2over,
+          wicket: inn2Wicket,
+          overRuns: inn2overRuns,
+          crr: inn2crr,
+          rrr: inn2rrr,
+          striker: inn2Striker,
+          nonStriker: inn2NonStriker,
+          bowler: inn2Bowler,
+          bowlerType: inn2BowlerType,
+          teamName: inn2TeamName,
           message: inn2Message,
           lastOver: inn2LastOver,
         };
