@@ -123,7 +123,6 @@ app.get(
   isAuthenticates,
   catchAsyncErrors(async (req, res, next) => {
     const { marketId } = req.params;
-  
 
     const matchContent = await ejs.renderFile(
       __dirname + "/../views/matchDetails.ejs",
@@ -175,6 +174,34 @@ app.get(
       title: "Home",
       body: homeContent,
     });
+  })
+);
+
+app.post(
+  "/match/over",
+  isAuthenticates,
+  catchAsyncErrors(async (req, res, next) => {
+    const { marketId } = req.body;
+    let currMatch = await matchRepo.findOne({
+      where: { marketId: marketId },
+    });
+    console.log(currMatch);
+    if (!currMatch) {
+      return res.status(400).send("Please add valid match");
+    }
+    if (!currMatch?.stopAt) {
+      currMatch.stopAt = new Date();
+      await redisClient.hSet(
+        currMatch.marketId,
+        "stopAt",
+        JSON.stringify(new Date())
+      );
+    } else {
+      currMatch.stopAt = null;
+      await redisClient.hDel(currMatch.marketId, "stopAt");
+    }
+    await matchRepo.save(currMatch);
+    return res.status(200).send("Match over successfully");
   })
 );
 

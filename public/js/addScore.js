@@ -31,6 +31,7 @@ const elements = {
   strikerOut: getById("strikerOut"),
   nonStrikerOut: getById("nonStrikerOut"),
   runOutCont: getById("runOutCont"),
+  matchOver: getById("overMatch"),
 };
 
 let score = 0;
@@ -123,7 +124,7 @@ const handleChangeScore = async (key) => {
   switch (key) {
     case "Escape":
     case "esc":
-      score = 0;
+      score = "";
       events = [];
       break;
     case "Shift":
@@ -139,6 +140,11 @@ const handleChangeScore = async (key) => {
         events = ["ball start"];
       }
       await liveScore();
+      if (localStorage.getItem("ballStart") == "true") {
+        events = ["ball start"];
+      } else {
+        events = ["ball stop"];
+      }
       break;
     case "Enter":
       await liveScore();
@@ -176,6 +182,7 @@ const handleChangeScore = async (key) => {
 
       if (ballEventKeys[key]?.directLive) {
         await liveScore();
+        events.push(ballEventKeys[key].name);
       }
 
       break;
@@ -197,30 +204,35 @@ const handleChangeScore = async (key) => {
 };
 
 const liveScore = async () => {
-  try {
-    const scoreData = {
-      marketId,
-      inningNumber: currentInningVal,
-      eventType: events?.length == 0 ? ["b"] : events,
-      score: score,
-    };
-    const response = await apiService.post("/score/changeScore", scoreData);
+  if (events?.includes("ball") && score == "") {
+    return;
+  }
+  if (events?.length > 0) {
+    try {
+      const scoreData = {
+        marketId,
+        inningNumber: currentInningVal,
+        eventType: events?.length == 0 ? ["b"] : events,
+        score: score,
+      };
+      const response = await apiService.post("/score/changeScore", scoreData);
 
-    const data = await response.json();
+      const data = await response.json();
 
-    await getScore(false);
-    await getScore(true);
-    await setPlayer();
+      await getScore(false);
+      await getScore(true);
+      await setPlayer();
 
-    await messageBasedActions(events, data?.isFreeHit);
+      await messageBasedActions(events, data?.isFreeHit);
 
-    currScore = -1;
-    elements.currScoreShow.innerHTML = "";
-    score = 0;
-    events = [];
-  } catch (error) {
-    console.error("Error:", error);
-    // Display an error message to the user
+      currScore = -1;
+      elements.currScoreShow.innerHTML = "";
+      score = "";
+      events = [];
+    } catch (error) {
+      console.error("Error:", error);
+      // Display an error message to the user
+    }
   }
 };
 
@@ -423,10 +435,10 @@ const runOutEvent = async (isStriker) => {
 /**
  * Event Listeners
  */
-elements.exchangeButton.addEventListener("click", (e) => {
-  e.preventDefault();
-  changeStrike();
-});
+// elements.exchangeButton.addEventListener("click", (e) => {
+//   e.preventDefault();
+//   changeStrike();
+// });
 
 elements.striker.addEventListener("input", () => {
   changePlayer("striker", elements.striker.value);
@@ -477,4 +489,13 @@ elements.strikerOut.addEventListener("click", async () => {
 });
 elements.nonStrikerOut.addEventListener("click", async () => {
   runOutEvent(false);
+});
+elements.matchOver.addEventListener("click", async () => {
+  try {
+    const response = await apiService.post("/match/over", {
+      marketId,
+    });
+  } catch (error) {
+    console.log("Error: ", error);
+  }
 });

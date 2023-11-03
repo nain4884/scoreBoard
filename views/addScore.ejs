@@ -1,5 +1,4 @@
 <style>
-
   .add-match-container {
     max-width: 97%;
 
@@ -60,7 +59,8 @@
     align-items: end;
     gap: 10px;
   }
-  .form-group{
+
+  .form-group {
     margin-bottom: 10px !important;
   }
 
@@ -88,7 +88,7 @@
           Current Inning: <span id="inning"><%=data.currentInning%></span>
         </p>
       </div>
-      <form class="card p-3 mt-3 was-validated" id="score-form">
+      <form class="card p-3 was-validated" id="score-form">
         <div class="row">
           <div class="form-group col-md-2">
             <div class="row">
@@ -99,19 +99,19 @@
 
 
                 </select>
-                
+
               </div>
 
-              <div class="form-group col-md-12 exchange-icon">
+              <!-- <div class="form-group col-md-12 exchange-icon">
                 <button class="btn btn-primary" id="exchange" title="Change strike">
-                  <i class="bi bi-arrow-left-right"></i> <!-- Bootstrap exchange icon class -->
+                  <i class="bi bi-arrow-left-right"></i> 
                 </button>
-              </div>
+              </div> -->
               <div class="form-group col-md-12">
                 <label for="batsmanNonStrike">Batsman non-strike:</label>
                 <select class="form-control" id="batsmanNonStrike">
                 </select>
-                
+
               </div>
             </div>
           </div>
@@ -120,21 +120,31 @@
 
           <div class="form-group col-md-10">
             <div class="row">
-              <div class="col-md-12">
-                <label for="bowlerType">Bowler Type:</label>
-                <br />
-                <div class="btn-group" id="bowlerType" data-toggle="buttons">
-                  <label class="btn btn-secondary">
-                    <input type="radio" name="bowlerType" value="spinner"> Spinner
-                  </label>
-                  <label class="btn btn-secondary">
-                    <input type="radio" name="bowlerType" value="faster"> Faster
-                  </label>
-                  <label class="btn btn-secondary">
-                    <input type="radio" name="bowlerType" value="all" checked> Any
-                  </label>
+              <div class="col-md-4">
+                <div id="scoreEvent" class="score-container">
+                  <input id="scoreInput" type="text" placeholder="Enter your score here" class="score-container-input" />
+                  <p id="curr-score">
+                    Please enter your score
+                  </p>
+
                 </div>
-               
+              </div>
+              <div class="col-md-8">
+                <div style="float: right;margin-bottom: 10px;">
+                  <label for="bowlerType">Bowler Type:</label>
+                  <br />
+                  <div class="btn-group" id="bowlerType" data-toggle="buttons">
+                    <label class="btn btn-secondary">
+                      <input type="radio" name="bowlerType" value="spinner"> Spinner
+                    </label>
+                    <label class="btn btn-secondary">
+                      <input type="radio" name="bowlerType" value="faster"> Faster
+                    </label>
+                    <label class="btn btn-secondary">
+                      <input type="radio" name="bowlerType" value="all" checked> Any
+                    </label>
+                  </div>
+                </div>
               </div>
               <div class="col-md-12">
                 <div id="bowler">
@@ -143,7 +153,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="form-group col-md-12 btn-cont">
             <button style="width: 100%;" id="changeInning" class="btn btn-primary">
               Change Inning
@@ -153,6 +163,9 @@
             </button>
             <button class="undo-btn btn btn-primary" id="changeOver">
               Change Over
+            </button>
+            <button class="undo-btn btn btn-secondary" id="overMatch">
+              Match Over
             </button>
           </div>
           <div class="form-group col-md-12 btn-cont d-none" id="runOutCont">
@@ -165,13 +178,7 @@
           </div>
         </div>
 
-        <div id="scoreEvent" class="score-container">
-          <input id="scoreInput" type="text" placeholder="Enter your score here" class="score-container-input" />
-          <p id="curr-score">
-            Please enter your score
-          </p>
 
-        </div>
       </form>
     </div>
   </div>
