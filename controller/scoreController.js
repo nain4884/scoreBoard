@@ -713,39 +713,9 @@ app.post(
     }
     let redisObj = await setAndGetInningData(inningNumber, marketId);
     if (playerType == "striker") {
-      // if (
-      //   redisObj.striker &&
-      //   redisObj.striker != "" &&
-      //   redisObj.striker != playerName &&
-      //   redisObj.nonStriker != playerName
-      // ) {
-      //   await playerRepo.update(
-      //     {
-      //       marketId: marketId,
-      //       teamName: redisObj.teamName,
-      //       playerName: redisObj.striker,
-      //     },
-      //     { isPlayerOut: true }
-      //   );
-      // }
       redisObj.striker = playerName;
     }
     if (playerType == "nonStriker") {
-      // if (
-      //   redisObj.nonStriker &&
-      //   redisObj.nonStriker != "" &&
-      //   redisObj.striker != playerName &&
-      //   redisObj.nonStriker != playerName
-      // ) {
-      //   await playerRepo.update(
-      //     {
-      //       marketId: marketId,
-      //       teamName: redisObj.teamName,
-      //       playerName: redisObj.nonStriker,
-      //     },
-      //     { isPlayerOut: true }
-      //   );
-      // }
       redisObj.nonStriker = playerName;
     }
     if (playerType == "bowler") {
@@ -1100,8 +1070,6 @@ app.post(
       });
     if (redisObj.isFreeHit == "true" || redisObj.isFreeHit == true) {
       setTimeout(() => {
-        // redisObj.message = "Free Hit";
-        // delete redisObj.isLastBall;
         redisClient
           .hSet(marketId + "Inning" + inningNumber, "message", "FREE HIT")
           .catch((err) => {

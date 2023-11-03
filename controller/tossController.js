@@ -66,6 +66,11 @@ app.get(
         .getOne();
       let newInning;
       if (scoreInning) {
+        let over = parseFloat(scoreInning.over);
+        let score = parseFloat(scoreInning.score);
+        if(over > 0 || score > 0){
+          return res.status(500).send("Match has been started can not add toss again.");
+        }
         newInning = {
           score: scoreInning.score,
           over: scoreInning.over,
