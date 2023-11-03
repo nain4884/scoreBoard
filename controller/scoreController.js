@@ -1082,7 +1082,7 @@ app.post(
         redisObj.lastOver = redisObj.overRuns;
         redisObj.overRuns = " WKT";
       } else {
-        redisObj.overRuns = redisObj.overRuns + " WKT";
+        redisObj.overRuns = redisObj.overRuns + `<span style="color: red;"> WKT</span>`;
       }
       let message = "WICKET";
       if (score) {
