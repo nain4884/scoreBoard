@@ -348,38 +348,43 @@ app.get(
       res.json(jsonObj);
       return;
     } else {
-      let file = `<style>
+      let file = `
+
+      <style>
       html,body{ padding: 0; margin: 0; }
       .container-main {
-      padding: 10px;
+        padding-top:10px;
       background: linear-gradient(0deg, rgb(0 0 0 / 39%), rgb(0 0 0 / 30%)),url(https://www.stageandscreen.travel/sites/default/files/styles/large/public/LP%20-%20Cricket%20Australia.jpg?itok=dStxvjPW);
       background-repeat: no-repeat;
       background-size: cover;
       margin-right: auto;
       margin-left: auto;
       color: white;
-      height: 18vh;
+      height: auto;
+      overflow:hidden;
       align-items: center;
-      display: grid;
+      display: flex;
+      justify-content:space-between;
       background-position: bottom;
       position: relative;
       width:100%;
+      flex-direction:column;  
+      font-weight:800;
+      font-family:system-ui !important;
       }
-      @media only screen and (max-width: 767px) {
-      .container-main {
-      height: auto !important;
-      }
-      }
+      
       .row-ctm {
+        padding:0px 10px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      padding: 0px 0;
+      justify-content:center;
+      width:100%;
       }
       .team {
       flex: 0 0 25%;
       max-width: 25%;
-      text-align: center;
+      text-align: left;
       overflow:hidden;
       }
       .match_status {
@@ -391,6 +396,10 @@ app.get(
       font-size: 10px;
       letter-spacing: 0px;
       padding: 4px 0;
+      }
+      .black-back{
+        background-color:#00000066;
+        padding-bottom:10px;
       }
       .inn1 {
       font-size: 10px;
@@ -415,7 +424,7 @@ app.get(
       width: 100%;
       display: block;
       text-transform: capitalize;
-      font-size: 10px;
+      font-size: 1.1em;
       }
       .status {
       width: 100%;
@@ -439,7 +448,8 @@ app.get(
       .score-over ul li {
       display: inline-block;
       color: #fff;
-      font-size:1em;
+      font-weight:800;
+      font-size:1.3em;
       }
       .score-over ul li p{
       margin: 0;
@@ -449,7 +459,7 @@ app.get(
       font-size : 17px;
       }
       .target{
-        font-size : 9px;
+        font-size : 1em;
         margin-top:25px;
         margin-bottom:5px;
       }
@@ -466,10 +476,22 @@ app.get(
         transform: translate(-50%,-50%)
       }
       .animate-name{
-        animation: txt 3s ease-out infinite;
+        animation: bat-ball-txt 3s ease-out infinite;
         font-family: tahomabd;
-        font-size: 0.8em;
-        font-weight:500;
+        font-size: 1em;
+        font-weight:800;
+        
+        margin-top: 10px;
+
+      }
+      .striker-cont{
+        display:flex;
+        align-items:center;
+        gap:10px;
+      }
+      .bat-icon,.ball-icon{
+        height:20px;
+        width:20px;
       }
       @-webkit-keyframes txt {
         0% {
@@ -505,6 +527,49 @@ app.get(
           transform: scale(1)
       }
       }
+
+
+      @-webkit-keyframes bat-ball-txt {
+        0% {
+            -webkit-transform: scale(1.1);
+            transform: scale(1.1);
+            color:white;
+        }
+      
+        50% {
+            -webkit-transform: scale(1.25);
+            transform: scale(1.25);
+            color:#12ee12;
+        }
+      
+        100% {
+            -webkit-transform: scale(1.1);
+            transform: scale(1.1);
+            color:white;
+
+        }
+      
+      }
+      
+      @keyframes  bat-ball-txt {
+        0% {
+          -webkit-transform: scale(1.1);
+          transform: scale(1.1);
+          color:white;
+        }
+      
+      50% {
+          -webkit-transform: scale(1.25);
+          transform: scale(1.25);
+          color:#12ee12;
+        }
+      
+      100% {
+          -webkit-transform: scale(1.1);
+          transform: scale(1.1);
+          color:white;
+        }
+      }
       
       .striker {
         flex: 0 0 25%;
@@ -517,38 +582,36 @@ app.get(
         max-width: 25%;
         text-align: center;
 }
+.bottom-score{
+  position: absolute;
+    left: 50%;
+    bottom: 0px;
+    transform: translateX(-50%);
+}
+.bowler-cont{
+  justify-content:right;
+}
+.curr-run-rate,.over,.team_name,.run{
+  font-weight:900;
+}
 @media only screen and (max-width: 767px) {
+  .container-main {
+    height: auto !important;
+    }
   .team_name {
     font-size: 1.05em;
     }
     .over{
       font-size:1em;
-    }
+  }
     .curr-run-rate{
       font-size:0.9em;
-    }
+  }
   }
 
       </style>
               <div class="container-main">
               <div class="row-ctm"> 
-              <div class="team">
-                <div class="animate-name">
-                  ${striker}
-                </div>
-                <div style="font-size:0.8em;">
-                ${nonStriker}
-              </div>
-              </div>
-              <div class="match_status"></div>
-              <div class="team">
-                <div class="animate-name">
-                  ${bowler}
-                </div>
-                ${bowlerType}
-              </div>
-              </div>
-              <div class="row-ctm">
               ${
                 parseInt(currentInning) == 1
                   ? `<div class="team">
@@ -572,11 +635,13 @@ app.get(
               
           </div>`
               }
+
               <div class="match_status">
-                  <span class="commantry">${
-                    parseInt(currentInning) == 2 ? inn2Message : inn1Message
-                  }</span>
-                  <p class="target">${customMsg || ""}</p>
+              <span class="commantry">${
+                parseInt(currentInning) == 2 ? inn2Message : inn1Message
+              }</span>
+              <div class="bottom_score">
+               <p class="target">${customMsg || ""}</p>
                   <span class="day"><div class="score-over">
                   
                           <ul><li class="six-balls ">
@@ -587,31 +652,78 @@ app.get(
                             }
                           </li><li class="six-balls "></ul>
                     </div></span>
-                  </div>
-                  ${
-                    parseInt(currentInning) == 2
-                      ? `<div class="team">
-                      <div class="team_name">${inn1TeamName}</div>
-                      <div class="curr_inn">
-                          <span class="run">${inn1Score}/${inn1Wicket}</span>
-                          <span class="over">(${inn1over})</span>
-                          <br>
-                              <span class="over curr-run-rate">CRR : ${inn1crr} | RRR: ${inn1rrr}</span>
-                      </div>
-                      
-                  </div>`
-                      : `<div class="team">
-                  <div class="team_name">${inn2TeamName}</div>
+                    </div>
+              </div>
+              ${
+                parseInt(currentInning) == 2
+                  ? `<div class="team" style="text-align:right;">
+                  <div class="team_name">${inn1TeamName}</div>
                   <div class="curr_inn">
-                      <span class="run">${inn2Score}/${inn2Wicket}</span>
-                      <span class="over">(${inn2over})</span>
+                      <span class="run">${inn1Score}/${inn1Wicket}</span>
+                      <span class="over">(${inn1over})</span>
                       <br>
-                          <span class="over curr-run-rate">CRR : ${inn2crr} | RRR: ${inn2rrr}</span>
+                          <span class="over curr-run-rate">CRR : ${inn1crr} | RRR: ${inn1rrr}</span>
                   </div>
                   
               </div>`
-                  }
+                  : `<div class="team" style="text-align:right;">
+              <div class="team_name">${inn2TeamName}</div>
+              <div class="curr_inn">
+                  <span class="run">${inn2Score}/${inn2Wicket}</span>
+                  <span class="over">(${inn2over})</span>
+                  <br>
+                      <span class="over curr-run-rate">CRR : ${inn2crr} | RRR: ${inn2rrr}</span>
               </div>
+              
+          </div>`
+              }
+
+              </div>
+
+              <div class="row-ctm black-back"> 
+              <div class="team">
+              <div class="striker-cont">
+              <div class="bat-icon">
+                &#x1F3CF;
+            </div>
+              <div class="animate-name" style="line-height:0.8;">
+                  ${striker}
+                </div>
+               
+                </div>
+                <div class="striker-cont">
+              <div class="bat-icon">
+            </div>
+            <div style="font-size:1em;">
+            ${nonStriker}
+          </div>
+               
+                </div>
+                
+              </div>
+              <div class="match_status"></div>
+              <div class="team" style="text-align:right;">
+               <div class="striker-cont bowler-cont" style="justify-content:right; align-items:center;">
+              
+                <div class="animate-name" style="line-height:0.8;">
+                  ${bowler}
+                </div>
+                <div class="ball-icon">
+           </div>
+                </div>
+                <div class="striker-cont bowler-cont" style="justify-content:right; align-items:center;">
+              
+                <div style="font-size:0.8em; font-weight:500;">
+                ${bowlerType}
+                </div>
+                <div class="ball-icon">
+           </div>
+                </div>
+                
+              </div>
+              </div>
+
+              
               </div>`;
       res.send(file);
       return;
