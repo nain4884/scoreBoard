@@ -34,7 +34,7 @@ const elements = {
   matchOver: getById("overMatch"),
 };
 
-let score = 0;
+let score = null;
 let events = [];
 let currInningData = null;
 let selectedBaller = null;
@@ -124,7 +124,7 @@ const handleChangeScore = async (key) => {
   switch (key) {
     case "Escape":
     case "esc":
-      score = "";
+      score = null;
       events = [];
       break;
     case "Shift":
@@ -196,19 +196,23 @@ const handleChangeScore = async (key) => {
           ]?.name
         : item
     )
-    .join(",")}</p><p>Selected score: ${score}</p>`;
+    .join(",")}</p><p>Selected score: ${score ? score : ""}</p>`;
 
   if (key == "Shift") {
     if (localStorage.getItem("ballStart") == "true") {
-      elements.currScoreShow.innerHTML = `<p>Event keys: Ball Start</p><p>Selected score: ${score}</p>`;
+      elements.currScoreShow.innerHTML = `<p>Event keys: Ball Start</p><p>Selected score: ${
+        score ? score : ""
+      }</p>`;
     } else {
-      elements.currScoreShow.innerHTML = `<p>Event keys: Ball Stop</p><p>Selected score: ${score}</p>`;
+      elements.currScoreShow.innerHTML = `<p>Event keys: Ball Stop</p><p>Selected score: ${
+        score ? score : ""
+      }</p>`;
     }
   }
 };
 
 const liveScore = async () => {
-  if (events?.includes("ball") && score == "") {
+  if (events?.includes("ball") && !score) {
     return;
   }
   try {
@@ -230,7 +234,7 @@ const liveScore = async () => {
 
     currScore = -1;
     elements.currScoreShow.innerHTML = "";
-    score = "";
+    score = null;
     events = [];
   } catch (error) {
     console.error("Error:", error);
@@ -497,6 +501,10 @@ elements.matchOver.addEventListener("click", async () => {
     const response = await apiService.post("/match/over", {
       marketId,
     });
+
+    if (response) {
+      showToast("Match over");
+    }
   } catch (error) {
     console.log("Error: ", error);
   }
