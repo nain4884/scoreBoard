@@ -29,6 +29,42 @@ app.get(
         value: "cricket",
         name: "Cricket",
       },
+      {
+        value: "tennis",
+        name: "Tennis",
+      },
+      {
+        value: "soccer",
+        name: "Soccer",
+      },
+      {
+        value: "ice",
+        name: "Ice",
+      },
+      {
+        value: "hockey",
+        name: "Hockey",
+      },
+      {
+        value: "volleyball",
+        name: "Volleyball",
+      },
+      {
+        value: "politics",
+        name: "Politics",
+      },
+      {
+        value: "basketball",
+        name: "BasketBall",
+      },
+      {
+        value: "tabletennis",
+        name: "Table Tennis",
+      },
+      {
+        value: "darts",
+        name: "Darts",
+      },
     ];
 
     const addMatchContent = await ejs.renderFile(
