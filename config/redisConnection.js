@@ -1,4 +1,5 @@
 const { createClient } = require("redis");
+require("dotenv").config();
 
 const redisClient = createClient({
     host: process.env.REDIS_HOST || 'localhost',
