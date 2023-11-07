@@ -388,7 +388,7 @@ app.get(
       flex: 0 0 25%;
       max-width: 25%;
       text-align: left;
-      overflow:hidden;
+      overflow:visible;
       }
       .match_status {
       flex: 0 0 50%;
