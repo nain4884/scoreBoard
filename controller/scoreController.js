@@ -1143,7 +1143,7 @@ app.post(
         "teamName"
       );
       redisObj.customMsg = `${teamNameInn2.substring(0,3)} NEED ${
-        (totalRunInn1 + 1) - redisObj.score
+        totalRunInn1 - redisObj.score + 1
       } RUNS OFF ${remainingBall} BALLS`;
       // }
     }
