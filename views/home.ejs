@@ -3,7 +3,6 @@
     margin: 0px;
   }
 
-
   .matches-container {
     display: flex;
     flex-direction: column;
@@ -18,7 +17,13 @@
   }
 
   .match-name {
-    background-image: linear-gradient(-45deg, #262626 50%, #262626, #f1c550, #f1c550 50%);
+    background-image: linear-gradient(
+      -45deg,
+      #262626 50%,
+      #262626,
+      #f1c550,
+      #f1c550 50%
+    );
     width: 100%;
     padding: 5px;
     color: #007bff;
@@ -38,29 +43,83 @@
   .edit-icon:active {
     transform: scale(1.1);
   }
+  .paginate-cont .paginationjs .paginationjs-pages ul {
+    display: flex !important;
+    gap: 10px !important;
+    color: white !important;
+    margin: 20px 0px;
+  }
+  .paginationjs
+    .paginationjs-pages
+    li:not(.paginationjs-prev):not(.paginationjs-next) {
+    height: 30px !important;
+    width: 30px !important;
+    border-radius: 50% !important;
+    background-color: green !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  .paginationjs .paginationjs-pages li > a {
+    background-color: transparent;
+    border-radius: 50% !important;
+
+  }
+  .paginationjs-prev a,
+  .paginationjs-next a {
+    color: white !important;
+    font-size: 2em !important;
+  }
+  .paginationjs-prev,
+  .paginationjs-next {
+    border: none !important;
+  }
+  .paginationjs .paginationjs-pages li>a:hover{
+    border: 1px solid white !important;
+    background: none !important;
+  }
 </style>
 <div>
-
-  <div class="matches-container">
-    <%match?.map((item)=>{%>
-    <div class="match-box">
-      <div class="match-name">
-        <a href="/match/<%= item?.marketId %>">
-
-          <b><%= item?.title%></b>
-        </a>
-        <span>
-          (<%=new Date(item?.startAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit',
-          minute: '2-digit',
-          hour12: true, })%>)
-        </span>
-        <a href="/addmatch?marketId=<%= item?.marketId %>&id=<%= item?.id %>">
-
-          <span class="bi bi-pencil edit-icon"></span>
-        </a>
-      </div>
-
-    </div>
-    <% }); %>
-  </div>
+  <div class="matches-container" id="matchContainer"></div>
+  <div id="pagination-container" class="paginate-cont"></div>
 </div>
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+  crossorigin="anonymous"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.6.0/pagination.min.js"
+  integrity="sha512-GzbaI5EsNzdEUq6/2XLYpr1y9CUZRIVsUeWTAFgULtQa5jZ3Nug8i0nZKM6jp9NffBCZhymPPQFcF0DK+JkRpw=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script src="/js/home.js"></script>
+
+<script>
+  // Total count of matches (Assuming matchCount is defined in EJS)
+  const matchCount = parseInt("<%= matchCount %>");
+</script>
+<script>
+  // Options for pagination
+  const options = {
+    dataSource: (done) => {
+      const totalPages = Math.ceil(matchCount / 15);
+      done(
+        Array(totalPages)
+          .fill()
+          .map((_, index) => index + 1)
+      );
+    },
+    pageSize: 1,
+    /**
+     * Callback function for pagination changes.
+     * @param {number[]} data - Array containing page numbers.
+     * @param {Object} pagination - Pagination object.
+     */
+    callback: async function (data, pagination) {
+      getMatchData(data[0]);
+    },
+  };
+  $("#pagination-container").pagination(options);
+</script>
