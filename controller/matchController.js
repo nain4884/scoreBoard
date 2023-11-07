@@ -161,20 +161,38 @@ app.get(
   "/",
   isAuthenticates,
   catchAsyncErrors(async (req, res, next) => {
-    const match = await matchRepo
+    const matchCount = await matchRepo
       .createQueryBuilder("match")
       .where("match.stopAt IS NULL")
-      .orderBy("match.startAt", "DESC")
-      .getMany();
+      .getCount();
 
     const homeContent = await ejs.renderFile(__dirname + "/../views/home.ejs", {
-      match,
+      matchCount: matchCount,
     });
 
     res.render("layout/mainLayout", {
       title: "Home",
       body: homeContent,
     });
+  })
+);
+
+app.get(
+  "/match",
+  isAuthenticates,
+  catchAsyncErrors(async (req, res, next) => {
+    const page = req.query.page || 1;
+    let limit = 15;
+
+    const match = await matchRepo
+      .createQueryBuilder("match")
+      .where("match.stopAt IS NULL")
+      .orderBy("match.startAt", "DESC")
+      .skip((parseInt(page) - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return res.status(200).json({ match });
   })
 );
 
