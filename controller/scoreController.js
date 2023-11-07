@@ -1142,7 +1142,7 @@ app.post(
         marketId + "Inning2",
         "teamName"
       );
-      redisObj.customMsg = `${teamNameInn2} NEED ${
+      redisObj.customMsg = `${teamNameInn2.substring(0,3)} NEED ${
         totalRunInn1 - redisObj.score
       } RUNS OFF ${remainingBall} BALLS`;
       // }
