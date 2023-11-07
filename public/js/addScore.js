@@ -133,12 +133,19 @@ const handleChangeScore = async (key) => {
         !events.includes("ball stop")
       ) {
         events = ["ball stop"];
+        elements.currScoreShow.innerHTML = `<p>Event keys: Ball Stop</p><p>Selected score: ${
+          score ? score : ""
+        }</p>`;
       } else if (
         !events.includes("ball start") &&
         !events.includes("ball stop")
       ) {
         events = ["ball start"];
+        elements.currScoreShow.innerHTML = `<p>Event keys: Ball Start</p><p>Selected score: ${
+          score ? score : ""
+        }</p>`;
       }
+
       await liveScore();
 
       break;
@@ -183,31 +190,21 @@ const handleChangeScore = async (key) => {
 
       break;
   }
-
-  elements.currScoreShow.innerHTML = `<p>Event keys: ${events
-    .map((item) =>
-      Object.keys(ballEventKeys)?.find(
-        (items) => ballEventKeys[items]?.key == item
+  if (key !== "Shift") {
+    elements.currScoreShow.innerHTML = "";
+    elements.currScoreShow.innerHTML = `<p>Event keys: ${events
+      .map((item) =>
+        Object.keys(ballEventKeys)?.find(
+          (items) => ballEventKeys[items]?.key == item
+        )
+          ? ballEventKeys[
+              Object.keys(ballEventKeys)?.find(
+                (items) => ballEventKeys[items]?.key == item
+              )
+            ]?.name
+          : item
       )
-        ? ballEventKeys[
-            Object.keys(ballEventKeys)?.find(
-              (items) => ballEventKeys[items]?.key == item
-            )
-          ]?.name
-        : item
-    )
-    .join(",")}</p><p>Selected score: ${score ? score : ""}</p>`;
-
-  if (key == "Shift") {
-    if (localStorage.getItem("ballStart") == "true") {
-      elements.currScoreShow.innerHTML = `<p>Event keys: Ball Start</p><p>Selected score: ${
-        score ? score : ""
-      }</p>`;
-    } else {
-      elements.currScoreShow.innerHTML = `<p>Event keys: Ball Stop</p><p>Selected score: ${
-        score ? score : ""
-      }</p>`;
-    }
+      .join(",")}</p><p>Selected score: ${score ? score : ""}</p>`;
   }
 };
 
@@ -233,7 +230,6 @@ const liveScore = async () => {
     await messageBasedActions(events, data?.isFreeHit);
 
     currScore = -1;
-    elements.currScoreShow.innerHTML = "";
     score = null;
     events = [];
   } catch (error) {
