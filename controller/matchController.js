@@ -26,7 +26,7 @@ app.get(
 
     const gameType = [
       {
-        id: "1",
+        value: "cricket",
         name: "Cricket",
       },
     ];

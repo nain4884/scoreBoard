@@ -62,8 +62,8 @@ oversInput.addEventListener("input", () => {
 elements.gameType.addEventListener("change", () =>
   fetchAndPopulate(
     elements.tournament,
-    `/competitionList`,
-    "Selecr Tournament",
+    `/competitionList?type=${elements?.gameType?.value}`,
+    "Select Tournament",
     (option) =>
       elements.tournament.appendChild(
         new Option(option.competition.name, option.competition.id)
