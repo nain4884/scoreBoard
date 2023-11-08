@@ -134,7 +134,7 @@ const handleChangeScore = async (key) => {
       ) {
         events = ["ball stop"];
         elements.currScoreShow.innerHTML = `<p>Event keys: Ball Stop</p><p>Selected score: ${
-          score >= 0 && score < 7 && score != null  ? score : ""
+          score >= 0 && score < 7 && score != null ? score : ""
         }</p>`;
       } else if (
         !events.includes("ball start") &&
@@ -142,7 +142,7 @@ const handleChangeScore = async (key) => {
       ) {
         events = ["ball start"];
         elements.currScoreShow.innerHTML = `<p>Event keys: Ball Start</p><p>Selected score: ${
-          score >= 0 && score < 7 && score != null  ? score : ""
+          score >= 0 && score < 7 && score != null ? score : ""
         }</p>`;
       }
 
@@ -204,12 +204,14 @@ const handleChangeScore = async (key) => {
             ]?.name
           : item
       )
-      .join(",")}</p><p>Selected score: ${score >= 0 && score < 7 && score != null  ? score : ""}</p>`;
+      .join(",")}</p><p>Selected score: ${
+      score >= 0 && score < 7 && score != null ? score : ""
+    }</p>`;
   }
 };
 
 const liveScore = async () => {
-  if (events?.includes("ball") && !score) {
+  if ((events?.includes("ball") && !score) || (events?.length == 0 && !score)) {
     return;
   }
   try {

@@ -770,8 +770,13 @@ app.post(
   isAuthenticates,
 
   catchAsyncErrors(async (req, res, next) => {
-    const { marketId, isStriker, inningNumber, teamName, batsmanName } =
-      req.body;
+    const {
+      marketId,
+      isStriker,
+      inningNumber,
+      teamName,
+      batsmanName,
+    } = req.body;
     if (!marketId) {
       return res.status(500).send("marketId not found.");
     }
@@ -1043,9 +1048,10 @@ app.post(
       }
       if ((redisObj.over % 1).toFixed(1) == 0.1) {
         redisObj.lastOver = redisObj.overRuns;
-        redisObj.overRuns = " WKT";
+        redisObj.overRuns = `<span style="color: red;"> WKT</span>`;
       } else {
-        redisObj.overRuns = redisObj.overRuns + " WKT";
+        redisObj.overRuns =
+          redisObj.overRuns + `<span style="color: red;"> WKT</span>`;
       }
       let message = "RUN OUT";
       if (score) {
@@ -1080,9 +1086,10 @@ app.post(
       }
       if ((redisObj.over % 1).toFixed(1) == 0.1) {
         redisObj.lastOver = redisObj.overRuns;
-        redisObj.overRuns = " WKT";
+        redisObj.overRuns = `<span style="color: red;"> WKT</span>`;
       } else {
-        redisObj.overRuns = redisObj.overRuns + `<span style="color: red;"> WKT</span>`;
+        redisObj.overRuns =
+          redisObj.overRuns + `<span style="color: red;"> WKT</span>`;
       }
       let message = "WICKET";
       if (score) {
@@ -1142,7 +1149,7 @@ app.post(
         marketId + "Inning2",
         "teamName"
       );
-      redisObj.customMsg = `${teamNameInn2.substring(0,3)} NEED ${
+      redisObj.customMsg = `${teamNameInn2.substring(0, 3)} NEED ${
         totalRunInn1 - redisObj.score + 1
       } RUNS OFF ${remainingBall} BALLS`;
       // }
