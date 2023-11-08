@@ -26,11 +26,15 @@ const fetchAndPopulate = async (
   element,
   url,
   optionText = "Select",
-  appendOption
+  appendOption,
+  defaultMessage
 ) => {
+  element.innerHTML = `<option value="">${defaultMessage}</option>`;
+
   const httpService = new HttpService(SERVER_API_BASE_URL);
   const response = await httpService.get(url);
   const data = await response.json();
+
   element.innerHTML = "";
 
   element.appendChild(new Option(optionText, ""));
@@ -67,7 +71,8 @@ elements.gameType.addEventListener("change", () =>
     (option) =>
       elements.tournament.appendChild(
         new Option(option.competition.name, option.competition.id)
-      )
+      ),
+    "No Tournament Found"
   )
 );
 elements.tournament.addEventListener("change", () =>
@@ -78,7 +83,8 @@ elements.tournament.addEventListener("change", () =>
     (option) =>
       elements.matchType.appendChild(
         new Option(option.event.name, JSON.stringify(option))
-      )
+      ),
+    "No Match Found"
   )
 );
 elements.matchType.addEventListener("change", () =>
