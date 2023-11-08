@@ -11,9 +11,9 @@ const dataSourceOption = {
   database: process.env.POSTGRES_DATABASE,
   synchronize: false,
   entities: [__dirname + "/../**/*.entity.{js,ts}"],
-  "migrations": [__dirname + '/../**/migrations/*{.js,.ts}'],
-  "migrationsTableName": "migrations",
-  logging: true, 
+  migrations: [__dirname + "/../**/migrations/*{.js,.ts}"],
+  migrationsTableName: "migrations",
+  logging: true,
 };
 
 const AppDataSource = new DataSource(dataSourceOption);
@@ -35,4 +35,4 @@ const getDataSource = (delay = 1000) => {
   });
 };
 
-module.exports = {getDataSource, AppDataSource};
+module.exports = { getDataSource, AppDataSource };

@@ -1,7 +1,6 @@
 <style>
   .add-match-container {
     max-width: 97%;
-
   }
 
   .exchange-icon {
@@ -34,9 +33,10 @@
     box-shadow: none;
   }
 
-  .score-container input:focus+p {
+  .score-container input:focus + p {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     height: 100%;
+    background-color: greenyellow;
   }
 
   .undo-btn {
@@ -67,39 +67,27 @@
   @media screen and (max-width: 768px) {
     .add-match-container {
       max-width: 100%;
-
     }
   }
 </style>
 
-
-<div style="position: relative;">
-  <%- include('./partials/score.ejs',{
-  marketId: marketId
-}) %>
+<div style="position: relative">
+  <%- include('./partials/score.ejs',{ marketId: marketId }) %>
 </div>
 <div class="container add-match-container">
-
   <div class="row">
     <div class="col-md-12 card p-3">
       <div class="heading-cont">
         <h5>Add Score (<%=data.title%>)</h5>
-        <p>
-          Current Inning: <span id="inning"><%=data.currentInning%></span>
-        </p>
+        <p>Current Inning: <span id="inning"><%=data.currentInning%></span></p>
       </div>
       <form class="card p-3 was-validated" id="score-form">
         <div class="row">
           <div class="form-group col-md-2">
             <div class="row">
               <div class="form-group col-md-12">
-
                 <label for="batsmanStrike">Batsman strike:</label>
-                <select class="form-control" id="batsmanStrike">
-
-
-                </select>
-
+                <select class="form-control" id="batsmanStrike"></select>
               </div>
 
               <!-- <div class="form-group col-md-12 exchange-icon">
@@ -109,53 +97,61 @@
               </div> -->
               <div class="form-group col-md-12">
                 <label for="batsmanNonStrike">Batsman non-strike:</label>
-                <select class="form-control" id="batsmanNonStrike">
-                </select>
-
+                <select class="form-control" id="batsmanNonStrike"></select>
               </div>
             </div>
           </div>
-
-
 
           <div class="form-group col-md-10">
             <div class="row">
               <div class="col-md-4">
                 <div id="scoreEvent" class="score-container">
-                  <input id="scoreInput" type="text" placeholder="Enter your score here" class="score-container-input" />
-                  <p id="curr-score">
-                    Please enter your score
-                  </p>
-
+                  <input
+                    id="scoreInput"
+                    type="text"
+                    placeholder="Enter your score here"
+                    class="score-container-input"
+                  />
+                  <p id="curr-score">Please enter your score</p>
                 </div>
               </div>
               <div class="col-md-8">
-                <div style="float: right;margin-bottom: 10px;">
+                <div style="float: right; margin-bottom: 10px">
                   <label for="bowlerType">Bowler Type:</label>
                   <br />
                   <div class="btn-group" id="bowlerType" data-toggle="buttons">
                     <label class="btn btn-secondary">
-                      <input type="radio" name="bowlerType" value="spinner"> Spinner
+                      <input type="radio" name="bowlerType" value="spinner" />
+                      Spinner
                     </label>
                     <label class="btn btn-secondary">
-                      <input type="radio" name="bowlerType" value="faster"> Faster
+                      <input type="radio" name="bowlerType" value="faster" />
+                      Faster
                     </label>
                     <label class="btn btn-secondary">
-                      <input type="radio" name="bowlerType" value="all" checked> Any
+                      <input
+                        type="radio"
+                        name="bowlerType"
+                        value="all"
+                        checked
+                      />
+                      Any
                     </label>
                   </div>
                 </div>
               </div>
               <div class="col-md-12">
-                <div id="bowler">
-
-                </div>
+                <div id="bowler"></div>
               </div>
             </div>
           </div>
 
           <div class="form-group col-md-12 btn-cont">
-            <button style="width: 100%;" id="changeInning" class="btn btn-primary">
+            <button
+              style="width: 100%"
+              id="changeInning"
+              class="btn btn-primary"
+            >
               Change Inning
             </button>
             <button class="undo-btn btn btn-secondary" id="undo">
@@ -169,7 +165,7 @@
             </button>
           </div>
           <div class="form-group col-md-12 btn-cont d-none" id="runOutCont">
-            <button style="width: 100%;" id="strikerOut" class="btn btn-primary">
+            <button style="width: 100%" id="strikerOut" class="btn btn-primary">
               Striker
             </button>
             <button class="undo-btn btn btn-secondary" id="nonStrikerOut">
@@ -177,8 +173,6 @@
             </button>
           </div>
         </div>
-
-
       </form>
     </div>
   </div>
