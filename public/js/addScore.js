@@ -133,7 +133,7 @@ const handleChangeScore = async (key) => {
         !events.includes("ball stop")
       ) {
         events = ["ball stop"];
-        elements.currScoreShow.innerHTML = `<p>Event keys: Ball Stop</p><p>Selected score: ${
+        elements.currScoreShow.innerHTML = `<p>Event keys:<span style="color:red;font-weight: bold;"> Ball Stop</span></p><p>Selected score: ${
           score >= 0 && score < 7 && score != null ? score : ""
         }</p>`;
       } else if (
@@ -141,7 +141,7 @@ const handleChangeScore = async (key) => {
         !events.includes("ball stop")
       ) {
         events = ["ball start"];
-        elements.currScoreShow.innerHTML = `<p>Event keys: Ball Start</p><p>Selected score: ${
+        elements.currScoreShow.innerHTML = `<p>Event keys:<span style="color:red;font-weight: bold;"> Ball Start</span></p><p>Selected score: ${
           score >= 0 && score < 7 && score != null ? score : ""
         }</p>`;
       }
@@ -192,7 +192,7 @@ const handleChangeScore = async (key) => {
   }
   if (key !== "Shift") {
     elements.currScoreShow.innerHTML = "";
-    elements.currScoreShow.innerHTML = `<p>Event keys: ${events
+    elements.currScoreShow.innerHTML = `<p>Event keys:<span style="color:red;font-weight: bold;"> ${events
       .map((item) =>
         Object.keys(ballEventKeys)?.find(
           (items) => ballEventKeys[items]?.key == item
@@ -204,7 +204,7 @@ const handleChangeScore = async (key) => {
             ]?.name
           : item
       )
-      .join(",")}</p><p>Selected score: ${
+      .join(",")}</span></p><p>Selected score: ${
       score >= 0 && score < 7 && score != null ? score : ""
     }</p>`;
   }
