@@ -48,7 +48,7 @@ app.use(
     saveUninitialized: true,
     cookie: {
       secure: false,
-      maxAge: 1000 * 60 * 60, // 1 hour in milliseconds
+      maxAge: 1000 * 60 * 60 * 8, // 1 hour in milliseconds
     },
   })
 );

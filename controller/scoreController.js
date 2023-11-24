@@ -103,6 +103,7 @@ app.get(
         firstBatTeam = matchDetails.firstBatTeam;
       }
       await redisClient.hSet(marketId, redisObj);
+      await redisClient.expire(marketId, 28800);
     }
     let inn1Score = 0,
       inn1Wicket = 0,
@@ -119,7 +120,6 @@ app.get(
       inn1TeamName,
       customMsg;
     let inn1Redis = await redisClient.hGetAll(marketId + "Inning1");
-    console.log(inn1Redis);
 
     if (inn1Redis && Object.keys(inn1Redis).length) {
       inn1Score = inn1Redis.score;
@@ -198,6 +198,7 @@ app.get(
         lastOver: inn1LastOver,
       };
       await redisClient.hSet(marketId + "Inning1", redisObj);
+      await redisClient.expire(marketId + "Inning1", 28800);
     }
     striker = inn1Striker;
     nonStriker = inn1NonStriker;
@@ -299,6 +300,7 @@ app.get(
           lastOver: inn2LastOver,
         };
         await redisClient.hSet(marketId + "Inning2", redisObj);
+        await redisClient.expire(marketId + "Inning2", 28800);
       }
       striker = inn2Striker;
       nonStriker = inn2NonStriker;
@@ -926,6 +928,7 @@ app.post(
     newInning.gameType = "Cricket";
     await scoreInningRepo.save(newInning);
     await redisClient.hSet(marketId + "Inning2", redisObj);
+    await redisClient.expire(marketId + "Inning2", 28800);
     return res.send("Inning change success.");
   }
 );
@@ -1278,6 +1281,8 @@ async function setAndGetInningData(inningNumber, marketId) {
         newInning.startAt = new Date();
         newInning.gameType = "Cricket";
         await scoreInningRepo.save(newInning);
+        await redisClient.hSet(marketId + "Inning1", redisObj);
+        await redisClient.expire(marketId, 28800);
       }
     }
   } else {
@@ -1334,6 +1339,8 @@ async function setAndGetInningData(inningNumber, marketId) {
         newInning.startAt = new Date();
         newInning.gameType = "Cricket";
         await scoreInningRepo.save(newInning);
+        await redisClient.hSet(marketId + "Inning1", redisObj);
+        await redisClient.expire(marketId, 28800);
       }
     }
   }

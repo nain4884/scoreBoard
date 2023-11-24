@@ -138,6 +138,7 @@ app.post(
         redisObj.stopAt = matchObj.stopAt.toString();
       }
       await redisClient.hSet(matchObj.marketId, redisObj);
+      await redisClient.expire(matchObj.marketId, 28800);
       return res.json(saveMatch);
     } else {
       return req.status(500).send("Error while saving data");
@@ -250,6 +251,7 @@ app.post(
         "stopAt",
         JSON.stringify(new Date())
       );
+      await redisClient.expire(currMatch.marketId, 28800);
     } else {
       currMatch.stopAt = null;
       await redisClient.hDel(currMatch.marketId, "stopAt");
