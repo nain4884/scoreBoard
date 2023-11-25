@@ -211,7 +211,7 @@ const handleChangeScore = async (key) => {
 };
 
 const liveScore = async () => {
-  if ((events?.includes("ball") && !score) || (events?.length == 0 && !score)) {
+  if ((events?.includes("b") || events?.length == 0 ) &&  (!(score > -1 && score < 7 && score != null))) {
     return;
   }
   try {
