@@ -118,8 +118,8 @@ app.post(
     matchObj.overType = body.overType || alreadyMatchAdded.overType;
     matchObj.totalOver = body.totalOver || alreadyMatchAdded.totalOver;
     matchObj.noBallRun = body.noBallRun || alreadyMatchAdded.noBallRun;
-    matchObj.teamAShort = body.teamAShort || alreadyMatchAdded.teamAShort;
-    matchObj.teamBShort = body.teamBShort || alreadyMatchAdded.teamBShort;
+    matchObj.teamAShort = body.teamAShort || alreadyMatchAdded.teamAShort || matchObj.teamA;
+    matchObj.teamBShort = body.teamBShort || alreadyMatchAdded.teamBShort || matchObj.teamB;
 
     const newMatch = matchRepo.create(matchObj);
     const saveMatch = await matchRepo.save(newMatch);

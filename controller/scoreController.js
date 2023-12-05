@@ -59,8 +59,8 @@ app.get(
       gameType = matchDetails.gameType;
       teamA = matchDetails.teamA;
       teamB = matchDetails.teamB;
-      teamAShort = matchDetails.teamAShort;
-      teamBShort = matchDetails.teamBShort;
+      teamAShort = matchDetails.teamAShort || matchDetails.teamA;
+      teamBShort = matchDetails.teamBShort || matchDetails.teamB;
       title = matchDetails.title;
       stopAt = matchDetails.stopAt;
       startAt = matchDetails.startAt;
@@ -79,8 +79,8 @@ app.get(
       gameType = matchDetails.gameType;
       teamA = matchDetails.teamA;
       teamB = matchDetails.teamB;
-      teamAShort = matchDetails.teamAShort;
-      teamBShort = matchDetails.teamBShort;
+      teamAShort = matchDetails.teamAShort || matchDetails.teamA;
+      teamBShort = matchDetails.teamBShort || matchDetails.teamB;
       title = matchDetails.title;
       stopAt = matchDetails.stopAt;
       startAt = matchDetails.startAt;
