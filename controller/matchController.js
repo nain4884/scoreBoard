@@ -108,7 +108,6 @@ app.post(
       matchObj.gameType = body.gameType;
       matchObj.teamA = body.teamA;
       matchObj.teamB = body.teamB;
-      matchObj.teamC = body.teamC;
       matchObj.title = body.title;
     } else {
       matchObj = alreadyMatchAdded;
@@ -119,6 +118,8 @@ app.post(
     matchObj.overType = body.overType || alreadyMatchAdded.overType;
     matchObj.totalOver = body.totalOver || alreadyMatchAdded.totalOver;
     matchObj.noBallRun = body.noBallRun || alreadyMatchAdded.noBallRun;
+    matchObj.teamAShort = body.teamAShort || alreadyMatchAdded.teamAShort;
+    matchObj.teamBShort = body.teamBShort || alreadyMatchAdded.teamBShort;
 
     const newMatch = matchRepo.create(matchObj);
     const saveMatch = await matchRepo.save(newMatch);
@@ -127,6 +128,8 @@ app.post(
         gameType: matchObj.gameType,
         teamA: matchObj.teamA,
         teamB: matchObj.teamB,
+        teamAShort: matchObj.teamAShort,
+        teamBShort: matchObj.teamBShort,
         title: matchObj.title,
         currentInning: matchObj.currentInning || 1,
         startAt: matchObj?.startAt?.toString(),

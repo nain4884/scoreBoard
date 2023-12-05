@@ -38,6 +38,8 @@ app.get(
     let gameType,
       teamA,
       teamB,
+      teamAShort,
+      teamBShort,
       title,
       stopAt,
       startAt,
@@ -57,6 +59,8 @@ app.get(
       gameType = matchDetails.gameType;
       teamA = matchDetails.teamA;
       teamB = matchDetails.teamB;
+      teamAShort = matchDetails.teamAShort;
+      teamBShort = matchDetails.teamBShort;
       title = matchDetails.title;
       stopAt = matchDetails.stopAt;
       startAt = matchDetails.startAt;
@@ -75,6 +79,8 @@ app.get(
       gameType = matchDetails.gameType;
       teamA = matchDetails.teamA;
       teamB = matchDetails.teamB;
+      teamAShort = matchDetails.teamAShort;
+      teamBShort = matchDetails.teamBShort;
       title = matchDetails.title;
       stopAt = matchDetails.stopAt;
       startAt = matchDetails.startAt;
@@ -86,6 +92,8 @@ app.get(
         gameType: gameType,
         teamA: teamA,
         teamB: teamB,
+        teamAShort: teamAShort,
+        teamBShort: teamBShort,
         title: title,
         currentInning: currentInning,
         startAt: startAt.toString(),
@@ -620,7 +628,7 @@ app.get(
               ${
                 parseInt(currentInning) == 1
                   ? `<div class="team">
-                  <div class="team_name">${inn1TeamName}</div>
+                  <div class="team_name">${inn1TeamName == teamA  ? teamAShort : teamBShort}</div>
                   <div class="curr_inn">
                       <span class="run">${inn1Score}/${inn1Wicket}</span>
                       <span class="over">(${inn1over})</span>
@@ -630,7 +638,7 @@ app.get(
                   
               </div>`
                   : `<div class="team">
-              <div class="team_name">${inn2TeamName}</div>
+              <div class="team_name">${inn2TeamName == teamA  ? teamAShort : teamBShort}</div>
               <div class="curr_inn">
                   <span class="run">${inn2Score}/${inn2Wicket}</span>
                   <span class="over">(${inn2over})</span>
@@ -662,7 +670,7 @@ app.get(
               ${
                 parseInt(currentInning) == 2
                   ? `<div class="team" style="text-align:right;">
-                  <div class="team_name">${inn1TeamName}</div>
+                  <div class="team_name">${inn1TeamName == teamA  ? teamAShort : teamBShort}</div>
                   <div class="curr_inn">
                       <span class="run">${inn1Score}/${inn1Wicket}</span>
                       <span class="over">(${inn1over})</span>
@@ -672,7 +680,7 @@ app.get(
                   
               </div>`
                   : `<div class="team" style="text-align:right;">
-              <div class="team_name">${inn2TeamName}</div>
+              <div class="team_name">${inn2TeamName == teamA  ? teamAShort : teamBShort}</div>
               <div class="curr_inn">
                   <span class="run">${inn2Score}/${inn2Wicket}</span>
                   <span class="over">(${inn2over})</span>

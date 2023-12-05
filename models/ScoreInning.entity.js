@@ -70,7 +70,7 @@ const ScoreInning = new EntitySchema({
             type: "varchar", nullable: true, length: 50, name: "bowlerType"
         },
         message: {
-            type: "varchar", nullable: true, length: 50, name: "message"
+            type: "varchar", nullable: true, length: 500, name: "message"
         },
         lastOver: {
             type: "varchar", nullable: true, length: 50, name: "lastOver"

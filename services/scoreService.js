@@ -6,6 +6,8 @@ exports.getMatchByIdService = async (res,marketId) => {
   let gameType,
     teamA,
     teamB,
+    teamAShort,
+    teamBShort,
     title,
     stopAt,
     startAt,
@@ -18,6 +20,8 @@ exports.getMatchByIdService = async (res,marketId) => {
     gameType = matchDetails.gameType;
     teamA = matchDetails.teamA;
     teamB = matchDetails.teamB;
+    teamAShort = matchDetails.teamAShort;
+    teamBShort = matchDetails.teamBShort;
     title = matchDetails.title;
     stopAt = matchDetails.stopAt;
     startAt = matchDetails.startAt;
@@ -38,6 +42,8 @@ exports.getMatchByIdService = async (res,marketId) => {
     gameType = matchDetails.gameType;
     teamA = matchDetails.teamA;
     teamB = matchDetails.teamB;
+    teamAShort = matchDetails.teamAShort;
+    teamBShort = matchDetails.teamBShort;
     title = matchDetails.title;
     stopAt = matchDetails.stopAt;
     startAt = matchDetails.startAt;
@@ -49,6 +55,8 @@ exports.getMatchByIdService = async (res,marketId) => {
       gameType: gameType,
       teamA: teamA,
       teamB: teamB,
+      teamAShort: teamAShort,
+      teamBShort: teamBShort,
       title: title,
       currentInning: currentInning,
       startAt: startAt.toString(),
@@ -60,12 +68,15 @@ exports.getMatchByIdService = async (res,marketId) => {
       redisObj.stopAt = stopAt.toString();
     }
     await redisClient.hSet(marketId, redisObj);
+    await redisClient.expire(marketId, 28800);
   }
 
   return {
     gameType,
     teamA,
     teamB,
+    teamAShort,
+    teamBShort,
     title,
     stopAt,
     startAt,

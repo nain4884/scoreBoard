@@ -44,10 +44,6 @@
                   <option value="">Select your team</option>
                   <option value="<%= matchData?.teamA %>"><%= matchData?.teamA %></option>
                   <option value="<%= matchData?.teamB %>"><%= matchData?.teamB %></option>
-                  <% if (matchData && matchData.teamC) { %>
-                  <option value="<%= matchData.teamC %>"><%= matchData.teamC %></option>
-                  <% } %>
-
                 </select>
                 <div class="invalid-feedback">Please select the team.</div>
               </div>

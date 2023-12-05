@@ -7,7 +7,8 @@ const elements = {
   matchType: getById("matchName"),
   teamA: getById("teamA"),
   teamB: getById("teamB"),
-  teamC: getById("teamC"),
+  teamAShort: getById("teamAShort"),
+  teamBShort: getById("teamBShort"),
   startTime: getById("startTime"),
   overBall: getById("overBall"),
   noBall: getById("noBall"),
@@ -48,11 +49,14 @@ const fetchAndPopulate = async (
  */
 const setMatchValues = (data) => {
   data = JSON.parse(data);
-  ["teamA", "teamB", "teamC"].forEach((team, index) => {
+  ["teamA", "teamB"].forEach((team, index) => {
     elements[team].value = data?.runners?.[index]?.runnerName || "";
   });
   const selectedDate = new Date(data?.marketStartTime);
+  selectedDate.setMinutes(selectedDate.getMinutes() - selectedDate.getTimezoneOffset());
   elements.startTime.value = selectedDate.toISOString().slice(0, 16);
+  elements["teamAShort"].value = elements.teamA.value;
+  elements["teamBShort"].value = elements.teamB.value;
 };
 
 const oversInput = elements.overs;
@@ -105,6 +109,8 @@ elements.form.addEventListener("submit", async (e) => {
       : {};
     const data = isEdit
       ? {
+          teamAShort: elements.teamAShort.value,
+          teamBShort: elements.teamBShort.value,
           startAt: elements.startTime.value,
           overType: elements.overBall.value,
           noBallRun: elements.noBall.value,
@@ -120,7 +126,8 @@ elements.form.addEventListener("submit", async (e) => {
           gameType: selectedMatch.eventType.name,
           teamA: elements.teamA.value,
           teamB: elements.teamB.value,
-          teamC: elements.teamC.value,
+          teamAShort: elements.teamAShort.value,
+          teamBShort: elements.teamBShort.value,
           title: selectedMatch.event.name,
           startAt: elements.startTime.value,
           overType: elements.overBall.value,

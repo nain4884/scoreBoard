@@ -70,13 +70,17 @@
             <input disabled type="text" value="<%= matchData?.teamB %>" class="form-control" id="teamB" placeholder="Enter team B name">
           </div>
           <div class="form-group col-md-4">
-            <label for="teamC">Team C:</label>
-            <input disabled type="text" value="<%= matchData?.teamC %>" class="form-control" id="teamC" placeholder="Enter team C name">
-          </div>
-          <div class="form-group col-md-4">
             <label for="startTime">Start Time:</label>
             <input disabled type="datetime-local" value="<%= edit ? new Date(matchData?.startAt).toISOString().split('T')[0]+"T"+new Date(matchData?.startAt).toISOString().split("T")[1].substring(0, 5) : '' %>" class="form-control" id="startTime" placeholder="Enter start time">
 
+          </div>
+          <div class="form-group col-md-4">
+            <label for="teamAShort">Team A Short Name:</label>
+            <input value="<%= matchData?.teamAShort %>" type="text" class="form-control" id="teamAShort" placeholder="Enter team A short name">
+          </div>
+          <div class="form-group col-md-4">
+            <label for="teamBShort">Team B Short Name:</label>
+            <input type="text" value="<%= matchData?.teamBShort %>" class="form-control" id="teamBShort" placeholder="Enter team B short name">
           </div>
           <div class="form-group col-md-4">
             <label for="overBall">Over Ball</label>
@@ -110,6 +114,14 @@
 </div>
 <script>
   const isEdit = JSON.parse("<%= edit %>");
+  document.addEventListener("DOMContentLoaded", function(event) { 
+    if(isEdit){
+      var date = "<%= matchData?.startAt %>";
+      const selectedDate = new Date(date);
+      selectedDate.setMinutes(selectedDate.getMinutes() - selectedDate.getTimezoneOffset());
+      elements.startTime.value = selectedDate.toISOString().slice(0, 16);
+    }
+  });
 </script>
 
 <script src="/js/addMatch.js"></script>
