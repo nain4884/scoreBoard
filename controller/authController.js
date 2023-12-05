@@ -29,7 +29,7 @@ app.post(
       .getOne();
     if (user) {
       const isValidPassword = await bcrypt.compare(password, user.password);
-      if (false && !isValidPassword) {
+      if (!isValidPassword) {
         res.status(401).send("Invalid credentials");
         return;
       }
