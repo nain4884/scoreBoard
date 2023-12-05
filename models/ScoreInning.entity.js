@@ -79,7 +79,7 @@ const ScoreInning = new EntitySchema({
     indices: [
         {
           name: 'scoreInning_marketId',
-          unique: true, // Optional: Set to true if you want a unique index
+          unique: false, // Optional: Set to true if you want a unique index
           columns: ['marketId', 'inningNumber'],
         }
       ],

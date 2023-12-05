@@ -90,6 +90,7 @@ app.get(
         scoreInning.currentInning = 1;
         scoreInning.startAt = new Date();
         scoreInning.gameType = "Cricket";
+        scoreInning.message = `Toss won by ${teamName} and choose first ${firstChoose}`;
         await scoreInningRepo.save(scoreInning);
       } else {
         newInning = {
@@ -104,7 +105,7 @@ app.get(
           bowler: "",
           bowlerType: "",
           teamName: matchDetails.firstBatTeam,
-          message: "",
+          message: `Toss won by ${teamName} and choose first ${firstChoose}`,
           lastOver: "",
         };
         newInning.inningNumber = 1;

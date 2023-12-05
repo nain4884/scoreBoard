@@ -83,7 +83,7 @@
             <select class="form-control" id="overBall" required>
               <option value="">Select no of ball in an over </option>
               <option value="5" <%= matchData?.overType === '5' ? 'selected' : '' %>>5 over ball</option>
-              <option value="6" <%= matchData?.overType === '6' ? 'selected' : '' %>>6 over ball</option>
+              <option value="6" <%= matchData?.overType ? matchData?.overType === '6' ? 'selected' : '' : 'selected' %>>6 over ball</option>
             </select>
 
             <div class="invalid-feedback">Please select the over ball.</div>
@@ -96,7 +96,7 @@
             <label for="noBall">No Ball Run</label>
             <select class="form-control" id="noBall" required>
               <option value="">Select no ball</option>
-              <option value="1" <%= matchData?.noBallRun === '1' ? 'selected' : '' %>>1</option>
+              <option value="1" <%= matchData?.noBallRun ? matchData?.noBallRun === '1' ? 'selected' : '' : 'selected' %>>1</option>
               <option value="2" <%= matchData?.noBallRun === '2' ? 'selected' : '' %>>2</option>
             </select>
 
